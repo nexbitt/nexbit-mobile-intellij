@@ -1,0 +1,13 @@
+package com.example.nexbitmobile.model
+
+data class Usuario(
+    val id_usuario: Int,
+    val rol_id: Int,
+    val nombre: String,
+    val email: String,
+    val tipo_documento: String?,
+    val numero_documento: String?,
+    val telefono: String?,
+    val direccion: String?,
+    val activo: Boolean
+)
