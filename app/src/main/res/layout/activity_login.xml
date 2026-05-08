@@ -1,42 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="16dp"
-              android:gravity="center">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
 
-    <EditText
+    <!-- Logo/Icon Placeholder -->
+    <View
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@color/primary"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nexbit"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Accede a tu cuenta"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp" />
+
+    <!-- Login Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Correo Electrónico"
+            android:textColor="@color/text_main"
+            android:textStyle="bold" />
+
+        <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Correo electrónico"
-            android:inputType="textEmailAddress"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp" />
+            android:background="@drawable/bg_input"
+            android:hint="Ej: admin@remate.com"
+            android:inputType="textEmailAddress"
+            android:padding="12dp" />
 
-    <EditText
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contraseña"
+            android:textColor="@color/text_main"
+            android:textStyle="bold" />
+
+        <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Contraseña"
-            android:inputType="textPassword"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp" />
+            android:background="@drawable/bg_input"
+            android:hint="***"
+            android:inputType="textPassword"
+            android:padding="12dp" />
 
-    <Button
+        <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Iniciar Sesión"/>
+            android:layout_height="50dp"
+            android:backgroundTint="@color/primary"
+            android:text="Ingresar"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <TextView
-            android:id="@+id/tvMessage"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/tvToRegister"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="#55FF0000"/>
+            android:gravity="center"
+            android:text="Crear cuenta nueva"
+            android:textColor="@color/primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textColor="@color/error_text" />
+
+    </LinearLayout>
 
 </LinearLayout>

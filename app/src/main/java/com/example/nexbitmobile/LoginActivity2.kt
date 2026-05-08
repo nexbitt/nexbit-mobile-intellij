@@ -33,8 +33,8 @@ class LoginActivity2 : AppCompatActivity() {
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
 
-                // Usa getInstance() sin context para login (no necesita token aún)
-                val api = ApiClient.getInstance().create(ApiService::class.java)
+                // Usa instance para login
+                val api = ApiClient.instance
                 val request = LoginRequest(email, password)
 
                 api.login(request).enqueue(object : Callback<LoginResponse> {

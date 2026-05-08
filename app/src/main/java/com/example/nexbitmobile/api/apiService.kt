@@ -2,34 +2,41 @@ package com.example.nexbitmobile.api
 
 import retrofit2.Call
 import retrofit2.http.*
-import com.example.nexbitmobile.model.LoginRequest
-import com.example.nexbitmobile.model.LoginResponse
-import com.example.nexbitmobile.model.Producto
-import com.example.nexbitmobile.model.Usuario
+import com.example.nexbitmobile.model.*
 
+/**
+ * Interfaz Retrofit que mapea los endpoints del backend Node.js.
+ *
+ * Base URL:  http://10.0.2.2:3000/api/
+ * Autenticación: JWT via header "Authorization: Bearer <token>"
+ */
 interface ApiService {
 
-    // ─── Autenticación ───────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── AUTENTICACIÓN Y USUARIOS ─────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    /** POST /api/usuarios/login — Login público */
     @POST("usuarios/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
-    @POST("usuarios/logout")
-    fun logout(): Call<Map<String, String>>
-
-    // ─── Usuarios ────────────────────────────────────────────────────
+    /** GET /api/usuarios/me — Datos del usuario autenticado (requiere token) */
     @GET("usuarios/me")
     fun getMe(): Call<Usuario>
 
+    /** GET /api/usuarios — Listar todos los usuarios (protegida) */
     @GET("usuarios")
     fun getUsuarios(): Call<List<Usuario>>
 
-    // ─── Productos ───────────────────────────────────────────────────
-    @GET("productos/publico")
-    fun getProductosPublicos(): Call<List<Producto>>
+    /** GET /api/usuarios/{id} — Obtener un usuario por ID (protegida) */
+    @GET("usuarios/{id}")
+    fun getUsuario(@Path("id") id: Int): Call<Usuario>
 
-    @GET("productos")
-    fun getProductos(): Call<List<Producto>>
+    /** POST /api/usuarios — Crear un nuevo usuario (público / protegida) */
+    @POST("usuarios")
+    fun createUsuario(@Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
 
-    @GET("productos/{id}")
-    fun getProducto(@Path("id") id: Int): Call<Producto>
+    // Nota: El resto de endpoints (productos, carrito, pedidos, etc.) fueron 
+    // comentados o eliminados temporalmente para centrarse en el inicio de sesión
+    // y resolver los errores de los modelos eliminados.
 }

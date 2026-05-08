@@ -1,50 +1,25 @@
 package com.example.nexbitmobile.api
 
-import android.content.Context
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object ApiClient {
-
-    // 10.0.2.2 es el alias del localhost de tu PC desde el emulador Android
     private const val BASE_URL = "http://10.0.2.2:3000/api/"
 
-    private var retrofit: Retrofit? = null
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
 
-    /**
-     * Retorna una instancia de Retrofit.
-     * Si se pasa un Context, se inyecta automáticamente el token JWT
-     * en el header Authorization de cada petición.
-     */
-    fun getInstance(context: Context? = null): Retrofit {
-        if (retrofit == null || context != null) {
-            val clientBuilder = OkHttpClient.Builder()
+    val instance: ApiService by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
 
-            // Interceptor para inyectar el token JWT en las peticiones protegidas
-            if (context != null) {
-                clientBuilder.addInterceptor(Interceptor { chain ->
-                    val prefs = context.getSharedPreferences("app", Context.MODE_PRIVATE)
-                    val token = prefs.getString("token", null)
-
-                    val request = if (token != null) {
-                        chain.request().newBuilder()
-                            .addHeader("Authorization", "Bearer $token")
-                            .build()
-                    } else {
-                        chain.request()
-                    }
-                    chain.proceed(request)
-                })
-            }
-
-            retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .client(clientBuilder.build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-        }
-        return retrofit!!
+        retrofit.create(ApiService::class.java)
     }
 }

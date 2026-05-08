@@ -5,9 +5,10 @@ data class Usuario(
     val rol_id: Int,
     val nombre: String,
     val email: String,
-    val tipo_documento: String?,
-    val numero_documento: String?,
-    val telefono: String?,
-    val direccion: String?,
-    val activo: Boolean
+    val tipo_documento: String? = null,
+    val numero_documento: String? = null,
+    val telefono: String? = null,
+    val direccion: String? = null,
+    val activo: Boolean = true,
+    val rol_nombre: String? = null
 )

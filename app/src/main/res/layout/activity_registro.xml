@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear Cuenta"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <EditText
+            android:id="@+id/etNombre"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Nombre completo *"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Correo electrónico *"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Contraseña *"
+            android:inputType="textPassword"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etTipoDocumento"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Tipo Documento (CC, CE, NIT)"
+            android:inputType="text"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etNumeroDocumento"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Número de Documento"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etTelefono"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Teléfono"
+            android:inputType="phone"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etDireccion"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Dirección"
+            android:inputType="textPostalAddress"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Registrarse"
+            android:backgroundTint="#0000FF"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/tvToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Ya tienes cuenta? Inicia sesión aquí"
+            android:textColor="#0000FF"
+            android:layout_marginTop="16dp"
+            android:padding="8dp" />
+
+    </LinearLayout>
+</ScrollView>
