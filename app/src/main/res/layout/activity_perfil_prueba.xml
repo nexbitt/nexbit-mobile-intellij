@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F1F5F9">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- HEADER GRADIENTE -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_header_gradient"
+            android:padding="24dp"
+            android:paddingTop="36dp"
+            android:paddingBottom="28dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚙"
+                android:textSize="36sp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gestión de Usuarios"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Panel de administración CRUD"
+                android:textSize="13sp"
+                android:textColor="#BFDBFE"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- CARD: BÚSQUEDA Y ACCIONES RÁPIDAS -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_elevated"
+                android:padding="18dp"
+                android:layout_marginBottom="12dp"
+                android:elevation="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buscar Usuario"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <EditText
+                        android:id="@+id/etCrudId"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_input_focused"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:hint="ID del usuario"
+                        android:textSize="15sp"
+                        android:inputType="number"
+                        android:layout_marginEnd="10dp"/>
+
+                    <Button
+                        android:id="@+id/btnCrudSearch"
+                        android:layout_width="110dp"
+                        android:layout_height="48dp"
+                        android:text="🔍 Buscar"
+                        android:background="@drawable/bg_btn_success"
+                        android:textColor="@color/white"
+                        android:textAllCaps="false"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+
+                <!-- Acciones rápidas -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+
+                    <Button
+                        android:id="@+id/btnCrudEdit"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:text="✏️ Actualizar"
+                        android:background="@drawable/bg_btn_warning"
+                        android:textColor="@color/white"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:layout_marginEnd="6dp"/>
+
+                    <Button
+                        android:id="@+id/btnCrudDelete"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:text="🗑️ Eliminar"
+                        android:background="@drawable/bg_btn_danger"
+                        android:textColor="@color/white"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:layout_marginStart="6dp"/>
+                </LinearLayout>
+
+                <!-- Status de resultado -->
+                <TextView
+                    android:id="@+id/tvCrudStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <!-- CARD: FORMULARIO DE DATOS -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_elevated"
+                android:padding="18dp"
+                android:elevation="6dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Formulario de Usuario"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Nombre -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre Completo *"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/etCrudName"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input_focused"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:hint="Ej: Juan Pérez"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Email -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Correo Electrónico *"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/etCrudEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input_focused"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:hint="correo@ejemplo.com"
+                    android:inputType="textEmailAddress"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Password -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Contraseña * (solo al crear)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/etCrudPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input_focused"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:hint="Mínimo 6 caracteres"
+                    android:inputType="textPassword"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Tipo Doc + Numero Doc -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="6dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tipo Doc."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            android:layout_marginBottom="4dp"/>
+                        <EditText
+                            android:id="@+id/etCrudDocType"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_input_focused"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:textSize="15sp"
+                            android:hint="CC, NIT"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.5"
+                        android:orientation="vertical"
+                        android:layout_marginStart="6dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Número Doc."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            android:layout_marginBottom="4dp"/>
+                        <EditText
+                            android:id="@+id/etCrudDocNum"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_input_focused"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:inputType="number"
+                            android:textSize="15sp"
+                            android:hint="12345678"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Teléfono -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Teléfono"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/etCrudPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input_focused"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:hint="300 123 4567"
+                    android:inputType="phone"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Dirección -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dirección"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="4dp"/>
+                <EditText
+                    android:id="@+id/etCrudAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_input_focused"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:hint="Calle 123 #45-67"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="20dp"/>
+
+                <!-- Botón crear -->
+                <Button
+                    android:id="@+id/btnCrudSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:text="➕ Crear Nuevo Usuario"
+                    android:background="@drawable/bg_btn_primary"
+                    android:textColor="@color/white"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"/>
+
+                <!-- Botón limpiar -->
+                <Button
+                    android:id="@+id/btnCrudClear"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:text="Limpiar Formulario"
+                    android:textColor="@color/text_secondary"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:layout_marginTop="8dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            </LinearLayout>
+
+            <!-- Botón volver -->
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Volver al Inicio"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/primary"
+                android:textAllCaps="false"
+                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

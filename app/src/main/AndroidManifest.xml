@@ -30,6 +30,10 @@
         <activity
             android:name=".ui.PerfilActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.PerfilPruebaActivity"
+            android:exported="false" />
         
         <activity
             android:name=".ui.ClientesActivity"

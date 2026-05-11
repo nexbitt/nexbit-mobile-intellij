@@ -8,6 +8,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.nexbitmobile.ui.LoginActivity
 import com.example.nexbitmobile.ui.PerfilActivity
+import com.example.nexbitmobile.ui.PerfilPruebaActivity
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +34,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_perfil -> {
                     startActivity(Intent(this, PerfilActivity::class.java))
+                }
+                R.id.nav_perfil_prueba -> {
+                    startActivity(Intent(this, PerfilPruebaActivity::class.java))
                 }
                 R.id.nav_logout -> {
                     // Cerrar sesión

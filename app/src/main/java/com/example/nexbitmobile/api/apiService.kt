@@ -3,6 +3,16 @@ package com.example.nexbitmobile.api
 import retrofit2.Call
 import retrofit2.http.*
 import com.example.nexbitmobile.model.*
+import retrofit2.http.Body
+import retrofit2.http.POST
+import com.example.nexbitmobile.model.LoginResponse
+import com.example.nexbitmobile.model.LoginRequest
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Path
+import retrofit2.http.PUT
+import retrofit2.http.DELETE
+
 
 /**
  * Interfaz Retrofit que mapea los endpoints del backend Node.js.
@@ -36,7 +46,11 @@ interface ApiService {
     @POST("usuarios")
     fun createUsuario(@Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
 
-    // Nota: El resto de endpoints (productos, carrito, pedidos, etc.) fueron 
-    // comentados o eliminados temporalmente para centrarse en el inicio de sesión
-    // y resolver los errores de los modelos eliminados.
+    /** PUT /api/usuarios/{id} — Actualizar un usuario (protegida) */
+    @PUT("usuarios/{id}")
+    fun updateUsuario(@Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
+
+    /** DELETE /api/usuarios/{id} — Eliminar un usuario (protegida) */
+    @DELETE("usuarios/{id}")
+    fun deleteUsuario(@Path("id") id: Int): Call<Void>
 }

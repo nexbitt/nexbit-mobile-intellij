@@ -54,8 +54,13 @@ class LoginActivity2 : AppCompatActivity() {
                             prefs.edit()
                                 .putString("token", token)
                                 .putString("userName", userName)
+                                .putString("userEmail", body?.user?.email ?: "")
                                 .putInt("userId", body?.user?.id_usuario ?: 0)
                                 .putInt("rolId", body?.user?.rol_id ?: 0)
+                                .putString("userDocType", body?.user?.tipo_documento)
+                                .putString("userDocNum", body?.user?.numero_documento)
+                                .putString("userPhone", body?.user?.telefono)
+                                .putString("userAddress", body?.user?.direccion)
                                 .apply()
 
                             message.setTextColor(Color.GREEN)

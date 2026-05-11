@@ -47,8 +47,14 @@ class LoginActivity : AppCompatActivity() {
                         // Guardar datos en SharedPreferences
                         val prefs = getSharedPreferences("app", MODE_PRIVATE)
                         prefs.edit()
+                            .putInt("userId", loginResponse?.user?.id_usuario ?: 0)
+                            .putInt("rolId", loginResponse?.user?.rol_id ?: 0)
                             .putString("userName", loginResponse?.user?.nombre)
                             .putString("userEmail", loginResponse?.user?.email)
+                            .putString("userDocType", loginResponse?.user?.tipo_documento)
+                            .putString("userDocNum", loginResponse?.user?.numero_documento)
+                            .putString("userPhone", loginResponse?.user?.telefono)
+                            .putString("userAddress", loginResponse?.user?.direccion)
                             .apply()
 
                         // Redirigir al Inicio (Bienvenida) al iniciar sesión

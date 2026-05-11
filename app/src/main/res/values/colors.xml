@@ -13,4 +13,6 @@
     <color name="input_border">#e2e8f0</color>
     <color name="error_bg">#fee2e2</color>
     <color name="error_text">#b91c1c</color>
+    <color name="success">#10B981</color>
+    <color name="warning">#F59E0B</color>
 </resources>

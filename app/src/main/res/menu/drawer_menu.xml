@@ -7,6 +7,9 @@
         <item
             android:id="@+id/nav_perfil"
             android:title="Mi Perfil" />
+        <item
+            android:id="@+id/nav_perfil_prueba"
+            android:title="Perfil Prueba (CRUD)" />
     </group>
     <item android:title="Cuenta">
         <menu>
