@@ -1,0 +1,33 @@
+# IDE / Local configurations
+.idea/
+.gradle/
+*.iml
+.DS_Store
+local.properties
+workspace.xml
+tasks.xml
+
+# Build folders
+build/
+app/build/
+*/build/
+
+# Android / Mobile specific
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+
+# Keystores
+*.jks
+*.keystore
+keystore.properties
+
+# Google Services / Secrets
+google-services.json
