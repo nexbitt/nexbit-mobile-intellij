@@ -10,6 +10,9 @@
         <item
             android:id="@+id/nav_perfil_prueba"
             android:title="Perfil Prueba (CRUD)" />
+        <item
+            android:id="@+id/nav_proveedor"
+            android:title="Gestión Proveedores" />
     </group>
     <item android:title="Cuenta">
         <menu>

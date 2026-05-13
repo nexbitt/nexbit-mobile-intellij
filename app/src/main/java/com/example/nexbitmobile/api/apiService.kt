@@ -53,4 +53,43 @@ interface ApiService {
     /** DELETE /api/usuarios/{id} — Eliminar un usuario (protegida) */
     @DELETE("usuarios/{id}")
     fun deleteUsuario(@Path("id") id: Int): Call<Void>
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── PROVEEDORES (Equivalente a Clientes del Profesor) ────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    // CREAR PROVEEDOR
+    @POST("proveedores")
+    fun createProveedor(
+        @Header("Authorization") token: String,
+        @Body proveedor: Proveedor
+    ): Call<ProveedorResponse>
+
+    // LISTAR PROVEEDORES
+    @GET("proveedores")
+    fun getProveedores(
+        @Header("Authorization") token: String
+    ): Call<List<Proveedor>>
+
+    // OBTENER UNO
+    @GET("proveedores/{id}")
+    fun getProveedor(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Call<Proveedor>
+
+    // ACTUALIZAR
+    @PUT("proveedores/{id}")
+    fun updateProveedor(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Body proveedor: Proveedor
+    ): Call<Void>
+
+    // ELIMINAR
+    @DELETE("proveedores/{id}")
+    fun deleteProveedor(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Call<Void>
 }

@@ -55,6 +55,7 @@ class LoginActivity : AppCompatActivity() {
                             .putString("userDocNum", loginResponse?.user?.numero_documento)
                             .putString("userPhone", loginResponse?.user?.telefono)
                             .putString("userAddress", loginResponse?.user?.direccion)
+                            .putString("token", loginResponse?.token)
                             .apply()
 
                         // Redirigir al Inicio (Bienvenida) al iniciar sesión
