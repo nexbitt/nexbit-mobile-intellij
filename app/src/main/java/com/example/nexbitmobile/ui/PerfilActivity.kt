@@ -55,12 +55,14 @@ class PerfilActivity : AppCompatActivity() {
             tvAvatarInitial.text = tempName.first().uppercase()
         }
 
+        val token = "Bearer ${prefs.getString("token", "")}"
+
         // ─── CARGAR DATOS REALES DESDE EL BACKEND ───
         if (currentUserId != 0) {
             tvLoadingStatus.visibility = View.VISIBLE
             tvLoadingStatus.text = "Sincronizando con el servidor..."
 
-            ApiClient.instance.getUsuario(currentUserId).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getUsuario(token, currentUserId).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -134,7 +136,7 @@ class PerfilActivity : AppCompatActivity() {
             )
 
             if (currentUserId != 0) {
-                ApiClient.instance.updateUsuario(currentUserId, req).enqueue(object : Callback<Usuario> {
+                ApiClient.instance.updateUsuario(token, currentUserId, req).enqueue(object : Callback<Usuario> {
                     override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                         if (response.isSuccessful) {
                             val u = response.body()
