@@ -7,13 +7,13 @@ Aplicación móvil desarrollada de forma reproducible y colaborativa. Este repos
 *   **Lenguaje:** Kotlin 2.0.21
 *   **Android Gradle Plugin (AGP):** 8.12.0
 *   **Gradle:** 8.13 (Vía Wrapper)
-*   **Java Development Kit (JDK):** OpenJDK 17
-
+*   **Java Development Kit (JDK):** OpenJDK 21 (Corretto 21)
+*   **Android SDK:** 35 (API Level)
 ## 📋 Prerrequisitos
 
 Antes de iniciar, asegúrate de tener instalado:
 1.  **Android Studio** (Koala o superior recomendado).
-2.  **JDK 17** (Preferiblemente gestionado por el propio IDE o instalado globalmente).
+2.  **JDK 21** (Preferiblemente gestionado por el propio IDE o instalado globalmente).
 3.  **Git** para el control de versiones.
 
 ## 🚀 Primeros Pasos (Setup del Entorno)
@@ -69,7 +69,7 @@ Siempre utiliza el Gradle Wrapper incluido (`gradlew`) para garantizar que usas 
 ## 🔧 Solución de Problemas (Troubleshooting)
 
 *   **Error: "Unsupported class file major version..." / "Java compiler version mismatch"**
-    *   *Solución:* Asegúrate de que estás compilando con **JDK 17**. En Android Studio, ve a `File > Settings` (o `Android Studio > Settings` en macOS) `> Build, Execution, Deployment > Build Tools > Gradle` y asegúrate de que el **Gradle JDK** está configurado en la versión 17.
+    *   *Solución:* Asegúrate de que estás compilando con **JDK 21**. En Android Studio, ve a `File > Settings` (o `Android Studio > Settings` en macOS) `> Build, Execution, Deployment > Build Tools > Gradle` y asegúrate de que el **Gradle JDK** está configurado en la versión 21.
 *   **Error: "SDK location not found. Define location with an ANDROID_SDK_ROOT..."**
     *   *Solución:* Te falta el archivo `local.properties` con la ruta `sdk.dir` configurada o tu variable de entorno `ANDROID_HOME` no está definida. Revisa el paso 2 de Primeros Pasos.
 *   **Cambios en `local.properties` aparecen en Git:**
