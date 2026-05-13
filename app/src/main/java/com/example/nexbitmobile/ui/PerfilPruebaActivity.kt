@@ -1,5 +1,6 @@
 package com.example.nexbitmobile.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -26,6 +27,15 @@ class PerfilPruebaActivity : AppCompatActivity() {
     private lateinit var etPhone: EditText
     private lateinit var etAddress: EditText
     private lateinit var tvStatus: TextView
+
+    /**
+     * Obtiene el token JWT guardado en SharedPreferences y lo formatea como Bearer.
+     */
+    private fun getToken(): String {
+        val prefs = getSharedPreferences("app", Context.MODE_PRIVATE)
+        val savedToken = prefs.getString("token", "") ?: ""
+        return "Bearer $savedToken"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +90,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Creando usuario...", false)
 
-            ApiClient.instance.createUsuario(req).enqueue(object : Callback<UsuarioCreateResponse> {
+            ApiClient.instance.createUsuario(getToken(), req).enqueue(object : Callback<UsuarioCreateResponse> {
                 override fun onResponse(call: Call<UsuarioCreateResponse>, response: Response<UsuarioCreateResponse>) {
                     if (response.isSuccessful) {
                         val body = response.body()
@@ -91,6 +101,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
                     } else {
                         val errorMsg = when (response.code()) {
                             400 -> "Datos inválidos o faltantes"
+                            401 -> "Token inválido. Inicie sesión nuevamente"
                             409 -> "El correo ya está registrado"
                             else -> "Error del servidor (${response.code()})"
                         }
@@ -121,7 +132,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Buscando usuario #$id...", false)
 
-            ApiClient.instance.getUsuario(id).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getUsuario(getToken(), id).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -139,6 +150,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
                         }
                     } else {
                         when (response.code()) {
+                            401 -> showStatus("✗ Token inválido. Inicie sesión nuevamente", true)
                             404 -> showStatus("✗ No se encontró usuario con ID #$id", true)
                             else -> showStatus("✗ Error al buscar (${response.code()})", true)
                         }
@@ -188,7 +200,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Actualizando usuario #$id...", false)
 
-            ApiClient.instance.updateUsuario(id, req).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.updateUsuario(getToken(), id, req).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -208,6 +220,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
                     } else {
                         val errorMsg = when (response.code()) {
                             400 -> "Datos inválidos"
+                            401 -> "Token inválido. Inicie sesión nuevamente"
                             404 -> "Usuario no encontrado"
                             409 -> "El correo ya está en uso"
                             else -> "Error del servidor (${response.code()})"
@@ -244,7 +257,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
                 .setPositiveButton("Eliminar") { _, _ ->
                     showStatus("Eliminando usuario #$id...", false)
 
-                    ApiClient.instance.deleteUsuario(id).enqueue(object : Callback<Void> {
+                    ApiClient.instance.deleteUsuario(getToken(), id).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {
                                 clearForm()
@@ -252,6 +265,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
                                 Toast.makeText(this@PerfilPruebaActivity, "¡Eliminado correctamente!", Toast.LENGTH_SHORT).show()
                             } else {
                                 val errorMsg = when (response.code()) {
+                                    401 -> "Token inválido. Inicie sesión nuevamente"
                                     404 -> "Usuario no encontrado"
                                     else -> "Error al eliminar (${response.code()})"
                                 }

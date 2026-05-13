@@ -32,27 +32,27 @@ interface ApiService {
 
     /** GET /api/usuarios/me — Datos del usuario autenticado (requiere token) */
     @GET("usuarios/me")
-    fun getMe(): Call<Usuario>
+    fun getMe(@Header("Authorization") token: String): Call<Usuario>
 
     /** GET /api/usuarios — Listar todos los usuarios (protegida) */
     @GET("usuarios")
-    fun getUsuarios(): Call<List<Usuario>>
+    fun getUsuarios(@Header("Authorization") token: String): Call<List<Usuario>>
 
     /** GET /api/usuarios/{id} — Obtener un usuario por ID (protegida) */
     @GET("usuarios/{id}")
-    fun getUsuario(@Path("id") id: Int): Call<Usuario>
+    fun getUsuario(@Header("Authorization") token: String, @Path("id") id: Int): Call<Usuario>
 
-    /** POST /api/usuarios — Crear un nuevo usuario (público / protegida) */
+    /** POST /api/usuarios — Crear un nuevo usuario (protegida) */
     @POST("usuarios")
-    fun createUsuario(@Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
+    fun createUsuario(@Header("Authorization") token: String, @Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
 
     /** PUT /api/usuarios/{id} — Actualizar un usuario (protegida) */
     @PUT("usuarios/{id}")
-    fun updateUsuario(@Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
+    fun updateUsuario(@Header("Authorization") token: String, @Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
 
     /** DELETE /api/usuarios/{id} — Eliminar un usuario (protegida) */
     @DELETE("usuarios/{id}")
-    fun deleteUsuario(@Path("id") id: Int): Call<Void>
+    fun deleteUsuario(@Header("Authorization") token: String, @Path("id") id: Int): Call<Void>
 
     // ═══════════════════════════════════════════════════════════════════
     // ─── PROVEEDORES (Equivalente a Clientes del Profesor) ────────────
