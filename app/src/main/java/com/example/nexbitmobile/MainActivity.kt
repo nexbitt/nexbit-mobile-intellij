@@ -6,6 +6,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.nexbitmobile.ui.CarritoActivity
+import com.example.nexbitmobile.ui.CatalogoActivity
 import com.example.nexbitmobile.ui.LoginActivity
 import com.example.nexbitmobile.ui.PerfilActivity
 import com.example.nexbitmobile.ui.PerfilPruebaActivity
@@ -33,6 +35,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_inicio -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
+                R.id.nav_catalogo -> {
+                    startActivity(Intent(this, CatalogoActivity::class.java))
+                }
+                R.id.nav_carrito -> {
+                    startActivity(Intent(this, CarritoActivity::class.java))
+                }
                 R.id.nav_perfil -> {
                     startActivity(Intent(this, PerfilActivity::class.java))
                 }
@@ -43,8 +51,12 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, ProveedorActivity::class.java))
                 }
                 R.id.nav_logout -> {
-                    // Cerrar sesión
-                    startActivity(Intent(this, LoginActivity::class.java))
+                    // Clear session and go to login
+                    val prefs = getSharedPreferences("app", MODE_PRIVATE)
+                    prefs.edit().clear().apply()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
                     finish()
                 }
             }

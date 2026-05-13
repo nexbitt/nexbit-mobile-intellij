@@ -5,6 +5,12 @@
             android:id="@+id/nav_inicio"
             android:title="Inicio" />
         <item
+            android:id="@+id/nav_catalogo"
+            android:title="Catálogo" />
+        <item
+            android:id="@+id/nav_carrito"
+            android:title="Mi Carrito" />
+        <item
             android:id="@+id/nav_perfil"
             android:title="Mi Perfil" />
         <item

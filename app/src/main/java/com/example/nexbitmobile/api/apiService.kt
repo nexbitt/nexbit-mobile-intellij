@@ -3,16 +3,6 @@ package com.example.nexbitmobile.api
 import retrofit2.Call
 import retrofit2.http.*
 import com.example.nexbitmobile.model.*
-import retrofit2.http.Body
-import retrofit2.http.POST
-import com.example.nexbitmobile.model.LoginResponse
-import com.example.nexbitmobile.model.LoginRequest
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
-import retrofit2.http.PUT
-import retrofit2.http.DELETE
-
 
 /**
  * Interfaz Retrofit que mapea los endpoints del backend Node.js.
@@ -92,4 +82,76 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("id") id: Int
     ): Call<Void>
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── CATÁLOGO DE PRODUCTOS ────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    /** GET /api/productos/publico — Catálogo público (sin token) */
+    @GET("productos/publico")
+    fun getProductosPublico(): Call<List<Producto>>
+
+    /** GET /api/productos — Todos los productos (admin, con token) */
+    @GET("productos")
+    fun getProductos(
+        @Header("Authorization") token: String
+    ): Call<List<Producto>>
+
+    /** GET /api/productos/{id} — Detalle de producto (con token) */
+    @GET("productos/{id}")
+    fun getProducto(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Call<Producto>
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── CATEGORÍAS ───────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    /** GET /api/categorias — Listar categorías (con token) */
+    @GET("categorias")
+    fun getCategorias(
+        @Header("Authorization") token: String
+    ): Call<List<Categoria>>
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── CARRITO DE COMPRAS ───────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    /** GET /api/carrito?usuario_id={id} — Obtener carrito del usuario */
+    @GET("carrito")
+    fun getCarrito(
+        @Header("Authorization") token: String,
+        @Query("usuario_id") usuarioId: Int
+    ): Call<List<CarritoItem>>
+
+    /** POST /api/carrito/add — Agregar item al carrito */
+    @POST("carrito/add")
+    fun addToCarrito(
+        @Header("Authorization") token: String,
+        @Body request: CarritoAddRequest
+    ): Call<List<CarritoItem>>
+
+    /** PUT /api/carrito/update/{id_carrito} — Actualizar cantidad */
+    @PUT("carrito/update/{id_carrito}")
+    fun updateCarritoItem(
+        @Header("Authorization") token: String,
+        @Path("id_carrito") idCarrito: Int,
+        @Body request: CarritoUpdateRequest
+    ): Call<List<CarritoItem>>
+
+    /** DELETE /api/carrito/remove/{producto_id}?usuario_id={id} — Eliminar item */
+    @DELETE("carrito/remove/{producto_id}")
+    fun removeFromCarrito(
+        @Header("Authorization") token: String,
+        @Path("producto_id") productoId: Int,
+        @Query("usuario_id") usuarioId: Int
+    ): Call<List<CarritoItem>>
+
+    /** POST /api/carrito/clear — Vaciar carrito */
+    @POST("carrito/clear")
+    fun clearCarrito(
+        @Header("Authorization") token: String,
+        @Body request: CarritoClearRequest
+    ): Call<List<CarritoItem>>
 }
