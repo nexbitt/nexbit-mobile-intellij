@@ -51,6 +51,14 @@
             android:name=".ui.ProveedorActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.CatalogoActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.CarritoActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
