@@ -9,6 +9,7 @@ object ApiClient {
     private const val BASE_URL = "http://10.0.2.2:3000/api/"
 
     private val client = OkHttpClient.Builder()
+        .addInterceptor(AuthInterceptor())
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .build()

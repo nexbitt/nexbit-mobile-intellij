@@ -19,6 +19,37 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val token = prefs.getString("token", null)
+        if (!token.isNullOrEmpty()) {
+            ApiClient.instance.getMe("").enqueue(object : Callback<com.example.nexbitmobile.model.Usuario> {
+                override fun onResponse(call: Call<com.example.nexbitmobile.model.Usuario>, response: Response<com.example.nexbitmobile.model.Usuario>) {
+                    if (response.isSuccessful) {
+                        val user = response.body()
+                        prefs.edit()
+                            .putInt("userId", user?.id_usuario ?: 0)
+                            .putInt("rolId", user?.rol_id ?: 0)
+                            .putString("userName", user?.nombre)
+                            .putString("userEmail", user?.email)
+                            .putString("userDocType", user?.tipo_documento)
+                            .putString("userDocNum", user?.numero_documento)
+                            .putString("userPhone", user?.telefono)
+                            .putString("userAddress", user?.direccion)
+                            .apply()
+                        
+                        val intent = Intent(this@LoginActivity, com.example.nexbitmobile.MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
+
+                override fun onFailure(call: Call<com.example.nexbitmobile.model.Usuario>, t: Throwable) {
+                    // Ignorar error de red y permitir login normal
+                }
+            })
+        }
+
         setContentView(R.layout.activity_login)
 
         val etEmail = findViewById<EditText>(R.id.etEmail)
