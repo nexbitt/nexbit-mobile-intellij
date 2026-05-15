@@ -6,7 +6,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.LoginRequest
@@ -19,11 +22,12 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val token = prefs.getString("token", null)
         if (!token.isNullOrEmpty()) {
-            ApiClient.instance.getMe("").enqueue(object : Callback<com.example.nexbitmobile.model.Usuario> {
+            ApiClient.instance.getMe().enqueue(object : Callback<com.example.nexbitmobile.model.Usuario> {
                 override fun onResponse(call: Call<com.example.nexbitmobile.model.Usuario>, response: Response<com.example.nexbitmobile.model.Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -51,6 +55,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_login)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)

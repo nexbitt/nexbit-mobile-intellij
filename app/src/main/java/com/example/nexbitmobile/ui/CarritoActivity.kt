@@ -4,8 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -33,7 +36,14 @@ class CarritoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_carrito)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         userId = prefs.getInt("userId", 0)
@@ -84,7 +94,7 @@ class CarritoActivity : AppCompatActivity() {
 
         progressBar.visibility = View.VISIBLE
 
-        ApiClient.instance.getCarrito("Bearer $token", userId).enqueue(object : Callback<List<CarritoItem>> {
+        ApiClient.instance.getCarrito(userId).enqueue(object : Callback<List<CarritoItem>> {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
@@ -136,7 +146,7 @@ class CarritoActivity : AppCompatActivity() {
             session_id = null
         )
 
-        ApiClient.instance.updateCarritoItem("Bearer $token", item.id_carrito, request)
+        ApiClient.instance.updateCarritoItem(item.id_carrito, request)
             .enqueue(object : Callback<List<CarritoItem>> {
                 override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                     if (response.isSuccessful) {
@@ -153,7 +163,7 @@ class CarritoActivity : AppCompatActivity() {
     }
 
     private fun removeItem(item: CarritoItem) {
-        ApiClient.instance.removeFromCarrito("Bearer $token", item.producto_id, userId)
+        ApiClient.instance.removeFromCarrito(item.producto_id, userId)
             .enqueue(object : Callback<List<CarritoItem>> {
                 override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                     if (response.isSuccessful) {
@@ -182,7 +192,7 @@ class CarritoActivity : AppCompatActivity() {
     private fun clearCart() {
         val request = CarritoClearRequest(usuario_id = userId, session_id = null)
 
-        ApiClient.instance.clearCarrito("Bearer $token", request).enqueue(object : Callback<List<CarritoItem>> {
+        ApiClient.instance.clearCarrito(request).enqueue(object : Callback<List<CarritoItem>> {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 if (response.isSuccessful) {
                     updateUI(emptyList())

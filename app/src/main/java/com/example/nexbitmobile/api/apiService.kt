@@ -20,29 +20,29 @@ interface ApiService {
     @POST("usuarios/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
-    /** GET /api/usuarios/me — Datos del usuario autenticado (requiere token) */
+    /** GET /api/usuarios/me — Datos del usuario autenticado */
     @GET("usuarios/me")
-    fun getMe(@Header("Authorization") token: String): Call<Usuario>
+    fun getMe(): Call<Usuario>
 
     /** GET /api/usuarios — Listar todos los usuarios (protegida) */
     @GET("usuarios")
-    fun getUsuarios(@Header("Authorization") token: String): Call<List<Usuario>>
+    fun getUsuarios(): Call<List<Usuario>>
 
     /** GET /api/usuarios/{id} — Obtener un usuario por ID (protegida) */
     @GET("usuarios/{id}")
-    fun getUsuario(@Header("Authorization") token: String, @Path("id") id: Int): Call<Usuario>
+    fun getUsuario(@Path("id") id: Int): Call<Usuario>
 
     /** POST /api/usuarios — Crear un nuevo usuario (protegida) */
     @POST("usuarios")
-    fun createUsuario(@Header("Authorization") token: String, @Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
+    fun createUsuario(@Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
 
     /** PUT /api/usuarios/{id} — Actualizar un usuario (protegida) */
     @PUT("usuarios/{id}")
-    fun updateUsuario(@Header("Authorization") token: String, @Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
+    fun updateUsuario(@Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
 
     /** DELETE /api/usuarios/{id} — Eliminar un usuario (protegida) */
     @DELETE("usuarios/{id}")
-    fun deleteUsuario(@Header("Authorization") token: String, @Path("id") id: Int): Call<Void>
+    fun deleteUsuario(@Path("id") id: Int): Call<Void>
 
     // ═══════════════════════════════════════════════════════════════════
     // ─── PROVEEDORES (Equivalente a Clientes del Profesor) ────────────
@@ -51,27 +51,22 @@ interface ApiService {
     // CREAR PROVEEDOR
     @POST("proveedores")
     fun createProveedor(
-        @Header("Authorization") token: String,
         @Body proveedor: Proveedor
     ): Call<ProveedorResponse>
 
     // LISTAR PROVEEDORES
     @GET("proveedores")
-    fun getProveedores(
-        @Header("Authorization") token: String
-    ): Call<List<Proveedor>>
+    fun getProveedores(): Call<List<Proveedor>>
 
     // OBTENER UNO
     @GET("proveedores/{id}")
     fun getProveedor(
-        @Header("Authorization") token: String,
         @Path("id") id: Int
     ): Call<Proveedor>
 
     // ACTUALIZAR
     @PUT("proveedores/{id}")
     fun updateProveedor(
-        @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Body proveedor: Proveedor
     ): Call<Void>
@@ -79,7 +74,6 @@ interface ApiService {
     // ELIMINAR
     @DELETE("proveedores/{id}")
     fun deleteProveedor(
-        @Header("Authorization") token: String,
         @Path("id") id: Int
     ): Call<Void>
 
@@ -91,28 +85,92 @@ interface ApiService {
     @GET("productos/publico")
     fun getProductosPublico(): Call<List<Producto>>
 
-    /** GET /api/productos — Todos los productos (admin, con token) */
+    /** GET /api/productos — Todos los productos (admin) */
     @GET("productos")
-    fun getProductos(
-        @Header("Authorization") token: String
-    ): Call<List<Producto>>
+    fun getProductos(): Call<List<Producto>>
 
-    /** GET /api/productos/{id} — Detalle de producto (con token) */
+    /** GET /api/productos/{id} — Detalle de producto */
     @GET("productos/{id}")
     fun getProducto(
-        @Header("Authorization") token: String,
         @Path("id") id: Int
     ): Call<Producto>
+
+    /** POST /api/productos — Crear producto con imagen (admin) */
+    @Multipart
+    @POST("productos")
+    fun createProducto(
+        @Part("categoria_id") categoriaId: okhttp3.RequestBody,
+        @Part("proveedor_id") proveedorId: okhttp3.RequestBody,
+        @Part("nombre") nombre: okhttp3.RequestBody,
+        @Part("descripcion") descripcion: okhttp3.RequestBody,
+        @Part("precio_compra") precioCompra: okhttp3.RequestBody,
+        @Part("precio_venta") precioVenta: okhttp3.RequestBody,
+        @Part("stock_actual") stockActual: okhttp3.RequestBody,
+        @Part("stock_minimo") stockMinimo: okhttp3.RequestBody,
+        @Part("activo") activo: okhttp3.RequestBody,
+        @Part imagen: okhttp3.MultipartBody.Part?
+    ): Call<Void>
+
+    /** PUT /api/productos/{id} — Actualizar producto con imagen (admin) */
+    @Multipart
+    @PUT("productos/{id}")
+    fun updateProducto(
+        @Path("id") id: Int,
+        @Part("categoria_id") categoriaId: okhttp3.RequestBody,
+        @Part("proveedor_id") proveedorId: okhttp3.RequestBody,
+        @Part("nombre") nombre: okhttp3.RequestBody,
+        @Part("descripcion") descripcion: okhttp3.RequestBody,
+        @Part("precio_compra") precioCompra: okhttp3.RequestBody,
+        @Part("precio_venta") precioVenta: okhttp3.RequestBody,
+        @Part("stock_actual") stockActual: okhttp3.RequestBody,
+        @Part("stock_minimo") stockMinimo: okhttp3.RequestBody,
+        @Part("activo") activo: okhttp3.RequestBody,
+        @Part imagen: okhttp3.MultipartBody.Part?,
+        @Part("imagen_url") imagenUrlActual: okhttp3.RequestBody?
+    ): Call<Void>
+
+    /** DELETE /api/productos/{id} — Eliminar producto (admin) */
+    @DELETE("productos/{id}")
+    fun deleteProducto(@Path("id") id: Int): Call<Void>
 
     // ═══════════════════════════════════════════════════════════════════
     // ─── CATEGORÍAS ───────────────────────────────────────────────────
     // ═══════════════════════════════════════════════════════════════════
 
-    /** GET /api/categorias — Listar categorías (con token) */
+    /** GET /api/categorias — Listar categorías */
     @GET("categorias")
-    fun getCategorias(
-        @Header("Authorization") token: String
-    ): Call<List<Categoria>>
+    fun getCategorias(): Call<List<Categoria>>
+
+    @POST("categorias")
+    fun createCategoria(@Body categoria: Categoria): Call<Void>
+
+    @PUT("categorias/{id}")
+    fun updateCategoria(@Path("id") id: Int, @Body categoria: Categoria): Call<Void>
+
+    @DELETE("categorias/{id}")
+    fun deleteCategoria(@Path("id") id: Int): Call<Void>
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── PEDIDOS ──────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    @GET("pedidos")
+    fun getPedidos(): Call<List<Pedido>>
+
+    @GET("pedidos/{id}/ticket")
+    fun getPedidoTicket(@Path("id") id: Int): Call<Pedido>
+
+    @POST("pedidos")
+    fun createPedido(@Body request: PedidoRequest): Call<Void>
+
+    @PUT("pedidos/{id}")
+    fun updatePedido(@Path("id") id: Int, @Body request: PedidoRequest): Call<Void>
+
+    @PUT("pedidos/{id}/cancelar")
+    fun cancelarPedido(@Path("id") id: Int): Call<Void>
+
+    @DELETE("pedidos/{id}")
+    fun deletePedido(@Path("id") id: Int): Call<Void>
 
     // ═══════════════════════════════════════════════════════════════════
     // ─── CARRITO DE COMPRAS ───────────────────────────────────────────
@@ -121,21 +179,18 @@ interface ApiService {
     /** GET /api/carrito?usuario_id={id} — Obtener carrito del usuario */
     @GET("carrito")
     fun getCarrito(
-        @Header("Authorization") token: String,
         @Query("usuario_id") usuarioId: Int
     ): Call<List<CarritoItem>>
 
     /** POST /api/carrito/add — Agregar item al carrito */
     @POST("carrito/add")
     fun addToCarrito(
-        @Header("Authorization") token: String,
         @Body request: CarritoAddRequest
     ): Call<List<CarritoItem>>
 
     /** PUT /api/carrito/update/{id_carrito} — Actualizar cantidad */
     @PUT("carrito/update/{id_carrito}")
     fun updateCarritoItem(
-        @Header("Authorization") token: String,
         @Path("id_carrito") idCarrito: Int,
         @Body request: CarritoUpdateRequest
     ): Call<List<CarritoItem>>
@@ -143,7 +198,6 @@ interface ApiService {
     /** DELETE /api/carrito/remove/{producto_id}?usuario_id={id} — Eliminar item */
     @DELETE("carrito/remove/{producto_id}")
     fun removeFromCarrito(
-        @Header("Authorization") token: String,
         @Path("producto_id") productoId: Int,
         @Query("usuario_id") usuarioId: Int
     ): Call<List<CarritoItem>>
@@ -151,7 +205,6 @@ interface ApiService {
     /** POST /api/carrito/clear — Vaciar carrito */
     @POST("carrito/clear")
     fun clearCarrito(
-        @Header("Authorization") token: String,
         @Body request: CarritoClearRequest
     ): Call<List<CarritoItem>>
 }

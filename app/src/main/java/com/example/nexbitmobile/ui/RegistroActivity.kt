@@ -6,7 +6,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.UsuarioCreateRequest
@@ -18,7 +21,14 @@ import retrofit2.Response
 class RegistroActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_registro)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val etNombre = findViewById<EditText>(R.id.etNombre)
         val etEmail = findViewById<EditText>(R.id.etEmail)
@@ -62,7 +72,7 @@ class RegistroActivity : AppCompatActivity() {
                 direccion = direccion
             )
 
-            ApiClient.instance.createUsuario("", request).enqueue(object : Callback<UsuarioCreateResponse> {
+            ApiClient.instance.createUsuario(request).enqueue(object : Callback<UsuarioCreateResponse> {
                 override fun onResponse(call: Call<UsuarioCreateResponse>, response: Response<UsuarioCreateResponse>) {
                     if (response.isSuccessful) {
                         Toast.makeText(this@RegistroActivity, "Registro exitoso. Ahora inicia sesión.", Toast.LENGTH_LONG).show()

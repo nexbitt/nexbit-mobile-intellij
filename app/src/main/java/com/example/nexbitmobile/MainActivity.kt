@@ -3,14 +3,18 @@ package com.example.nexbitmobile
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.example.nexbitmobile.ui.CarritoActivity
-import com.example.nexbitmobile.ui.CatalogoActivity
 import com.example.nexbitmobile.ui.LoginActivity
 import com.example.nexbitmobile.ui.PerfilActivity
-import com.example.nexbitmobile.ui.PerfilPruebaActivity
+import com.example.nexbitmobile.ui.ProductosAdminActivity
+import com.example.nexbitmobile.ui.CategoriasAdminActivity
+import com.example.nexbitmobile.ui.UsuariosAdminActivity
+import com.example.nexbitmobile.ui.PedidosAdminActivity
 import com.example.nexbitmobile.ui.ProveedorActivity
 import com.google.android.material.navigation.NavigationView
 
@@ -20,7 +24,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.drawer_layout)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         drawerLayout = findViewById(R.id.drawer_layout)
         val btnOpenMenu = findViewById<Button>(R.id.btnOpenMenu)
@@ -35,17 +46,20 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_inicio -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
-                R.id.nav_catalogo -> {
-                    startActivity(Intent(this, CatalogoActivity::class.java))
+                R.id.nav_productos -> {
+                    startActivity(Intent(this, ProductosAdminActivity::class.java))
                 }
-                R.id.nav_carrito -> {
-                    startActivity(Intent(this, CarritoActivity::class.java))
+                R.id.nav_categorias -> {
+                    startActivity(Intent(this, CategoriasAdminActivity::class.java))
+                }
+                R.id.nav_usuarios -> {
+                    startActivity(Intent(this, UsuariosAdminActivity::class.java))
+                }
+                R.id.nav_pedidos -> {
+                    startActivity(Intent(this, PedidosAdminActivity::class.java))
                 }
                 R.id.nav_perfil -> {
                     startActivity(Intent(this, PerfilActivity::class.java))
-                }
-                R.id.nav_perfil_prueba -> {
-                    startActivity(Intent(this, PerfilPruebaActivity::class.java))
                 }
                 R.id.nav_proveedor -> {
                     startActivity(Intent(this, ProveedorActivity::class.java))

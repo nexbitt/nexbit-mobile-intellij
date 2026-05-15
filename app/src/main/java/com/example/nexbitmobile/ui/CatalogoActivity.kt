@@ -6,7 +6,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -33,7 +36,14 @@ class CatalogoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_catalogo)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         // Bind views
         rvProductos = findViewById(R.id.rvProductos)
@@ -107,7 +117,7 @@ class CatalogoActivity : AppCompatActivity() {
         val token = prefs.getString("token", "") ?: ""
         if (token.isEmpty()) return
 
-        ApiClient.instance.getCategorias("Bearer $token").enqueue(object : Callback<List<Categoria>> {
+        ApiClient.instance.getCategorias().enqueue(object : Callback<List<Categoria>> {
             override fun onResponse(call: Call<List<Categoria>>, response: Response<List<Categoria>>) {
                 if (response.isSuccessful) {
                     categorias = response.body() ?: emptyList()
@@ -200,7 +210,7 @@ class CatalogoActivity : AppCompatActivity() {
             cantidad = 1
         )
 
-        ApiClient.instance.addToCarrito("Bearer $token", request).enqueue(object : Callback<List<CarritoItem>> {
+        ApiClient.instance.addToCarrito(request).enqueue(object : Callback<List<CarritoItem>> {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 if (response.isSuccessful) {
                     val cart = response.body() ?: emptyList()
@@ -223,7 +233,7 @@ class CatalogoActivity : AppCompatActivity() {
         val token = prefs.getString("token", "") ?: ""
         if (userId == 0 || token.isEmpty()) return
 
-        ApiClient.instance.getCarrito("Bearer $token", userId).enqueue(object : Callback<List<CarritoItem>> {
+        ApiClient.instance.getCarrito(userId).enqueue(object : Callback<List<CarritoItem>> {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 if (response.isSuccessful) {
                     updateCartBadge(response.body()?.size ?: 0)

@@ -7,7 +7,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
@@ -21,7 +24,14 @@ class PerfilActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_perfil)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         currentUserId = prefs.getInt("userId", 0)
@@ -55,14 +65,12 @@ class PerfilActivity : AppCompatActivity() {
             tvAvatarInitial.text = tempName.first().uppercase()
         }
 
-        val token = "Bearer ${prefs.getString("token", "")}"
-
         // ─── CARGAR DATOS REALES DESDE EL BACKEND ───
         if (currentUserId != 0) {
             tvLoadingStatus.visibility = View.VISIBLE
             tvLoadingStatus.text = "Sincronizando con el servidor..."
 
-            ApiClient.instance.getUsuario(token, currentUserId).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getUsuario(currentUserId).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -136,7 +144,7 @@ class PerfilActivity : AppCompatActivity() {
             )
 
             if (currentUserId != 0) {
-                ApiClient.instance.updateUsuario(token, currentUserId, req).enqueue(object : Callback<Usuario> {
+                ApiClient.instance.updateUsuario(currentUserId, req).enqueue(object : Callback<Usuario> {
                     override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                         if (response.isSuccessful) {
                             val u = response.body()

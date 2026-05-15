@@ -7,8 +7,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
@@ -28,18 +31,16 @@ class PerfilPruebaActivity : AppCompatActivity() {
     private lateinit var etAddress: EditText
     private lateinit var tvStatus: TextView
 
-    /**
-     * Obtiene el token JWT guardado en SharedPreferences y lo formatea como Bearer.
-     */
-    private fun getToken(): String {
-        val prefs = getSharedPreferences("app", Context.MODE_PRIVATE)
-        val savedToken = prefs.getString("token", "") ?: ""
-        return "Bearer $savedToken"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_perfil_prueba)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         // Referencias a campos
         etId = findViewById(R.id.etCrudId)
@@ -90,7 +91,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Creando usuario...", false)
 
-            ApiClient.instance.createUsuario(getToken(), req).enqueue(object : Callback<UsuarioCreateResponse> {
+            ApiClient.instance.createUsuario(req).enqueue(object : Callback<UsuarioCreateResponse> {
                 override fun onResponse(call: Call<UsuarioCreateResponse>, response: Response<UsuarioCreateResponse>) {
                     if (response.isSuccessful) {
                         val body = response.body()
@@ -132,7 +133,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Buscando usuario #$id...", false)
 
-            ApiClient.instance.getUsuario(getToken(), id).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getUsuario(id).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -200,7 +201,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Actualizando usuario #$id...", false)
 
-            ApiClient.instance.updateUsuario(getToken(), id, req).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.updateUsuario(id, req).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -257,7 +258,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
                 .setPositiveButton("Eliminar") { _, _ ->
                     showStatus("Eliminando usuario #$id...", false)
 
-                    ApiClient.instance.deleteUsuario(getToken(), id).enqueue(object : Callback<Void> {
+                    ApiClient.instance.deleteUsuario(id).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {
                                 clearForm()
