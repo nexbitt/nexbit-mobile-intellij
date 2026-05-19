@@ -27,9 +27,9 @@ class UsuariosAdminActivity : AppCompatActivity() {
     private lateinit var adapter: UsuarioAdapter
     private lateinit var fabAdd: FloatingActionButton
 
-    // Simplificamos roles: 1 = Admin, 2 = Repartidor, 3 = Cliente
-    private val roles = arrayOf("Administrador (1)", "Repartidor (2)", "Cliente (3)")
-    private val rolesIds = arrayOf(1, 2, 3)
+    // Roles alineados con la base de datos: 1 = Admin, 2 = Cliente, 4 = Repartidor
+    private val roles = arrayOf("Administrador (1)", "Cliente (2)", "Repartidor (4)")
+    private val rolesIds = arrayOf(1, 2, 4)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

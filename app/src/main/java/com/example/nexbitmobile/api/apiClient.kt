@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    private const val BASE_URL = "http://10.0.2.2:3000/api/"
+    private const val BASE_URL = "http://192.168.137.1:3000/api/"
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor())

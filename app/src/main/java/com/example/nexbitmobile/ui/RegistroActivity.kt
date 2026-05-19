@@ -2,8 +2,10 @@ package com.example.nexbitmobile.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -33,10 +35,16 @@ class RegistroActivity : AppCompatActivity() {
         val etNombre = findViewById<EditText>(R.id.etNombre)
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
-        val etTipoDocumento = findViewById<EditText>(R.id.etTipoDocumento)
+        val spTipoDocumento = findViewById<Spinner>(R.id.spTipoDocumento)
         val etNumeroDocumento = findViewById<EditText>(R.id.etNumeroDocumento)
         val etTelefono = findViewById<EditText>(R.id.etTelefono)
         val etDireccion = findViewById<EditText>(R.id.etDireccion)
+        
+        // Configurar opciones del Spinner
+        val options = arrayOf("CC", "TI", "CE", "NIT", "Pasaporte")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spTipoDocumento.adapter = adapter
         
         val btnRegister = findViewById<Button>(R.id.btnRegister)
         val tvToLogin = findViewById<TextView>(R.id.tvToLogin)
@@ -51,7 +59,7 @@ class RegistroActivity : AppCompatActivity() {
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
             
-            val tipoDoc = etTipoDocumento.text.toString().trim().takeIf { it.isNotEmpty() }
+            val tipoDoc = spTipoDocumento.selectedItem.toString()
             val numDoc = etNumeroDocumento.text.toString().trim().takeIf { it.isNotEmpty() }
             val telefono = etTelefono.text.toString().trim().takeIf { it.isNotEmpty() }
             val direccion = etDireccion.text.toString().trim().takeIf { it.isNotEmpty() }

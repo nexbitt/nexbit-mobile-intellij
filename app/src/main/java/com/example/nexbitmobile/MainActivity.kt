@@ -16,6 +16,7 @@ import com.example.nexbitmobile.ui.CategoriasAdminActivity
 import com.example.nexbitmobile.ui.UsuariosAdminActivity
 import com.example.nexbitmobile.ui.PedidosAdminActivity
 import com.example.nexbitmobile.ui.ProveedorActivity
+import com.example.nexbitmobile.ui.ClientesActivity
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -54,6 +55,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_usuarios -> {
                     startActivity(Intent(this, UsuariosAdminActivity::class.java))
+                }
+                R.id.nav_clientes -> {
+                    startActivity(Intent(this, ClientesActivity::class.java))
                 }
                 R.id.nav_pedidos -> {
                     startActivity(Intent(this, PedidosAdminActivity::class.java))
