@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.print.PrintAttributes
 import android.print.PrintManager
+import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ArrayAdapter
@@ -64,9 +65,13 @@ class PedidosAdminActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<Usuario>>, response: Response<List<Usuario>>) {
                 if (response.isSuccessful) {
                     usuariosList = response.body() ?: emptyList()
+                } else {
+                    Log.e("PedidosAdmin", "Error loading users: ${response.code()}")
                 }
             }
-            override fun onFailure(call: Call<List<Usuario>>, t: Throwable) {}
+            override fun onFailure(call: Call<List<Usuario>>, t: Throwable) {
+                Log.e("PedidosAdmin", "Users load failed", t)
+            }
         })
     }
 
@@ -116,7 +121,10 @@ class PedidosAdminActivity : AppCompatActivity() {
                         Toast.makeText(this@PedidosAdminActivity, "Pedido creado", Toast.LENGTH_SHORT).show()
                         loadPedidos()
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("PedidosAdmin", "Create order failed", t)
+                        Toast.makeText(this@PedidosAdminActivity, "Error al crear pedido", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)
@@ -160,7 +168,10 @@ class PedidosAdminActivity : AppCompatActivity() {
                         Toast.makeText(this@PedidosAdminActivity, "Pedido actualizado", Toast.LENGTH_SHORT).show()
                         loadPedidos()
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("PedidosAdmin", "Update order failed", t)
+                        Toast.makeText(this@PedidosAdminActivity, "Error al actualizar pedido", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)
@@ -177,7 +188,10 @@ class PedidosAdminActivity : AppCompatActivity() {
                         Toast.makeText(this@PedidosAdminActivity, "Pedido eliminado", Toast.LENGTH_SHORT).show()
                         loadPedidos()
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("PedidosAdmin", "Delete order failed", t)
+                        Toast.makeText(this@PedidosAdminActivity, "Error al eliminar pedido", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("No", null)
@@ -187,14 +201,18 @@ class PedidosAdminActivity : AppCompatActivity() {
     private fun descargarTicket(pedido: Pedido) {
         ApiClient.instance.getPedidoTicket(pedido.id_pedido).enqueue(object : Callback<Pedido> {
             override fun onResponse(call: Call<Pedido>, response: Response<Pedido>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val pedidoTicket = response.body()!!
-                    generarHtmlYPdf(pedidoTicket)
+                if (response.isSuccessful) {
+                    response.body()?.let { pedidoTicket ->
+                        generarHtmlYPdf(pedidoTicket)
+                    } ?: run {
+                        Toast.makeText(this@PedidosAdminActivity, "Error al obtener ticket", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(this@PedidosAdminActivity, "Error al obtener ticket", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(call: Call<Pedido>, t: Throwable) {
+                Log.e("PedidosAdmin", "Ticket download failed", t)
                 Toast.makeText(this@PedidosAdminActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
             }
         })

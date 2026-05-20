@@ -2,6 +2,7 @@ package com.example.nexbitmobile.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -41,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
                             .putString("userPhone", user?.telefono)
                             .putString("userAddress", user?.direccion)
                             .apply()
-                        
+
                         val intent = Intent(this@LoginActivity, com.example.nexbitmobile.MainActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -49,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure(call: Call<com.example.nexbitmobile.model.Usuario>, t: Throwable) {
-                    // Ignorar error de red y permitir login normal
+                    Log.w("Login", "Token validation failed, allowing normal login", t)
                 }
             })
         }
