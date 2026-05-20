@@ -1,41 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Común a todos los roles -->
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_inicio"
+            android:icon="@android:drawable/ic_menu_compass"
             android:title="Inicio" />
         <item
             android:id="@+id/nav_perfil"
+            android:icon="@android:drawable/ic_menu_my_calendar"
             android:title="Mi Perfil" />
-        <item
-            android:id="@+id/nav_catalogo"
-            android:title="Ver Catálogo" />
-        <item
-            android:id="@+id/nav_carrito"
-            android:title="Mi Carrito" />
-        <item
-            android:id="@+id/nav_productos"
-            android:title="Productos" />
-        <item
-            android:id="@+id/nav_categorias"
-            android:title="Categorías" />
-        <item
-            android:id="@+id/nav_usuarios"
-            android:title="Usuarios" />
-        <item
-            android:id="@+id/nav_clientes"
-            android:title="Clientes" />
-        <item
-            android:id="@+id/nav_pedidos"
-            android:title="Pedidos" />
-        <item
-            android:id="@+id/nav_proveedor"
-            android:title="Gestión Proveedores" />
     </group>
+
+    <!-- Sección Cliente -->
+    <item android:title="Tienda"
+        android:id="@+id/nav_group_cliente">
+        <menu>
+            <item
+                android:id="@+id/nav_catalogo"
+                android:icon="@android:drawable/ic_menu_gallery"
+                android:title="Ver Catálogo" />
+            <item
+                android:id="@+id/nav_carrito"
+                android:icon="@android:drawable/ic_menu_agenda"
+                android:title="Mi Carrito" />
+        </menu>
+    </item>
+
+    <!-- Sección Admin -->
+    <item android:title="Administración"
+        android:id="@+id/nav_group_admin">
+        <menu>
+            <item
+                android:id="@+id/nav_productos"
+                android:icon="@android:drawable/ic_menu_manage"
+                android:title="Productos" />
+            <item
+                android:id="@+id/nav_categorias"
+                android:icon="@android:drawable/ic_menu_sort_by_size"
+                android:title="Categorías" />
+            <item
+                android:id="@+id/nav_usuarios"
+                android:icon="@android:drawable/ic_menu_myplaces"
+                android:title="Usuarios" />
+            <item
+                android:id="@+id/nav_clientes"
+                android:icon="@android:drawable/ic_menu_share"
+                android:title="Clientes" />
+            <item
+                android:id="@+id/nav_pedidos"
+                android:icon="@android:drawable/ic_menu_recent_history"
+                android:title="Pedidos" />
+            <item
+                android:id="@+id/nav_proveedor"
+                android:icon="@android:drawable/ic_menu_send"
+                android:title="Gestión Proveedores" />
+        </menu>
+    </item>
+
+    <!-- Cuenta -->
     <item android:title="Cuenta">
         <menu>
             <item
                 android:id="@+id/nav_logout"
+                android:icon="@android:drawable/ic_menu_close_clear_cancel"
                 android:title="Cerrar Sesión" />
         </menu>
     </item>

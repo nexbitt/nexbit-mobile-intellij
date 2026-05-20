@@ -3,6 +3,7 @@ package com.example.nexbitmobile
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -39,6 +40,22 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         val btnOpenMenu = findViewById<Button>(R.id.btnOpenMenu)
         val navView = findViewById<NavigationView>(R.id.nav_view)
+
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val rolId = prefs.getInt("rolId", 2)
+        val userName = prefs.getString("userName", "Usuario") ?: "Usuario"
+        val isAdmin = rolId == 1
+
+        // Welcome text
+        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+        val tvRoleLabel = findViewById<TextView>(R.id.tvRoleLabel)
+        tvWelcome.text = "¡Bienvenido, $userName!"
+        tvRoleLabel.text = if (isAdmin) "Panel de Administración" else "Tienda Nexbit"
+
+        // Show/hide menu groups by role
+        val menu = navView.menu
+        menu.findItem(R.id.nav_group_admin).isVisible = isAdmin
+        menu.findItem(R.id.nav_group_cliente).isVisible = !isAdmin
 
         btnOpenMenu.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)

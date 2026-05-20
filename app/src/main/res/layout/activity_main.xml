@@ -16,11 +16,21 @@
         android:gravity="center">
 
         <TextView
+            android:id="@+id/tvWelcome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="¡Bienvenido a Nexbit!"
             android:textSize="28sp"
             android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvRoleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="#888888"
             android:layout_marginBottom="16dp" />
 
         <Button
