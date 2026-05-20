@@ -155,7 +155,8 @@ class ProductosAdminActivity : AppCompatActivity() {
                 var imagePart: MultipartBody.Part? = null
                 currentImageUri?.let { uri ->
                     getFileFromUri(uri)?.let { file ->
-                        val reqFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        val mimeType = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
+                        val reqFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
                         imagePart = MultipartBody.Part.createFormData("imagen", file.name, reqFile)
                     }
                 }
@@ -224,7 +225,8 @@ class ProductosAdminActivity : AppCompatActivity() {
                 var imagePart: MultipartBody.Part? = null
                 currentImageUri?.let { uri ->
                     getFileFromUri(uri)?.let { file ->
-                        val reqFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        val mimeType = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
+                        val reqFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
                         imagePart = MultipartBody.Part.createFormData("imagen", file.name, reqFile)
                     }
                 }
