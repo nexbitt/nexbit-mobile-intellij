@@ -54,9 +54,16 @@ class CatalogoActivity : AppCompatActivity() {
         etSearch = findViewById(R.id.etSearch)
 
         // Setup RecyclerView
-        adapter = ProductoAdapter(emptyList()) { producto ->
-            addToCart(producto)
-        }
+        adapter = ProductoAdapter(
+            emptyList(),
+            onAddToCart = { producto -> addToCart(producto) },
+            onItemClick = { producto ->
+                val intent = Intent(this, ProductDetailActivity::class.java).apply {
+                    putExtra("id_producto", producto.id_producto)
+                }
+                startActivity(intent)
+            }
+        )
         rvProductos.layoutManager = GridLayoutManager(this, 2)
         rvProductos.adapter = adapter
 

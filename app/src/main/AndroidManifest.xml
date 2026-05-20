@@ -60,6 +60,10 @@
             android:name=".ui.CarritoActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.ProductDetailActivity"
+            android:exported="false" />
+
         <activity android:name=".ui.CategoriasAdminActivity" android:exported="false" />
         <activity android:name=".ui.UsuariosAdminActivity" android:exported="false" />
         <activity android:name=".ui.ProductosAdminActivity" android:exported="false" />
