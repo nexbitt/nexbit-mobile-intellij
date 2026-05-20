@@ -17,6 +17,8 @@ import com.example.nexbitmobile.ui.UsuariosAdminActivity
 import com.example.nexbitmobile.ui.PedidosAdminActivity
 import com.example.nexbitmobile.ui.ProveedorActivity
 import com.example.nexbitmobile.ui.ClientesActivity
+import com.example.nexbitmobile.ui.CatalogoActivity
+import com.example.nexbitmobile.ui.CarritoActivity
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -64,6 +66,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_perfil -> {
                     startActivity(Intent(this, PerfilActivity::class.java))
+                }
+                R.id.nav_catalogo -> {
+                    startActivity(Intent(this, CatalogoActivity::class.java))
+                }
+                R.id.nav_carrito -> {
+                    startActivity(Intent(this, CarritoActivity::class.java))
                 }
                 R.id.nav_proveedor -> {
                     startActivity(Intent(this, ProveedorActivity::class.java))

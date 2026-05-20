@@ -33,6 +33,7 @@ class CarritoActivity : AppCompatActivity() {
     private val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
     private var userId = 0
     private var token = ""
+    private var cartTotal = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,9 +79,13 @@ class CarritoActivity : AppCompatActivity() {
             finish()
         }
 
-        // Checkout placeholder
+        // Checkout
         findViewById<Button>(R.id.btnCheckout).setOnClickListener {
-            Toast.makeText(this, "Funcionalidad próximamente", Toast.LENGTH_SHORT).show()
+            if (cartTotal <= 0.0) {
+                Toast.makeText(this, "El carrito está vacío", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            confirmCheckout()
         }
 
         loadCart()
@@ -116,6 +121,7 @@ class CarritoActivity : AppCompatActivity() {
 
     private fun updateUI(items: List<CarritoItem>) {
         if (items.isEmpty()) {
+            cartTotal = 0.0
             showEmpty()
             return
         }
@@ -128,12 +134,14 @@ class CarritoActivity : AppCompatActivity() {
 
         val totalItems = items.sumOf { it.cantidad }
         val totalPrice = items.sumOf { it.subtotal }
+        cartTotal = totalPrice
 
         tvItemCount.text = "$totalItems items"
         tvTotal.text = formatter.format(totalPrice)
     }
 
     private fun showEmpty() {
+        cartTotal = 0.0
         llEmpty.visibility = View.VISIBLE
         rvCarrito.visibility = View.GONE
         llSummary.visibility = View.GONE
@@ -206,5 +214,61 @@ class CarritoActivity : AppCompatActivity() {
                 Toast.makeText(this@CarritoActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun confirmCheckout() {
+        AlertDialog.Builder(this)
+            .setTitle("Confirmar Pedido")
+            .setMessage("¿Deseas realizar el pedido con los productos de tu carrito por un total de ${formatter.format(cartTotal)}?")
+            .setPositiveButton("Confirmar") { _, _ -> realizarPedido() }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun realizarPedido() {
+        if (userId == 0 || token.isEmpty()) {
+            Toast.makeText(this, "Inicia sesión para continuar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        progressBar.visibility = View.VISIBLE
+
+        val request = PedidoRequest(
+            usuario_id = userId,
+            total = cartTotal,
+            estado = "PENDIENTE"
+        )
+
+        ApiClient.instance.createPedido(request).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                progressBar.visibility = View.GONE
+                if (response.isSuccessful) {
+                    showSuccessDialog()
+                } else {
+                    Toast.makeText(this@CarritoActivity, "Error al registrar el pedido (${response.code()})", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                progressBar.visibility = View.GONE
+                Toast.makeText(this@CarritoActivity, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun showSuccessDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("¡Pedido Realizado!")
+            .setMessage("Tu pedido ha sido registrado con éxito en el sistema.")
+            .setCancelable(false)
+            .setPositiveButton("Ver Pedidos") { _, _ ->
+                startActivity(Intent(this, PedidosAdminActivity::class.java))
+                finish()
+            }
+            .setNegativeButton("Volver al Catálogo") { _, _ ->
+                startActivity(Intent(this, CatalogoActivity::class.java))
+                finish()
+            }
+            .show()
     }
 }

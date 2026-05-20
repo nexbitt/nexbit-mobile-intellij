@@ -80,7 +80,7 @@ class RegistroActivity : AppCompatActivity() {
                 direccion = direccion
             )
 
-            ApiClient.instance.createUsuario(request).enqueue(object : Callback<UsuarioCreateResponse> {
+            ApiClient.instance.registerUsuario(request).enqueue(object : Callback<UsuarioCreateResponse> {
                 override fun onResponse(call: Call<UsuarioCreateResponse>, response: Response<UsuarioCreateResponse>) {
                     if (response.isSuccessful) {
                         Toast.makeText(this@RegistroActivity, "Registro exitoso. Ahora inicia sesión.", Toast.LENGTH_LONG).show()

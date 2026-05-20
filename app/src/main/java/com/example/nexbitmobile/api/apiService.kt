@@ -36,6 +36,10 @@ interface ApiService {
     @POST("usuarios")
     fun createUsuario(@Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
 
+    /** POST /api/usuarios/registro — Registro público (auto-registro) */
+    @POST("usuarios/registro")
+    fun registerUsuario(@Body request: UsuarioCreateRequest): Call<UsuarioCreateResponse>
+
     /** PUT /api/usuarios/{id} — Actualizar un usuario (protegida) */
     @PUT("usuarios/{id}")
     fun updateUsuario(@Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
