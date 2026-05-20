@@ -1,6 +1,7 @@
 package com.example.nexbitmobile.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -74,9 +75,14 @@ class CategoriasAdminActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             Toast.makeText(this@CategoriasAdminActivity, "Categoría creada", Toast.LENGTH_SHORT).show()
                             loadCategorias()
+                        } else {
+                            Log.e("CategoriasAdmin", "Create error: ${response.code()}")
                         }
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("CategoriasAdmin", "Create category failed", t)
+                        Toast.makeText(this@CategoriasAdminActivity, "Error al crear categoría", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)
@@ -101,9 +107,14 @@ class CategoriasAdminActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             Toast.makeText(this@CategoriasAdminActivity, "Categoría actualizada", Toast.LENGTH_SHORT).show()
                             loadCategorias()
+                        } else {
+                            Log.e("CategoriasAdmin", "Update error: ${response.code()}")
                         }
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("CategoriasAdmin", "Update category failed", t)
+                        Toast.makeText(this@CategoriasAdminActivity, "Error al actualizar categoría", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)
@@ -120,9 +131,14 @@ class CategoriasAdminActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             Toast.makeText(this@CategoriasAdminActivity, "Categoría eliminada", Toast.LENGTH_SHORT).show()
                             loadCategorias()
+                        } else {
+                            Log.e("CategoriasAdmin", "Delete error: ${response.code()}")
                         }
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("CategoriasAdmin", "Delete category failed", t)
+                        Toast.makeText(this@CategoriasAdminActivity, "Error al eliminar categoría", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("No", null)

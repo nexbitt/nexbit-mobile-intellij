@@ -3,6 +3,7 @@ package com.example.nexbitmobile.ui
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -80,9 +81,13 @@ class ProductosAdminActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<Categoria>>, response: Response<List<Categoria>>) {
                 if (response.isSuccessful) {
                     categoriasList = response.body() ?: emptyList()
+                } else {
+                    Log.e("ProductosAdmin", "Error loading categories: ${response.code()}")
                 }
             }
-            override fun onFailure(call: Call<List<Categoria>>, t: Throwable) {}
+            override fun onFailure(call: Call<List<Categoria>>, t: Throwable) {
+                Log.e("ProductosAdmin", "Category load failed", t)
+            }
         })
     }
 
@@ -103,18 +108,18 @@ class ProductosAdminActivity : AppCompatActivity() {
     }
 
     private fun getFileFromUri(uri: Uri): File? {
-        try {
+        return try {
             val contentResolver = applicationContext.contentResolver
-            val inputStream = contentResolver.openInputStream(uri) ?: return null
-            val tempFile = File.createTempFile("upload_", ".jpg", cacheDir)
-            val outputStream = FileOutputStream(tempFile)
-            inputStream.copyTo(outputStream)
-            inputStream.close()
-            outputStream.close()
-            return tempFile
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                val tempFile = File.createTempFile("upload_", ".jpg", cacheDir)
+                FileOutputStream(tempFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                tempFile
+            }
         } catch (e: Exception) {
-            e.printStackTrace()
-            return null
+            Log.e("ProductosAdmin", "Error converting URI to file", e)
+            null
         }
     }
 
@@ -177,7 +182,10 @@ class ProductosAdminActivity : AppCompatActivity() {
                         Toast.makeText(this@ProductosAdminActivity, "Producto creado", Toast.LENGTH_SHORT).show()
                         loadProductos()
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("ProductosAdmin", "Create product failed", t)
+                        Toast.makeText(this@ProductosAdminActivity, "Error al crear producto", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)
@@ -209,7 +217,9 @@ class ProductosAdminActivity : AppCompatActivity() {
         etDescripcion.setText(producto.descripcion ?: "")
 
         if (!producto.imagen_url.isNullOrEmpty()) {
-            Glide.with(this).load(producto.imagen_url).into(currentImageView!!)
+            currentImageView?.let {
+                Glide.with(this).load(producto.imagen_url).into(it)
+            }
         }
 
         btnSeleccionarImagen.setOnClickListener {
@@ -253,7 +263,10 @@ class ProductosAdminActivity : AppCompatActivity() {
                         Toast.makeText(this@ProductosAdminActivity, "Producto actualizado", Toast.LENGTH_SHORT).show()
                         loadProductos()
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("ProductosAdmin", "Update product failed", t)
+                        Toast.makeText(this@ProductosAdminActivity, "Error al actualizar producto", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)
@@ -270,7 +283,10 @@ class ProductosAdminActivity : AppCompatActivity() {
                         Toast.makeText(this@ProductosAdminActivity, "Producto eliminado", Toast.LENGTH_SHORT).show()
                         loadProductos()
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("ProductosAdmin", "Delete product failed", t)
+                        Toast.makeText(this@ProductosAdminActivity, "Error al eliminar producto", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("No", null)
