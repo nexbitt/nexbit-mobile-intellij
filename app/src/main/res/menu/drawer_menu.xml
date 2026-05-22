@@ -28,7 +28,7 @@
         </menu>
     </item>
 
-    <!-- Sección Admin -->
+    <!-- Sección Admin & Repartidor -->
     <item android:title="Administración"
         android:id="@+id/nav_group_admin">
         <menu>
@@ -52,6 +52,10 @@
                 android:id="@+id/nav_pedidos"
                 android:icon="@android:drawable/ic_menu_recent_history"
                 android:title="Pedidos" />
+            <item
+                android:id="@+id/nav_entregas"
+                android:icon="@android:drawable/ic_menu_directions"
+                android:title="Entregas" />
             <item
                 android:id="@+id/nav_proveedor"
                 android:icon="@android:drawable/ic_menu_send"

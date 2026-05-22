@@ -15,6 +15,7 @@ import com.example.nexbitmobile.ui.PerfilActivity
 import com.example.nexbitmobile.ui.ProductosAdminActivity
 import com.example.nexbitmobile.ui.CategoriasAdminActivity
 import com.example.nexbitmobile.ui.UsuariosAdminActivity
+import com.example.nexbitmobile.ui.EntregasActivity
 import com.example.nexbitmobile.ui.PedidosAdminActivity
 import com.example.nexbitmobile.ui.ProveedorActivity
 import com.example.nexbitmobile.ui.ClientesActivity
@@ -45,17 +46,22 @@ class MainActivity : AppCompatActivity() {
         val rolId = prefs.getInt("rolId", 2)
         val userName = prefs.getString("userName", "Usuario") ?: "Usuario"
         val isAdmin = rolId == 1
+        val isRepartidor = rolId == 4
 
         // Welcome text
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         val tvRoleLabel = findViewById<TextView>(R.id.tvRoleLabel)
         tvWelcome.text = "¡Bienvenido, $userName!"
-        tvRoleLabel.text = if (isAdmin) "Panel de Administración" else "Tienda Nexbit"
+        tvRoleLabel.text = when {
+            isAdmin -> "Panel de Administración"
+            isRepartidor -> "Centro de Entregas"
+            else -> "Tienda Nexbit"
+        }
 
         // Show/hide menu groups by role
         val menu = navView.menu
-        menu.findItem(R.id.nav_group_admin).isVisible = isAdmin
-        menu.findItem(R.id.nav_group_cliente).isVisible = !isAdmin
+        menu.findItem(R.id.nav_group_admin).isVisible = isAdmin || isRepartidor
+        menu.findItem(R.id.nav_group_cliente).isVisible = !isAdmin && !isRepartidor
 
         btnOpenMenu.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
@@ -80,6 +86,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_pedidos -> {
                     startActivity(Intent(this, PedidosAdminActivity::class.java))
+                }
+                R.id.nav_entregas -> {
+                    startActivity(Intent(this, EntregasActivity::class.java))
                 }
                 R.id.nav_perfil -> {
                     startActivity(Intent(this, PerfilActivity::class.java))
