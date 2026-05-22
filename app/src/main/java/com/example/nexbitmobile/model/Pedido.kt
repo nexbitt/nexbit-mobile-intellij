@@ -9,6 +9,7 @@ data class Pedido(
     val estado: String,
     val fecha: String,
     val fecha_pedido: String?,
+    val repartidor_id: Int? = null,
     val detalles: List<PedidoDetalle>? = null
 )
 
