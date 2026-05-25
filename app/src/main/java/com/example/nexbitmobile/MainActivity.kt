@@ -1,5 +1,5 @@
 package com.example.nexbitmobile
-
+import com.example.nexbitmobile.ui.EntregasActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -23,7 +23,7 @@ import com.example.nexbitmobile.ui.CarritoActivity
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
-    
+
     private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,9 +42,11 @@ class MainActivity : AppCompatActivity() {
         val navView = findViewById<NavigationView>(R.id.nav_view)
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
-        val rolId = prefs.getInt("rolId", 2)
+        val rolId = prefs.getInt("rolId", ROL_CLIENTE)
         val userName = prefs.getString("userName", "Usuario") ?: "Usuario"
-        val isAdmin = rolId == 1
+        val isAdmin = rolId == ROL_ADMIN
+        val isCliente = rolId == ROL_CLIENTE
+        val isRepartidor = rolId == ROL_REPARTIDOR
 
         // Welcome text
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
@@ -55,7 +57,8 @@ class MainActivity : AppCompatActivity() {
         // Show/hide menu groups by role
         val menu = navView.menu
         menu.findItem(R.id.nav_group_admin).isVisible = isAdmin
-        menu.findItem(R.id.nav_group_cliente).isVisible = !isAdmin
+        menu.findItem(R.id.nav_group_cliente).isVisible = isCliente
+        menu.findItem(R.id.nav_group_repartidor).isVisible = isRepartidor
 
         btnOpenMenu.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
@@ -65,6 +68,9 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.nav_inicio -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_entregas -> { // Corregido para que coincida con tu XML
+                    startActivity(Intent(this, EntregasActivity::class.java))
                 }
                 R.id.nav_productos -> {
                     startActivity(Intent(this, ProductosAdminActivity::class.java))
@@ -105,5 +111,11 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    companion object {
+        const val ROL_ADMIN = 1
+        const val ROL_CLIENTE = 2
+        const val ROL_REPARTIDOR = 4
     }
 }

@@ -211,4 +211,33 @@ interface ApiService {
     fun clearCarrito(
         @Body request: CarritoClearRequest
     ): Call<List<CarritoItem>>
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── REPARTIDORES ─────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    /** GET /api/repartidores/{id} — Obtener datos del repartidor y sus entregas */
+    @GET("repartidores/{id}")
+    fun getRepartidor(
+        @Path("id") id: Int
+    ): Call<RepartidorResponse>
+
+    /** PUT /api/repartidores/pedidos/{pedidoId}/estado — Cambiar estado de un pedido */
+    @PUT("repartidores/pedidos/{pedidoId}/estado")
+    fun cambiarEstadoPedido(
+        @Path("pedidoId") pedidoId: Int,
+        @Body request: EstadoPedidoRequest
+    ): Call<Void>
+
+    /** GET /api/repartidores/pedidos-sin-asignar — Obtener pedidos listos para asignación */
+    @GET("repartidores/pedidos-sin-asignar")
+    fun getPedidosSinAsignar(): Call<List<PedidoRepartidor>>
+
+    /** POST /api/repartidores/{id}/asignar-pedido — Auto-asignar pedido a repartidor */
+    @POST("repartidores/{id}/asignar-pedido")
+    fun asignarPedido(
+        @Path("id") id: Int,
+        @Body request: AsignarPedidoRequest
+    ): Call<Void>
 }
+

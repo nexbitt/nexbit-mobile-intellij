@@ -70,6 +70,7 @@
         <activity android:name=".ui.UsuariosAdminActivity" android:exported="false" />
         <activity android:name=".ui.ProductosAdminActivity" android:exported="false" />
         <activity android:name=".ui.PedidosAdminActivity" android:exported="false" />
+        <activity android:name=".ui.EntregasActivity" android:exported="false" />
 
     </application>
 

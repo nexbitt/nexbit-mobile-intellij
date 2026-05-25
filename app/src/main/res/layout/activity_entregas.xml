@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:id="@+id/main"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="#f8fafc"> <!-- Gris muy claro de fondo para resaltar las tarjetas -->
+
+    <!-- Encabezado de la Pantalla -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="#0f172a"> <!-- Fondo oscuro elegante a juego con tu paleta -->
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Panel de Entregas"
+                android:textColor="#ffffff"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pedidos asignados para distribución"
+                android:textColor="#94a3b8"
+                android:textSize="14sp"
+                android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <!-- Pestañas de Navegación -->
+    <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#0f172a"
+            app:tabTextColor="#94a3b8"
+            app:tabSelectedTextColor="#ffffff"
+            app:tabIndicatorColor="#3b82f6">
+        <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mis Entregas" />
+        <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disponibles" />
+        <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Historial" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <!-- Lista de Entregas -->
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvEntregas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:clipToPadding="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+</LinearLayout>

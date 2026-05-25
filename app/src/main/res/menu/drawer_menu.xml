@@ -59,6 +59,15 @@
         </menu>
     </item>
 
+        <!-- Repartidor -->
+    <item android:title="Entregas"
+        android:id="@+id/nav_group_repartidor">
+        <menu>
+            <item android:id="@+id/nav_entregas" android:title="Mis Entregas" />
+            <item android:id="@+id/nav_reportes_entrega" android:title="Reportes" />
+        </menu>
+    </item>
+
     <!-- Cuenta -->
     <item android:title="Cuenta">
         <menu>

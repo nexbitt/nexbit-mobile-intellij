@@ -31,3 +31,4 @@ keystore.properties
 
 # Google Services / Secrets
 google-services.json
+.aider*
