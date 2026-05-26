@@ -161,8 +161,14 @@ interface ApiService {
     @GET("pedidos")
     fun getPedidos(): Call<List<Pedido>>
 
+    @GET("pedidos/usuario/{usuarioId}")
+    fun getMisPedidos(@Path("usuarioId") usuarioId: Int): Call<List<Pedido>>
+
     @GET("pedidos/{id}/ticket")
     fun getPedidoTicket(@Path("id") id: Int): Call<Pedido>
+
+    @POST("pedidos/checkout")
+    fun checkout(@Body request: CheckoutRequest): Call<CheckoutResponse>
 
     @POST("pedidos")
     fun createPedido(@Body request: PedidoRequest): Call<Void>

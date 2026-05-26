@@ -9,6 +9,8 @@ data class Pedido(
     val estado: String,
     val fecha: String,
     val fecha_pedido: String?,
+    val direccion_entrega: String? = null,
+    val notas_entrega: String? = null,
     val detalles: List<PedidoDetalle>? = null
 )
 
@@ -25,5 +27,18 @@ data class PedidoDetalle(
 data class PedidoRequest(
     val usuario_id: Int,
     val total: Double,
-    val estado: String
+    val estado: String,
+    val direccion_entrega: String? = null,
+    val notas_entrega: String? = null
+)
+
+data class CheckoutRequest(
+    val usuario_id: Int,
+    val direccion_entrega: String,
+    val notas_entrega: String? = null
+)
+
+data class CheckoutResponse(
+    val message: String,
+    val id_pedido: Int
 )
