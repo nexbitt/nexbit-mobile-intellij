@@ -3,26 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f8fafc">
+    android:background="@color/bg_page">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#0f172a"
+            android:background="@color/primary"
             app:title="Categorías (Admin)"
-            app:titleTextColor="#ffffff" />
+            app:titleTextColor="@color/text_on_primary"
+            app:elevation="4dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
+            android:padding="12dp"
             android:clipToPadding="false" />
 
     </LinearLayout>
@@ -34,7 +35,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@android:drawable/ic_input_add"
-        app:tint="#ffffff"
-        app:backgroundTint="#3b82f6" />
+        app:tint="@color/on_secondary"
+        app:backgroundTint="@color/secondary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

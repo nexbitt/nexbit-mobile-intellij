@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-<<<<<<< HEAD
-=======
-    <!-- Común a todos los roles -->
->>>>>>> b7f452d219807d848280414615abd82330c326b6
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_inicio"
@@ -16,10 +12,6 @@
             android:title="Mi Perfil" />
     </group>
 
-<<<<<<< HEAD
-=======
-    <!-- Sección Cliente -->
->>>>>>> b7f452d219807d848280414615abd82330c326b6
     <item android:title="Tienda"
         android:id="@+id/nav_group_cliente">
         <menu>
@@ -38,10 +30,6 @@
         </menu>
     </item>
 
-<<<<<<< HEAD
-=======
-    <!-- Sección Admin -->
->>>>>>> b7f452d219807d848280414615abd82330c326b6
     <item android:title="Administración"
         android:id="@+id/nav_group_admin">
         <menu>
@@ -69,13 +57,13 @@
                 android:id="@+id/nav_proveedor"
                 android:icon="@android:drawable/ic_menu_send"
                 android:title="Gestión Proveedores" />
+            <item
+                android:id="@+id/nav_pruebas"
+                android:icon="@android:drawable/ic_menu_edit"
+                android:title="Pruebas" />
         </menu>
     </item>
 
-<<<<<<< HEAD
-=======
-        <!-- Repartidor -->
->>>>>>> b7f452d219807d848280414615abd82330c326b6
     <item android:title="Entregas"
         android:id="@+id/nav_group_repartidor">
         <menu>
@@ -84,10 +72,6 @@
         </menu>
     </item>
 
-<<<<<<< HEAD
-=======
-    <!-- Cuenta -->
->>>>>>> b7f452d219807d848280414615abd82330c326b6
     <item android:title="Cuenta">
         <menu>
             <item

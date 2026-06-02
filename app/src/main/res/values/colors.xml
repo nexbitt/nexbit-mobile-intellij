@@ -2,33 +2,44 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <!-- Nexbit Web Palette (Antigravity Theme) -->
-    <color name="primary">#111111</color> <!-- Stark Black -->
+
+    <color name="primary">#111111</color>
     <color name="primary_dark">#000000</color>
     <color name="primary_light">#333333</color>
-    <color name="bg_dark">#fafbfc</color> <!-- Actually light in this theme -->
-    <color name="bg_surface">#ffffff</color> <!-- White cards -->
+    <color name="on_primary">#FFFFFF</color>
+
+    <color name="secondary">#3b82f6</color>
+    <color name="secondary_dark">#2563eb</color>
+    <color name="on_secondary">#FFFFFF</color>
+
+    <color name="bg_page">#f3f4f6</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_card">#FFFFFF</color>
+
     <color name="text_main">#111827</color>
     <color name="text_secondary">#6b7280</color>
     <color name="text_light">#94a3b8</color>
-    <color name="input_bg">#f9fafb</color>
-    <color name="input_border">#e5e7eb</color>
-    <color name="error_bg">#fee2e2</color>
-    <color name="error_text">#b91c1c</color>
-    <color name="success">#000000</color>
-    <color name="warning">#F59E0B</color>
+    <color name="text_on_primary">#FFFFFF</color>
 
-    <!-- Catalog / Cart specific -->
+    <color name="input_bg">#f9fafb</color>
+    <color name="input_border">#d1d5db</color>
+
+    <color name="error_bg">#fee2e2</color>
+    <color name="error_text">#dc2626</color>
+    <color name="success">#16a34a</color>
+    <color name="warning">#d97706</color>
+    <color name="info">#2563eb</color>
+
+    <color name="divider">#e5e7eb</color>
+    <color name="overlay_bg">#80000000</color>
     <color name="card_bg">#FFFFFF</color>
+    <color name="bg_dark">#fafbfc</color>
+
     <color name="card_border">#e5e7eb</color>
-    <color name="badge_red">#e02424</color>
+    <color name="badge_red">#dc2626</color>
     <color name="chip_bg">#f3f4f6</color>
     <color name="chip_selected_bg">#111111</color>
     <color name="chip_text">#6b7280</color>
     <color name="chip_selected_text">#FFFFFF</color>
     <color name="price_color">#111111</color>
-    <color name="divider">#e5e7eb</color>
-    <color name="overlay_bg">#80000000</color>
-    <color name="bg_page">#fafbfc</color>
 </resources>

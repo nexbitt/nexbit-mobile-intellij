@@ -1,47 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD
-    android:background="@color/bg_page"
-=======
-    android:background="#f8fafc"
->>>>>>> b7f452d219807d848280414615abd82330c326b6
-    tools:context=".ui.ProveedorActivity">
+    android:background="@color/bg_page">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarProveedores"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-<<<<<<< HEAD
             android:background="@color/primary"
             app:title="Proveedores"
-            app:titleTextColor="@color/white" />
-=======
-            android:background="#0f172a"
-            app:title="Proveedores"
-            app:titleTextColor="#ffffff" />
->>>>>>> b7f452d219807d848280414615abd82330c326b6
+            app:titleTextColor="@color/text_on_primary"
+            app:elevation="4dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewProveedores"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-<<<<<<< HEAD
-            android:clipToPadding="false"
-            android:padding="8dp" />
-=======
-            android:padding="8dp"
+            android:padding="12dp"
             android:clipToPadding="false" />
->>>>>>> b7f452d219807d848280414615abd82330c326b6
 
     </LinearLayout>
 
@@ -52,12 +35,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@android:drawable/ic_input_add"
-<<<<<<< HEAD
-        app:backgroundTint="@color/primary"
-        app:tint="@color/white" />
-=======
-        app:tint="#ffffff"
-        app:backgroundTint="#3b82f6" />
->>>>>>> b7f452d219807d848280414615abd82330c326b6
+        app:backgroundTint="@color/secondary"
+        app:tint="@color/on_secondary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_page"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        app:title="Pruebas - Usuarios"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@android:drawable/ic_menu_revert" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/input_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Buscar Usuario por ID"
+                        android:textColor="@color/text_main"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilSearchId"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="12dp"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:hint="ID del usuario">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etSearchId"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSearch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Buscar"
+                            app:icon="@android:drawable/ic_menu_search" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardUserDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/input_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Detalles del Usuario"
+                        android:textColor="@color/text_main"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <TableLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="1">
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="ID:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvId" android:textColor="@color/text_main" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Nombre:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvNombre" android:textColor="@color/text_main" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Email:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvEmail" android:textColor="@color/text_main" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Rol:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvRol" android:textColor="@color/primary" android:textStyle="bold" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Documento:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvDocumento" android:textColor="@color/text_main" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Teléfono:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvTelefono" android:textColor="@color/text_main" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Dirección:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvDireccion" android:textColor="@color/text_main" />
+                        </TableRow>
+
+                        <View android:layout_height="1dp" android:background="@color/divider" android:layout_marginVertical="4dp" android:layout_span="2" />
+
+                        <TableRow android:paddingVertical="6dp">
+                            <TextView android:text="Estado:" android:textColor="@color/text_secondary" android:textStyle="bold" android:paddingEnd="16dp" />
+                            <TextView android:id="@+id/tvEstado" android:textStyle="bold" />
+                        </TableRow>
+                    </TableLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="20dp"
+                        android:gravity="end">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEditUser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Editar"
+                            android:layout_marginEnd="8dp"
+                            app:icon="@android:drawable/ic_menu_edit"
+                            style="@style/Widget.Material3.Button.TextButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDeleteUser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Eliminar"
+                            android:backgroundTint="@color/error_text"
+                            app:icon="@android:drawable/ic_menu_delete"
+                            app:iconTint="@color/white" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCreateUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Crear Nuevo Usuario"
+                app:icon="@android:drawable/ic_input_add"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/tvMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:textColor="@color/error_text"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

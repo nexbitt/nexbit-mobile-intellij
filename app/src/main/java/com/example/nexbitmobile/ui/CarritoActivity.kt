@@ -71,11 +71,6 @@ class CarritoActivity : AppCompatActivity() {
             startActivity(Intent(this, CatalogoActivity::class.java))
             finish()
         }
-<<<<<<< HEAD
-=======
-
-        // Checkout
->>>>>>> b7f452d219807d848280414615abd82330c326b6
         findViewById<Button>(R.id.btnCheckout).setOnClickListener {
             if (cartTotal <= 0.0) {
                 Toast.makeText(this, "El carrito está vacío", Toast.LENGTH_SHORT).show()
@@ -216,10 +211,6 @@ class CarritoActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userAddress = prefs.getString("userAddress", "")
 
-<<<<<<< HEAD
-=======
-        // Paso 1: pedir dirección de entrega
->>>>>>> b7f452d219807d848280414615abd82330c326b6
         val input = EditText(this).apply {
             hint = "Ej: Calle 45 #12-34, Bogotá"
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -229,11 +220,7 @@ class CarritoActivity : AppCompatActivity() {
         }
 
         AlertDialog.Builder(this)
-<<<<<<< HEAD
             .setTitle("Dirección de entrega")
-=======
-            .setTitle("📍 Dirección de entrega")
->>>>>>> b7f452d219807d848280414615abd82330c326b6
             .setMessage("¿Dónde entregaremos tu pedido de ${formatter.format(cartTotal)}?")
             .setView(input)
             .setPositiveButton("Confirmar Pedido") { _, _ ->
@@ -284,11 +271,7 @@ class CarritoActivity : AppCompatActivity() {
         val msg = if (pedidoId != null) "Tu pedido #$pedidoId ha sido registrado con éxito.\n¡Estará en camino pronto!"
                   else "Tu pedido ha sido registrado con éxito en el sistema."
         AlertDialog.Builder(this)
-<<<<<<< HEAD
             .setTitle("Pedido Realizado!")
-=======
-            .setTitle("🎉 ¡Pedido Realizado!")
->>>>>>> b7f452d219807d848280414615abd82330c326b6
             .setMessage(msg)
             .setCancelable(false)
             .setPositiveButton("Ver Mis Pedidos") { _, _ ->

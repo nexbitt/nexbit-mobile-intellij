@@ -1,44 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-<<<<<<< HEAD
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:background="@color/bg_dark">
-=======
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F1F5F9">
->>>>>>> b7f452d219807d848280414615abd82330c326b6
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarPerfil"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-<<<<<<< HEAD
         android:background="@color/primary"
         app:title="Mi Perfil"
         app:titleTextColor="@color/white"
         app:navigationIcon="@android:drawable/ic_menu_revert" />
-=======
-        android:background="#0f172a"
-        app:title="Mi Perfil"
-        app:titleTextColor="#ffffff" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
->>>>>>> b7f452d219807d848280414615abd82330c326b6
 
     <ScrollView
         android:layout_width="match_parent"
@@ -120,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp"
+            android:padding="20dp">
 
             <!-- Loading indicator text -->
             <TextView
@@ -314,11 +291,6 @@
                 android:layout_marginTop="8dp"/>
 
         </LinearLayout>
-<<<<<<< HEAD
         </LinearLayout>
     </ScrollView>
-=======
-    </LinearLayout>
-        </ScrollView>
->>>>>>> b7f452d219807d848280414615abd82330c326b6
 </LinearLayout>

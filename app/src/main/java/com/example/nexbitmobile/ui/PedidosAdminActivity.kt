@@ -371,11 +371,7 @@ class PedidosAdminActivity : AppCompatActivity() {
                             <div class="info-item">
                                 <label>Estado del Pedido</label>
                                 <div>
-<<<<<<< HEAD
                                     <span class="badge badge-${pedido.estado?.lowercase() ?: "pendiente"}">${pedido.estado ?: "PENDIENTE"}</span>
-=======
-                                    <span class="badge badge-${pedido.estado?.toLowerCase() ?: "pendiente"}">${pedido.estado ?: "PENDIENTE"}</span>
->>>>>>> b7f452d219807d848280414615abd82330c326b6
                                 </div>
                             </div>
                         </div>

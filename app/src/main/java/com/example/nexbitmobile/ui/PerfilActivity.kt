@@ -68,10 +68,6 @@ class PerfilActivity : AppCompatActivity() {
             tvAvatarInitial.text = tempName.first().uppercase()
         }
 
-<<<<<<< HEAD
-=======
-        // ─── CARGAR DATOS REALES DESDE EL BACKEND ───
->>>>>>> b7f452d219807d848280414615abd82330c326b6
         if (currentUserId != 0) {
             tvLoadingStatus.visibility = View.VISIBLE
             tvLoadingStatus.text = "Sincronizando con el servidor..."

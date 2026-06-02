@@ -65,20 +65,14 @@
             android:name=".ui.CarritoActivity"
             android:exported="false" />
 
-<<<<<<< HEAD
         <activity android:name=".ui.ProductDetailActivity" android:exported="false" />
-=======
-        <activity
-            android:name=".ui.ProductDetailActivity"
-            android:exported="false" />
-
->>>>>>> b7f452d219807d848280414615abd82330c326b6
         <activity android:name=".ui.CategoriasAdminActivity" android:exported="false" />
         <activity android:name=".ui.UsuariosAdminActivity" android:exported="false" />
         <activity android:name=".ui.ProductosAdminActivity" android:exported="false" />
         <activity android:name=".ui.PedidosAdminActivity" android:exported="false" />
         <activity android:name=".ui.EntregasActivity" android:exported="false" />
         <activity android:name=".ui.MisPedidosActivity" android:exported="false" />
+        <activity android:name=".ui.PruebasActivity" android:exported="false" />
 
     </application>
 

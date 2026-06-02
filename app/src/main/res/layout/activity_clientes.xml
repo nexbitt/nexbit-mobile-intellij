@@ -1,61 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_page"
-    android:orientation="vertical"
-    tools:context=".ui.ClientesActivity">
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarClientes"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:title="Clientes"
-        app:titleTextColor="@color/white" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewClientes"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="8dp" />
-
-</LinearLayout>
-=======
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f8fafc"
-    tools:context=".ui.ClientesActivity">
+    android:background="@color/bg_page">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarClientes"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#0f172a"
+            android:background="@color/primary"
             app:title="Clientes"
-            app:titleTextColor="#ffffff" />
+            app:titleTextColor="@color/text_on_primary"
+            app:elevation="4dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewClientes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            android:padding="12dp" />
 
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
->>>>>>> b7f452d219807d848280414615abd82330c326b6
