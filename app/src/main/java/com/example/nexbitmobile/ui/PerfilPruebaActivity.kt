@@ -41,6 +41,10 @@ class PerfilPruebaActivity : AppCompatActivity() {
             insets
         }
 
+<<<<<<< HEAD
+=======
+        // Referencias a campos
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         etId = findViewById(R.id.etCrudId)
         etName = findViewById(R.id.etCrudName)
         etEmail = findViewById(R.id.etCrudEmail)

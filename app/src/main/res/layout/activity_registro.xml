@@ -4,22 +4,119 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+<<<<<<< HEAD
     android:background="@color/bg_page"
     android:orientation="vertical">
 
+=======
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- Toolbar -->
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarRegistro"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+<<<<<<< HEAD
         android:background="@color/primary"
         app:title="Crear Cuenta"
         app:titleTextColor="@color/white" />
+=======
+        android:background="#0f172a"
+        app:title="Crear Cuenta"
+        app:titleTextColor="#ffffff" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center">
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+<<<<<<< HEAD
+        <LinearLayout
+=======
+        <EditText
+            android:id="@+id/etNombre"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Nombre completo *"
+            android:inputType="textPersonName"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Correo electrónico *"
+            android:inputType="textEmailAddress"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Contraseña *"
+            android:inputType="textPassword"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <Spinner
+            android:id="@+id/spTipoDocumento"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etNumeroDocumento"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Número de Documento"
+            android:inputType="number"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etTelefono"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Teléfono"
+            android:inputType="phone"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/etDireccion"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Dirección"
+            android:inputType="textPostalAddress"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_input"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/btnRegister"
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -34,6 +131,7 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="24dp" />
 
+<<<<<<< HEAD
             <EditText
                 android:id="@+id/etNombre"
                 android:layout_width="match_parent"
@@ -119,6 +217,8 @@
                 android:layout_marginTop="16dp"
                 android:padding="8dp" />
 
+=======
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

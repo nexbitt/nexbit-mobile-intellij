@@ -44,12 +44,21 @@ class RegistroActivity : AppCompatActivity() {
         val etNumeroDocumento = findViewById<EditText>(R.id.etNumeroDocumento)
         val etTelefono = findViewById<EditText>(R.id.etTelefono)
         val etDireccion = findViewById<EditText>(R.id.etDireccion)
+<<<<<<< HEAD
 
+=======
+        
+        // Configurar opciones del Spinner
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         val options = arrayOf("CC", "TI", "CE", "NIT", "Pasaporte")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spTipoDocumento.adapter = adapter
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         val btnRegister = findViewById<Button>(R.id.btnRegister)
         val tvToLogin = findViewById<TextView>(R.id.tvToLogin)
 
@@ -61,7 +70,11 @@ class RegistroActivity : AppCompatActivity() {
             val nombre = etNombre.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
             val tipoDoc = spTipoDocumento.selectedItem.toString()
             val numDoc = etNumeroDocumento.text.toString().trim().takeIf { it.isNotEmpty() }
             val telefono = etTelefono.text.toString().trim().takeIf { it.isNotEmpty() }

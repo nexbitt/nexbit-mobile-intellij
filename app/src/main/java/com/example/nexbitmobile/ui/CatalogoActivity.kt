@@ -45,6 +45,10 @@ class CatalogoActivity : AppCompatActivity() {
             insets
         }
 
+<<<<<<< HEAD
+=======
+        // Bind views
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         rvProductos = findViewById(R.id.rvProductos)
         progressBar = findViewById(R.id.progressBar)
         tvEmpty = findViewById(R.id.tvEmpty)
@@ -52,6 +56,10 @@ class CatalogoActivity : AppCompatActivity() {
         llCategoryChips = findViewById(R.id.llCategoryChips)
         etSearch = findViewById(R.id.etSearch)
 
+<<<<<<< HEAD
+=======
+        // Setup RecyclerView
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         adapter = ProductoAdapter(
             emptyList(),
             onAddToCart = { producto -> addToCart(producto) },
@@ -113,6 +121,13 @@ class CatalogoActivity : AppCompatActivity() {
     }
 
     private fun loadCategories() {
+<<<<<<< HEAD
+=======
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val token = prefs.getString("token", "") ?: ""
+        if (token.isEmpty()) return
+
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         ApiClient.instance.getCategorias().enqueue(object : Callback<List<Categoria>> {
             override fun onResponse(call: Call<List<Categoria>>, response: Response<List<Categoria>>) {
                 if (response.isSuccessful) {

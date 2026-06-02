@@ -3,9 +3,15 @@ import com.example.nexbitmobile.ui.EntregasActivity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
+<<<<<<< HEAD
+=======
+import androidx.activity.enableEdgeToEdge
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.nexbitmobile.ui.LoginActivity
 import com.example.nexbitmobile.ui.PerfilActivity
@@ -26,7 +32,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.drawer_layout)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         drawerLayout = findViewById(R.id.drawer_layout)
         val toolbar = findViewById<Toolbar>(R.id.toolbarMain)
@@ -46,11 +59,19 @@ class MainActivity : AppCompatActivity() {
         val isCliente = rolId == ROL_CLIENTE
         val isRepartidor = rolId == ROL_REPARTIDOR
 
+<<<<<<< HEAD
+=======
+        // Welcome text
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         val tvRoleLabel = findViewById<TextView>(R.id.tvRoleLabel)
         tvWelcome.text = "¡Bienvenido, $userName!"
         tvRoleLabel.text = if (isAdmin) "Panel de Administración" else "Tienda Nexbit"
 
+<<<<<<< HEAD
+=======
+        // Show/hide menu groups by role
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         val menu = navView.menu
         menu.findItem(R.id.nav_group_admin).isVisible = isAdmin
         menu.findItem(R.id.nav_group_cliente).isVisible = isCliente
@@ -61,7 +82,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_inicio -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
+<<<<<<< HEAD
                 R.id.nav_entregas -> {
+=======
+                R.id.nav_entregas -> { // Corregido para que coincida con tu XML
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
                     startActivity(Intent(this, EntregasActivity::class.java))
                 }
                 R.id.nav_productos -> {
@@ -112,4 +137,8 @@ class MainActivity : AppCompatActivity() {
         const val ROL_CLIENTE = 2
         const val ROL_REPARTIDOR = 4
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b7f452d219807d848280414615abd82330c326b6

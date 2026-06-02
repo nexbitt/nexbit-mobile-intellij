@@ -14,14 +14,26 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+<<<<<<< HEAD
+=======
+        <!-- Toolbar -->
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarMain"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+<<<<<<< HEAD
             android:background="@color/primary"
             app:title="Nexbit"
             app:titleTextColor="@color/white" />
 
+=======
+            android:background="#0f172a"
+            app:title="Nexbit"
+            app:titleTextColor="#ffffff" />
+
+        <!-- Contenido centrado -->
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -32,7 +44,11 @@
                 android:id="@+id/tvWelcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+<<<<<<< HEAD
                 android:text="Bienvenido a Nexbit!"
+=======
+                android:text="¡Bienvenido a Nexbit!"
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
@@ -43,7 +59,11 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="16sp"
+<<<<<<< HEAD
                 android:textColor="@color/text_secondary"
+=======
+                android:textColor="#888888"
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
                 android:layout_marginBottom="16dp" />
         </LinearLayout>
     </LinearLayout>

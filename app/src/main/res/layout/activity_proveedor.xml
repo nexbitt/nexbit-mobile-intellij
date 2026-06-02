@@ -5,7 +5,11 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+<<<<<<< HEAD
     android:background="@color/bg_page"
+=======
+    android:background="#f8fafc"
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
     tools:context=".ui.ProveedorActivity">
 
     <LinearLayout
@@ -17,16 +21,27 @@
             android:id="@+id/toolbarProveedores"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+<<<<<<< HEAD
             android:background="@color/primary"
             app:title="Proveedores"
             app:titleTextColor="@color/white" />
+=======
+            android:background="#0f172a"
+            app:title="Proveedores"
+            app:titleTextColor="#ffffff" />
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewProveedores"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+<<<<<<< HEAD
             android:clipToPadding="false"
             android:padding="8dp" />
+=======
+            android:padding="8dp"
+            android:clipToPadding="false" />
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
 
     </LinearLayout>
 
@@ -37,7 +52,12 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@android:drawable/ic_input_add"
+<<<<<<< HEAD
         app:backgroundTint="@color/primary"
         app:tint="@color/white" />
+=======
+        app:tint="#ffffff"
+        app:backgroundTint="#3b82f6" />
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

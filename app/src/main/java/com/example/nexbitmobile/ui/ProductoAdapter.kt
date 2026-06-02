@@ -39,6 +39,10 @@ class ProductoAdapter(
         holder.tvProductCategory.text = producto.categoria_nombre ?: "General"
         holder.tvProductStock.text = "Stock: ${producto.stock_actual}"
 
+<<<<<<< HEAD
+=======
+        // Format price to COP
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         val format = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
             minimumFractionDigits = 0
             maximumFractionDigits = 0
@@ -50,6 +54,7 @@ class ProductoAdapter(
             .placeholder(R.drawable.ic_placeholder)
             .into(holder.ivProductImage)
 
+<<<<<<< HEAD
         if (producto.stock_actual <= 0) {
             holder.btnAddToCart.text = "Sin stock"
             holder.btnAddToCart.isEnabled = false
@@ -60,6 +65,13 @@ class ProductoAdapter(
         }
 
         holder.itemView.setOnClickListener { onItemClick(producto) }
+=======
+        // Set click listener on the entire item card
+        holder.itemView.setOnClickListener { onItemClick(producto) }
+
+        // Set click listener on the add to cart button
+        holder.btnAddToCart.setOnClickListener { onAddToCart(producto) }
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
     }
 
     override fun getItemCount() = productos.size

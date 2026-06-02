@@ -31,7 +31,11 @@ class ClientesActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerViewClientes)
         recyclerView.layoutManager = LinearLayoutManager(this)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
         adapter = ClienteAdapter(emptyList(), this::deleteCliente)
         recyclerView.adapter = adapter
 
@@ -43,6 +47,10 @@ class ClientesActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<Usuario>>, response: Response<List<Usuario>>) {
                 if (response.isSuccessful) {
                     val allUsers = response.body() ?: emptyList()
+<<<<<<< HEAD
+=======
+                    // Filtrar usuarios con rol_id == 2 (Cliente) o rol_nombre == "Cliente"
+>>>>>>> b7f452d219807d848280414615abd82330c326b6
                     val clientes = allUsers.filter { it.rol_id == 2 || it.rol_nombre?.equals("Cliente", ignoreCase = true) == true }
                     adapter.updateData(clientes)
                 } else {
