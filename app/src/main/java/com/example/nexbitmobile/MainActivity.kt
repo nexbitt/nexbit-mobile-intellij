@@ -2,10 +2,10 @@ package com.example.nexbitmobile
 import com.example.nexbitmobile.ui.EntregasActivity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,8 +38,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         drawerLayout = findViewById(R.id.drawer_layout)
-        val btnOpenMenu = findViewById<Button>(R.id.btnOpenMenu)
+        val toolbar = findViewById<Toolbar>(R.id.toolbarMain)
         val navView = findViewById<NavigationView>(R.id.nav_view)
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setHomeAsUpIndicator(android.R.drawable.ic_menu_more)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val rolId = prefs.getInt("rolId", ROL_CLIENTE)
@@ -59,10 +66,6 @@ class MainActivity : AppCompatActivity() {
         menu.findItem(R.id.nav_group_admin).isVisible = isAdmin
         menu.findItem(R.id.nav_group_cliente).isVisible = isCliente
         menu.findItem(R.id.nav_group_repartidor).isVisible = isRepartidor
-
-        btnOpenMenu.setOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
