@@ -12,6 +12,7 @@ import com.example.nexbitmobile.model.Pedido
 
 class PedidoAdminAdapter(
     private var pedidos: List<Pedido>,
+    private val isClienteView: Boolean = false,
     private val onEdit: (Pedido) -> Unit,
     private val onDelete: (Pedido) -> Unit,
     private val onTicket: (Pedido) -> Unit
@@ -40,13 +41,34 @@ class PedidoAdminAdapter(
         holder.tvEstado.text = pedido.estado
 
         when (pedido.estado) {
-            "PENDIENTE" -> holder.tvEstado.setTextColor(Color.parseColor("#f59f00"))
-            "CANCELADO" -> holder.tvEstado.setTextColor(Color.parseColor("#e03131"))
-            "PAGADO", "ENTREGADO" -> holder.tvEstado.setTextColor(Color.parseColor("#2f9e44"))
+            "PENDIENTE" -> holder.tvEstado.setTextColor(Color.parseColor("#f59f00")) // Naranja
+            "CONFIRMADO" -> holder.tvEstado.setTextColor(Color.parseColor("#8b5cf6")) // Morado
+            "ASIGNADO" -> holder.tvEstado.setTextColor(Color.parseColor("#3b82f6")) // Azul
+            "EN_CAMINO" -> holder.tvEstado.setTextColor(Color.parseColor("#f59e0b")) // Amarillo
+            "CANCELADO" -> holder.tvEstado.setTextColor(Color.parseColor("#e03131")) // Rojo
+            "PAGADO", "ENTREGADO" -> holder.tvEstado.setTextColor(Color.parseColor("#2f9e44")) // Verde
         }
 
-        holder.btnEdit.setOnClickListener { onEdit(pedido) }
-        holder.btnDelete.setOnClickListener { onDelete(pedido) }
+        if (isClienteView) {
+            holder.tvCliente.visibility = View.GONE // Cliente no necesita ver su propio nombre en la tarjeta
+            
+            // Si el pedido está PENDIENTE, permitimos cancelarlo (reutilizando btnDelete con icono de basura o cambiar lógica)
+            if (pedido.estado == "PENDIENTE") {
+                holder.btnDelete.visibility = View.VISIBLE
+                holder.btnDelete.setOnClickListener { onDelete(pedido) }
+            } else {
+                holder.btnDelete.visibility = View.GONE
+            }
+            holder.btnEdit.visibility = View.GONE
+        } else {
+            holder.tvCliente.visibility = View.VISIBLE
+            holder.btnEdit.visibility = View.VISIBLE
+            holder.btnDelete.visibility = View.VISIBLE
+            
+            holder.btnEdit.setOnClickListener { onEdit(pedido) }
+            holder.btnDelete.setOnClickListener { onDelete(pedido) }
+        }
+        
         holder.btnTicket.setOnClickListener { onTicket(pedido) }
     }
 

@@ -71,6 +71,7 @@
         <activity android:name=".ui.ProductosAdminActivity" android:exported="false" />
         <activity android:name=".ui.PedidosAdminActivity" android:exported="false" />
         <activity android:name=".ui.EntregasActivity" android:exported="false" />
+        <activity android:name=".ui.MisPedidosActivity" android:exported="false" />
 
     </application>
 

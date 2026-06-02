@@ -217,15 +217,36 @@ class CarritoActivity : AppCompatActivity() {
     }
 
     private fun confirmCheckout() {
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val userAddress = prefs.getString("userAddress", "")
+
+        // Paso 1: pedir dirección de entrega
+        val input = EditText(this).apply {
+            hint = "Ej: Calle 45 #12-34, Bogotá"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            maxLines = 3
+            setPadding(48, 32, 48, 16)
+            setText(userAddress)
+        }
+
         AlertDialog.Builder(this)
-            .setTitle("Confirmar Pedido")
-            .setMessage("¿Deseas realizar el pedido con los productos de tu carrito por un total de ${formatter.format(cartTotal)}?")
-            .setPositiveButton("Confirmar") { _, _ -> realizarPedido() }
+            .setTitle("📍 Dirección de entrega")
+            .setMessage("¿Dónde entregaremos tu pedido de ${formatter.format(cartTotal)}?")
+            .setView(input)
+            .setPositiveButton("Confirmar Pedido") { _, _ ->
+                val direccion = input.text.toString().trim()
+                if (direccion.isEmpty()) {
+                    Toast.makeText(this, "La dirección es obligatoria", Toast.LENGTH_SHORT).show()
+                } else {
+                    prefs.edit().putString("userAddress", direccion).apply()
+                    realizarPedido(direccion)
+                }
+            }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun realizarPedido() {
+    private fun realizarPedido(direccionEntrega: String) {
         if (userId == 0 || token.isEmpty()) {
             Toast.makeText(this, "Inicia sesión para continuar", Toast.LENGTH_SHORT).show()
             return
@@ -233,36 +254,38 @@ class CarritoActivity : AppCompatActivity() {
 
         progressBar.visibility = View.VISIBLE
 
-        val request = PedidoRequest(
+        val request = CheckoutRequest(
             usuario_id = userId,
-            total = cartTotal,
-            estado = "PENDIENTE"
+            direccion_entrega = direccionEntrega
         )
 
-        ApiClient.instance.createPedido(request).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+        ApiClient.instance.checkout(request).enqueue(object : Callback<CheckoutResponse> {
+            override fun onResponse(call: Call<CheckoutResponse>, response: Response<CheckoutResponse>) {
                 progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
-                    showSuccessDialog()
+                    showSuccessDialog(response.body()?.id_pedido)
                 } else {
-                    Toast.makeText(this@CarritoActivity, "Error al registrar el pedido (${response.code()})", Toast.LENGTH_SHORT).show()
+                    val errorMsg = response.errorBody()?.string() ?: "Error desconocido"
+                    Toast.makeText(this@CarritoActivity, "Error: $errorMsg", Toast.LENGTH_LONG).show()
                 }
             }
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
+            override fun onFailure(call: Call<CheckoutResponse>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 Toast.makeText(this@CarritoActivity, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun showSuccessDialog() {
+    private fun showSuccessDialog(pedidoId: Int? = null) {
+        val msg = if (pedidoId != null) "Tu pedido #$pedidoId ha sido registrado con éxito.\n¡Estará en camino pronto!"
+                  else "Tu pedido ha sido registrado con éxito en el sistema."
         AlertDialog.Builder(this)
-            .setTitle("¡Pedido Realizado!")
-            .setMessage("Tu pedido ha sido registrado con éxito en el sistema.")
+            .setTitle("🎉 ¡Pedido Realizado!")
+            .setMessage(msg)
             .setCancelable(false)
-            .setPositiveButton("Ver Pedidos") { _, _ ->
-                startActivity(Intent(this, PedidosAdminActivity::class.java))
+            .setPositiveButton("Ver Mis Pedidos") { _, _ ->
+                startActivity(Intent(this, MisPedidosActivity::class.java))
                 finish()
             }
             .setNegativeButton("Volver al Catálogo") { _, _ ->
