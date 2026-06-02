@@ -6,7 +6,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -33,9 +36,15 @@ class CatalogoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_catalogo)
 
-        // Bind views
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
         rvProductos = findViewById(R.id.rvProductos)
         progressBar = findViewById(R.id.progressBar)
         tvEmpty = findViewById(R.id.tvEmpty)
@@ -43,22 +52,24 @@ class CatalogoActivity : AppCompatActivity() {
         llCategoryChips = findViewById(R.id.llCategoryChips)
         etSearch = findViewById(R.id.etSearch)
 
-        // Setup RecyclerView
-        adapter = ProductoAdapter(emptyList()) { producto ->
-            addToCart(producto)
-        }
+        adapter = ProductoAdapter(
+            emptyList(),
+            onAddToCart = { producto -> addToCart(producto) },
+            onItemClick = { producto ->
+                val intent = Intent(this, ProductDetailActivity::class.java).apply {
+                    putExtra("id_producto", producto.id_producto)
+                }
+                startActivity(intent)
+            }
+        )
         rvProductos.layoutManager = GridLayoutManager(this, 2)
         rvProductos.adapter = adapter
 
-        // Back button
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
-
-        // Cart button
         findViewById<FrameLayout>(R.id.btnCartContainer).setOnClickListener {
             startActivity(Intent(this, CarritoActivity::class.java))
         }
 
-        // Search
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -67,7 +78,6 @@ class CatalogoActivity : AppCompatActivity() {
             }
         })
 
-        // Load data
         loadProducts()
         loadCategories()
         loadCartCount()
@@ -103,11 +113,7 @@ class CatalogoActivity : AppCompatActivity() {
     }
 
     private fun loadCategories() {
-        val prefs = getSharedPreferences("app", MODE_PRIVATE)
-        val token = prefs.getString("token", "") ?: ""
-        if (token.isEmpty()) return
-
-        ApiClient.instance.getCategorias("Bearer $token").enqueue(object : Callback<List<Categoria>> {
+        ApiClient.instance.getCategorias().enqueue(object : Callback<List<Categoria>> {
             override fun onResponse(call: Call<List<Categoria>>, response: Response<List<Categoria>>) {
                 if (response.isSuccessful) {
                     categorias = response.body() ?: emptyList()
@@ -116,7 +122,6 @@ class CatalogoActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<List<Categoria>>, t: Throwable) {
-                // Silently fail — categories are optional filter
             }
         })
     }
@@ -124,7 +129,6 @@ class CatalogoActivity : AppCompatActivity() {
     private fun buildCategoryChips() {
         llCategoryChips.removeAllViews()
 
-        // "Todos" chip
         addChip("Todos", null, selectedCategoriaId == null)
 
         for (cat in categorias) {
@@ -164,12 +168,10 @@ class CatalogoActivity : AppCompatActivity() {
         val query = etSearch.text.toString().trim().lowercase()
         var filtered = allProductos
 
-        // Filter by category
         if (selectedCategoriaId != null) {
             filtered = filtered.filter { it.categoria_id == selectedCategoriaId }
         }
 
-        // Filter by search
         if (query.isNotEmpty()) {
             filtered = filtered.filter {
                 it.nombre.lowercase().contains(query) ||
@@ -186,9 +188,8 @@ class CatalogoActivity : AppCompatActivity() {
     private fun addToCart(producto: Producto) {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userId = prefs.getInt("userId", 0)
-        val token = prefs.getString("token", "") ?: ""
 
-        if (userId == 0 || token.isEmpty()) {
+        if (userId == 0) {
             Toast.makeText(this, "Inicia sesión para agregar al carrito", Toast.LENGTH_SHORT).show()
             return
         }
@@ -200,12 +201,12 @@ class CatalogoActivity : AppCompatActivity() {
             cantidad = 1
         )
 
-        ApiClient.instance.addToCarrito("Bearer $token", request).enqueue(object : Callback<List<CarritoItem>> {
+        ApiClient.instance.addToCarrito(request).enqueue(object : Callback<List<CarritoItem>> {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 if (response.isSuccessful) {
                     val cart = response.body() ?: emptyList()
                     updateCartBadge(cart.size)
-                    Toast.makeText(this@CatalogoActivity, "✓ ${producto.nombre} agregado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CatalogoActivity, "${producto.nombre} agregado", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@CatalogoActivity, "Error al agregar (${response.code()})", Toast.LENGTH_SHORT).show()
                 }
@@ -220,10 +221,9 @@ class CatalogoActivity : AppCompatActivity() {
     private fun loadCartCount() {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userId = prefs.getInt("userId", 0)
-        val token = prefs.getString("token", "") ?: ""
-        if (userId == 0 || token.isEmpty()) return
+        if (userId == 0) return
 
-        ApiClient.instance.getCarrito("Bearer $token", userId).enqueue(object : Callback<List<CarritoItem>> {
+        ApiClient.instance.getCarrito(userId).enqueue(object : Callback<List<CarritoItem>> {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 if (response.isSuccessful) {
                     updateCartBadge(response.body()?.size ?: 0)

@@ -1,14 +1,16 @@
 package com.example.nexbitmobile.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
@@ -28,20 +30,17 @@ class PerfilPruebaActivity : AppCompatActivity() {
     private lateinit var etAddress: EditText
     private lateinit var tvStatus: TextView
 
-    /**
-     * Obtiene el token JWT guardado en SharedPreferences y lo formatea como Bearer.
-     */
-    private fun getToken(): String {
-        val prefs = getSharedPreferences("app", Context.MODE_PRIVATE)
-        val savedToken = prefs.getString("token", "") ?: ""
-        return "Bearer $savedToken"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_perfil_prueba)
 
-        // Referencias a campos
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
         etId = findViewById(R.id.etCrudId)
         etName = findViewById(R.id.etCrudName)
         etEmail = findViewById(R.id.etCrudEmail)
@@ -59,26 +58,23 @@ class PerfilPruebaActivity : AppCompatActivity() {
         val btnClear = findViewById<Button>(R.id.btnCrudClear)
         val btnBack = findViewById<Button>(R.id.btnBack)
 
-        // ═══════════════════════════════════════════════
-        // CREAR USUARIO
-        // ═══════════════════════════════════════════════
         btnSave.setOnClickListener {
             val nombre = etName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
             if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                showStatus("⚠ Nombre, email y contraseña son obligatorios", true)
+                showStatus("Nombre, email y contraseña son obligatorios", true)
                 return@setOnClickListener
             }
 
             if (password.length < 6) {
-                showStatus("⚠ La contraseña debe tener al menos 6 caracteres", true)
+                showStatus("La contraseña debe tener al menos 6 caracteres", true)
                 return@setOnClickListener
             }
 
             val req = UsuarioCreateRequest(
-                rol_id = 2, // Cliente por defecto
+                rol_id = 2,
                 nombre = nombre,
                 email = email,
                 password = password,
@@ -90,14 +86,14 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Creando usuario...", false)
 
-            ApiClient.instance.createUsuario(getToken(), req).enqueue(object : Callback<UsuarioCreateResponse> {
+            ApiClient.instance.createUsuario(req).enqueue(object : Callback<UsuarioCreateResponse> {
                 override fun onResponse(call: Call<UsuarioCreateResponse>, response: Response<UsuarioCreateResponse>) {
                     if (response.isSuccessful) {
                         val body = response.body()
                         val newId = body?.id_usuario ?: 0
                         etId.setText(newId.toString())
-                        showStatus("✓ Usuario creado exitosamente (ID: $newId)", false)
-                        Toast.makeText(this@PerfilPruebaActivity, "¡Usuario creado con ID: $newId!", Toast.LENGTH_SHORT).show()
+                        showStatus("Usuario creado exitosamente (ID: $newId)", false)
+                        Toast.makeText(this@PerfilPruebaActivity, "Usuario creado con ID: $newId!", Toast.LENGTH_SHORT).show()
                     } else {
                         val errorMsg = when (response.code()) {
                             400 -> "Datos inválidos o faltantes"
@@ -105,34 +101,31 @@ class PerfilPruebaActivity : AppCompatActivity() {
                             409 -> "El correo ya está registrado"
                             else -> "Error del servidor (${response.code()})"
                         }
-                        showStatus("✗ $errorMsg", true)
+                        showStatus("$errorMsg", true)
                     }
                 }
                 override fun onFailure(call: Call<UsuarioCreateResponse>, t: Throwable) {
-                    showStatus("✗ Error de conexión: ${t.message}", true)
+                    showStatus("Error de conexión: ${t.message}", true)
                 }
             })
         }
 
-        // ═══════════════════════════════════════════════
-        // BUSCAR USUARIO
-        // ═══════════════════════════════════════════════
         btnSearch.setOnClickListener {
             val idStr = etId.text.toString().trim()
             if (idStr.isEmpty()) {
-                showStatus("⚠ Ingresa un ID para buscar", true)
+                showStatus("Ingresa un ID para buscar", true)
                 return@setOnClickListener
             }
 
             val id = idStr.toIntOrNull()
             if (id == null || id <= 0) {
-                showStatus("⚠ ID debe ser un número positivo", true)
+                showStatus("ID debe ser un número positivo", true)
                 return@setOnClickListener
             }
 
             showStatus("Buscando usuario #$id...", false)
 
-            ApiClient.instance.getUsuario(getToken(), id).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getUsuario(id).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -143,38 +136,35 @@ class PerfilPruebaActivity : AppCompatActivity() {
                             etDocNum.setText(user.numero_documento ?: "")
                             etPhone.setText(user.telefono ?: "")
                             etAddress.setText(user.direccion ?: "")
-                            etPassword.setText("") // No mostrar password por seguridad
+                            etPassword.setText("")
 
                             val estado = if (user.activo) "Activo" else "Inactivo"
-                            showStatus("✓ Usuario encontrado: ${user.nombre} (${estado})", false)
+                            showStatus("Usuario encontrado: ${user.nombre} ($estado)", false)
                         }
                     } else {
                         when (response.code()) {
-                            401 -> showStatus("✗ Token inválido. Inicie sesión nuevamente", true)
-                            404 -> showStatus("✗ No se encontró usuario con ID #$id", true)
-                            else -> showStatus("✗ Error al buscar (${response.code()})", true)
+                            401 -> showStatus("Token inválido. Inicie sesión nuevamente", true)
+                            404 -> showStatus("No se encontró usuario con ID #$id", true)
+                            else -> showStatus("Error al buscar (${response.code()})", true)
                         }
                     }
                 }
                 override fun onFailure(call: Call<Usuario>, t: Throwable) {
-                    showStatus("✗ Error de conexión: ${t.message}", true)
+                    showStatus("Error de conexión: ${t.message}", true)
                 }
             })
         }
 
-        // ═══════════════════════════════════════════════
-        // ACTUALIZAR USUARIO
-        // ═══════════════════════════════════════════════
         btnEdit.setOnClickListener {
             val idStr = etId.text.toString().trim()
             if (idStr.isEmpty()) {
-                showStatus("⚠ Primero busca un usuario por ID", true)
+                showStatus("Primero busca un usuario por ID", true)
                 return@setOnClickListener
             }
 
             val id = idStr.toIntOrNull()
             if (id == null || id <= 0) {
-                showStatus("⚠ ID inválido", true)
+                showStatus("ID inválido", true)
                 return@setOnClickListener
             }
 
@@ -182,7 +172,7 @@ class PerfilPruebaActivity : AppCompatActivity() {
             val email = etEmail.text.toString().trim()
 
             if (nombre.isEmpty() || email.isEmpty()) {
-                showStatus("⚠ Nombre y email son obligatorios", true)
+                showStatus("Nombre y email son obligatorios", true)
                 return@setOnClickListener
             }
 
@@ -200,14 +190,13 @@ class PerfilPruebaActivity : AppCompatActivity() {
 
             showStatus("Actualizando usuario #$id...", false)
 
-            ApiClient.instance.updateUsuario(getToken(), id, req).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.updateUsuario(id, req).enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
-                        showStatus("✓ Usuario #$id actualizado exitosamente", false)
-                        Toast.makeText(this@PerfilPruebaActivity, "¡Actualizado correctamente!", Toast.LENGTH_SHORT).show()
+                        showStatus("Usuario #$id actualizado exitosamente", false)
+                        Toast.makeText(this@PerfilPruebaActivity, "Actualizado correctamente!", Toast.LENGTH_SHORT).show()
 
-                        // Refrescar campos con la respuesta del servidor
                         if (user != null) {
                             etName.setText(user.nombre)
                             etEmail.setText(user.email)
@@ -225,55 +214,51 @@ class PerfilPruebaActivity : AppCompatActivity() {
                             409 -> "El correo ya está en uso"
                             else -> "Error del servidor (${response.code()})"
                         }
-                        showStatus("✗ $errorMsg", true)
+                        showStatus("$errorMsg", true)
                     }
                 }
                 override fun onFailure(call: Call<Usuario>, t: Throwable) {
-                    showStatus("✗ Error de conexión: ${t.message}", true)
+                    showStatus("Error de conexión: ${t.message}", true)
                 }
             })
         }
 
-        // ═══════════════════════════════════════════════
-        // ELIMINAR USUARIO
-        // ═══════════════════════════════════════════════
         btnDelete.setOnClickListener {
             val idStr = etId.text.toString().trim()
             if (idStr.isEmpty()) {
-                showStatus("⚠ Ingresa un ID para eliminar", true)
+                showStatus("Ingresa un ID para eliminar", true)
                 return@setOnClickListener
             }
 
             val id = idStr.toIntOrNull()
             if (id == null || id <= 0) {
-                showStatus("⚠ ID inválido", true)
+                showStatus("ID inválido", true)
                 return@setOnClickListener
             }
 
-            // Diálogo de confirmación
             AlertDialog.Builder(this)
                 .setTitle("Confirmar eliminación")
                 .setMessage("¿Estás seguro de eliminar al usuario #$id?\n\nEsta acción no se puede deshacer.")
                 .setPositiveButton("Eliminar") { _, _ ->
                     showStatus("Eliminando usuario #$id...", false)
 
-                    ApiClient.instance.deleteUsuario(getToken(), id).enqueue(object : Callback<Void> {
+                    ApiClient.instance.deleteUsuario(id).enqueue(object : Callback<Void> {
                         override fun onResponse(call: Call<Void>, response: Response<Void>) {
                             if (response.isSuccessful) {
                                 clearForm()
-                                showStatus("✓ Usuario #$id eliminado correctamente", false)
-                                Toast.makeText(this@PerfilPruebaActivity, "¡Eliminado correctamente!", Toast.LENGTH_SHORT).show()
+                                showStatus("Usuario #$id eliminado correctamente", false)
+                                Toast.makeText(this@PerfilPruebaActivity, "Eliminado correctamente!", Toast.LENGTH_SHORT).show()
                             } else {
                                 val errorMsg = when (response.code()) {
                                     401 -> "Token inválido. Inicie sesión nuevamente"
                                     404 -> "Usuario no encontrado"
                                     else -> "Error al eliminar (${response.code()})"
                                 }
-                                showStatus("✗ $errorMsg", true)
+                                showStatus("$errorMsg", true)
                             }
                         }
                         override fun onFailure(call: Call<Void>, t: Throwable) {
-                            showStatus("✗ Error de conexión: ${t.message}", true)
+                            showStatus("Error de conexión: ${t.message}", true)
                         }
                     })
                 }
@@ -281,21 +266,14 @@ class PerfilPruebaActivity : AppCompatActivity() {
                 .show()
         }
 
-        // ═══════════════════════════════════════════════
-        // LIMPIAR FORMULARIO
-        // ═══════════════════════════════════════════════
         btnClear.setOnClickListener {
             clearForm()
             showStatus("Formulario limpiado", false)
         }
 
-        // VOLVER
         btnBack.setOnClickListener { finish() }
     }
 
-    /**
-     * Muestra un mensaje de estado debajo de las acciones.
-     */
     private fun showStatus(message: String, isError: Boolean) {
         tvStatus.visibility = View.VISIBLE
         tvStatus.text = message
@@ -305,9 +283,6 @@ class PerfilPruebaActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * Limpia todos los campos del formulario.
-     */
     private fun clearForm() {
         etId.setText("")
         etName.setText("")

@@ -2,6 +2,7 @@ package com.example.nexbitmobile.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -19,11 +20,12 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+        setContentView(R.layout.activity_login)
+
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val token = prefs.getString("token", null)
         if (!token.isNullOrEmpty()) {
-            ApiClient.instance.getMe("").enqueue(object : Callback<com.example.nexbitmobile.model.Usuario> {
+            ApiClient.instance.getMe().enqueue(object : Callback<com.example.nexbitmobile.model.Usuario> {
                 override fun onResponse(call: Call<com.example.nexbitmobile.model.Usuario>, response: Response<com.example.nexbitmobile.model.Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
@@ -37,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
                             .putString("userPhone", user?.telefono)
                             .putString("userAddress", user?.direccion)
                             .apply()
-                        
+
                         val intent = Intent(this@LoginActivity, com.example.nexbitmobile.MainActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -45,12 +47,10 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure(call: Call<com.example.nexbitmobile.model.Usuario>, t: Throwable) {
-                    // Ignorar error de red y permitir login normal
+                    Log.w("Login", "Token validation failed, allowing normal login", t)
                 }
             })
         }
-
-        setContentView(R.layout.activity_login)
 
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
@@ -68,14 +68,13 @@ class LoginActivity : AppCompatActivity() {
             }
 
             val loginRequest = LoginRequest(email, password)
-            
+
             ApiClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful) {
                         val loginResponse = response.body()
-                        Toast.makeText(this@LoginActivity, "¡Bienvenido ${loginResponse?.user?.nombre}!", Toast.LENGTH_SHORT).show()
-                        
-                        // Guardar datos en SharedPreferences
+                        Toast.makeText(this@LoginActivity, "Bienvenido ${loginResponse?.user?.nombre}!", Toast.LENGTH_SHORT).show()
+
                         val prefs = getSharedPreferences("app", MODE_PRIVATE)
                         prefs.edit()
                             .putInt("userId", loginResponse?.user?.id_usuario ?: 0)
@@ -89,7 +88,6 @@ class LoginActivity : AppCompatActivity() {
                             .putString("token", loginResponse?.token)
                             .apply()
 
-                        // Redirigir al Inicio (Bienvenida) al iniciar sesión
                         val intent = Intent(this@LoginActivity, com.example.nexbitmobile.MainActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -105,7 +103,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
         tvToRegister?.setOnClickListener {
-            // Navegar a RegisterActivity
             val intent = Intent(this, RegistroActivity::class.java)
             startActivity(intent)
         }
