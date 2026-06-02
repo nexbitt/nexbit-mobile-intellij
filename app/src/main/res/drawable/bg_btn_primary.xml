@@ -2,14 +2,15 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="#1D4ED8" />
+            <solid android:color="#333333" />
             <corners android:radius="12dp" />
         </shape>
     </item>
     <item>
         <shape>
-            <solid android:color="#2563EB" />
+            <solid android:color="@color/primary" />
             <corners android:radius="12dp" />
         </shape>
     </item>
 </selector>
+C:\Users\APRENDIZ\IdeaProjects\nexbitmobile

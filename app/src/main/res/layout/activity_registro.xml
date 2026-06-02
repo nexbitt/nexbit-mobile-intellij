@@ -1,15 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
 
-    <LinearLayout
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarRegistro"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        app:title="Crear Cuenta"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@android:drawable/ic_menu_revert" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center">
 
         <TextView
             android:layout_width="wrap_content"
@@ -89,22 +107,27 @@
             android:background="@drawable/bg_input"
             android:padding="12dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:text="Registrarse"
-            android:backgroundTint="#0000FF"
-            android:textColor="#FFFFFF" />
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/primary"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvToLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="¿Ya tienes cuenta? Inicia sesión aquí"
-            android:textColor="#0000FF"
+            android:textColor="@color/primary"
             android:layout_marginTop="16dp"
             android:padding="8dp" />
 
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
+    </ScrollView>
+</LinearLayout>
