@@ -18,6 +18,7 @@ import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.CarritoAddRequest
 import com.example.nexbitmobile.model.CarritoItem
 import com.example.nexbitmobile.model.Producto
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -94,7 +95,6 @@ class ProductDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvProductDescription).text =
             producto.descripcion ?: "No hay descripción detallada para este producto."
 
-        // Format price to COP
         val format = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
             minimumFractionDigits = 0
             maximumFractionDigits = 0
@@ -104,7 +104,6 @@ class ProductDetailActivity : AppCompatActivity() {
         val tvStock = findViewById<TextView>(R.id.tvProductStock)
         val btnAddToCart = findViewById<Button>(R.id.btnAddToCart)
 
-        // Stock validation and styling
         if (producto.stock_actual <= 0) {
             tvStock.text = "Agotado"
             tvStock.setTextColor(resources.getColor(R.color.error_text, theme))
@@ -119,13 +118,17 @@ class ProductDetailActivity : AppCompatActivity() {
             btnAddToCart.alpha = 1.0f
         }
 
-        // Image rendering with Glide
+        // Technical info section
+        findViewById<TextView>(R.id.tvTechId).text = "#${producto.id_producto}"
+        findViewById<TextView>(R.id.tvTechSupplier).text = producto.proveedor_nombre ?: "No especificado"
+        findViewById<TextView>(R.id.tvTechStock).text = "${producto.stock_actual} unidades"
+        findViewById<TextView>(R.id.tvTechWarranty).text = "6 meses con el fabricante"
+
         Glide.with(this)
             .load(producto.imagen_url)
             .placeholder(R.drawable.ic_placeholder)
             .into(findViewById<ImageView>(R.id.ivProductImage))
 
-        // Cart button click listener
         btnAddToCart.setOnClickListener {
             addToCart(producto)
         }
@@ -154,19 +157,24 @@ class ProductDetailActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<CarritoItem>>, response: Response<List<CarritoItem>>) {
                 findViewById<FrameLayout>(R.id.loadingOverlay).visibility = View.GONE
                 if (response.isSuccessful) {
-                    Toast.makeText(this@ProductDetailActivity, "✓ ${producto.nombre} agregado", Toast.LENGTH_SHORT).show()
+                    val snackbar = Snackbar.make(findViewById(R.id.main), "✓ ${producto.nombre} agregado al carrito", Snackbar.LENGTH_SHORT)
+                    snackbar.setAction("Ver Carrito") {
+                        startActivity(android.content.Intent(this@ProductDetailActivity, CarritoActivity::class.java))
+                    }
+                    snackbar.setActionTextColor(resources.getColor(R.color.secondary, theme))
+                    snackbar.show()
                 } else {
-                    Toast.makeText(
-                        this@ProductDetailActivity,
-                        "Error al agregar (${response.code()})",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Snackbar.make(findViewById(R.id.main), "Error al agregar (${response.code()})", Snackbar.LENGTH_SHORT)
+                        .setTextColor(resources.getColor(R.color.error_text, theme))
+                        .show()
                 }
             }
 
             override fun onFailure(call: Call<List<CarritoItem>>, t: Throwable) {
                 findViewById<FrameLayout>(R.id.loadingOverlay).visibility = View.GONE
-                Toast.makeText(this@ProductDetailActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(R.id.main), "Error de conexión", Snackbar.LENGTH_SHORT)
+                    .setTextColor(resources.getColor(R.color.error_text, theme))
+                    .show()
             }
         })
     }

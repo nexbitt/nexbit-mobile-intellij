@@ -3,6 +3,8 @@ package com.example.nexbitmobile.ui
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -21,6 +23,7 @@ import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.Categoria
 import com.example.nexbitmobile.model.Producto
+import com.example.nexbitmobile.model.Proveedor
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -38,10 +41,12 @@ class ProductosAdminActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ProductoAdminAdapter
     private lateinit var fabAdd: FloatingActionButton
+    private lateinit var etSearch: EditText
 
+    private var allProductos = listOf<Producto>()
     private var categoriasList = listOf<Categoria>()
+    private var proveedoresList = listOf<Proveedor>()
     
-    // Para manejo de imagen en el Dialog
     private var currentImageUri: Uri? = null
     private var currentImageView: ImageView? = null
 
@@ -65,15 +70,39 @@ class ProductosAdminActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerView)
         fabAdd = findViewById(R.id.fabAdd)
+        etSearch = findViewById(R.id.etSearch)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = ProductoAdminAdapter(emptyList(), this::showEditDialog, this::deleteProducto)
         recyclerView.adapter = adapter
 
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                filterProducts()
+            }
+        })
+
         fabAdd.setOnClickListener { showCreateDialog() }
 
         loadCategorias()
+        loadProveedores()
         loadProductos()
+    }
+
+    private fun filterProducts() {
+        val query = etSearch.text.toString().trim().lowercase()
+        val filtered = if (query.isEmpty()) {
+            allProductos
+        } else {
+            allProductos.filter { p ->
+                (p.nombre.lowercase().contains(query)) ||
+                (p.categoria_nombre?.lowercase()?.contains(query) == true) ||
+                (p.proveedor_nombre?.lowercase()?.contains(query) == true)
+            }
+        }
+        adapter.updateData(filtered)
     }
 
     private fun loadCategorias() {
@@ -95,7 +124,8 @@ class ProductosAdminActivity : AppCompatActivity() {
         ApiClient.instance.getProductos().enqueue(object : Callback<List<Producto>> {
             override fun onResponse(call: Call<List<Producto>>, response: Response<List<Producto>>) {
                 if (response.isSuccessful) {
-                    adapter.updateData(response.body() ?: emptyList())
+                    allProductos = response.body() ?: emptyList()
+                    filterProducts()
                 } else {
                     Toast.makeText(this@ProductosAdminActivity, "Error al cargar productos", Toast.LENGTH_SHORT).show()
                 }
@@ -103,6 +133,21 @@ class ProductosAdminActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<List<Producto>>, t: Throwable) {
                 Toast.makeText(this@ProductosAdminActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun loadProveedores() {
+        ApiClient.instance.getProveedores().enqueue(object : Callback<List<Proveedor>> {
+            override fun onResponse(call: Call<List<Proveedor>>, response: Response<List<Proveedor>>) {
+                if (response.isSuccessful) {
+                    proveedoresList = response.body() ?: emptyList()
+                } else {
+                    Log.e("ProductosAdmin", "Error loading proveedores: ${response.code()}")
+                }
+            }
+            override fun onFailure(call: Call<List<Proveedor>>, t: Throwable) {
+                Log.e("ProductosAdmin", "Proveedor load failed", t)
             }
         })
     }
@@ -132,15 +177,24 @@ class ProductosAdminActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.dialog_producto, null)
         val etNombre = view.findViewById<EditText>(R.id.etNombre)
         val spCategoria = view.findViewById<Spinner>(R.id.spCategoria)
+        val spProveedor = view.findViewById<Spinner>(R.id.spProveedor)
         val etPrecioCompra = view.findViewById<EditText>(R.id.etPrecioCompra)
         val etPrecioVenta = view.findViewById<EditText>(R.id.etPrecioVenta)
         val etStock = view.findViewById<EditText>(R.id.etStock)
+        val etStockMinimo = view.findViewById<EditText>(R.id.etStockMinimo)
+        val spEstado = view.findViewById<Spinner>(R.id.spEstado)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
         val btnSeleccionarImagen = view.findViewById<Button>(R.id.btnSeleccionarImagen)
         currentImageView = view.findViewById(R.id.ivPreview)
 
         val catNames = categoriasList.map { it.nombre }
         spCategoria.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, catNames)
+
+        val provNames = listOf("Sin proveedor") + proveedoresList.map { it.nombre }
+        spProveedor.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, provNames)
+
+        val estados = arrayOf("Activo", "Inactivo")
+        spEstado.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, estados)
 
         btnSeleccionarImagen.setOnClickListener {
             selectImageLauncher.launch("image/*")
@@ -156,6 +210,9 @@ class ProductosAdminActivity : AppCompatActivity() {
                 }
                 
                 val catId = categoriasList[spCategoria.selectedItemPosition].id_categoria
+                val provId = if (spProveedor.selectedItemPosition > 0)
+                    proveedoresList[spProveedor.selectedItemPosition - 1].id_proveedor.toString() else ""
+                val activo = if (spEstado.selectedItemPosition == 0) "1" else "0"
                 
                 var imagePart: MultipartBody.Part? = null
                 currentImageUri?.let { uri ->
@@ -168,14 +225,14 @@ class ProductosAdminActivity : AppCompatActivity() {
 
                 ApiClient.instance.createProducto(
                     createPartFromString(catId.toString()),
-                    createPartFromString(""), // proveedor
+                    createPartFromString(provId),
                     createPartFromString(etNombre.text.toString()),
                     createPartFromString(etDescripcion.text.toString()),
                     createPartFromString(if(etPrecioCompra.text.isEmpty()) "0" else etPrecioCompra.text.toString()),
                     createPartFromString(if(etPrecioVenta.text.isEmpty()) "0" else etPrecioVenta.text.toString()),
                     createPartFromString(if(etStock.text.isEmpty()) "0" else etStock.text.toString()),
-                    createPartFromString("5"), // stock minimo default
-                    createPartFromString("1"), // activo
+                    createPartFromString(if(etStockMinimo.text.isEmpty()) "0" else etStockMinimo.text.toString()),
+                    createPartFromString(activo),
                     imagePart
                 ).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -197,9 +254,12 @@ class ProductosAdminActivity : AppCompatActivity() {
         val view = layoutInflater.inflate(R.layout.dialog_producto, null)
         val etNombre = view.findViewById<EditText>(R.id.etNombre)
         val spCategoria = view.findViewById<Spinner>(R.id.spCategoria)
+        val spProveedor = view.findViewById<Spinner>(R.id.spProveedor)
         val etPrecioCompra = view.findViewById<EditText>(R.id.etPrecioCompra)
         val etPrecioVenta = view.findViewById<EditText>(R.id.etPrecioVenta)
         val etStock = view.findViewById<EditText>(R.id.etStock)
+        val etStockMinimo = view.findViewById<EditText>(R.id.etStockMinimo)
+        val spEstado = view.findViewById<Spinner>(R.id.spEstado)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
         val btnSeleccionarImagen = view.findViewById<Button>(R.id.btnSeleccionarImagen)
         currentImageView = view.findViewById(R.id.ivPreview)
@@ -207,13 +267,28 @@ class ProductosAdminActivity : AppCompatActivity() {
         val catNames = categoriasList.map { it.nombre }
         spCategoria.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, catNames)
 
+        val provNames = listOf("Sin proveedor") + proveedoresList.map { it.nombre }
+        spProveedor.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, provNames)
+
+        val estados = arrayOf("Activo", "Inactivo")
+        spEstado.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, estados)
+
+        // Set existing values
         val catIndex = categoriasList.indexOfFirst { it.id_categoria == producto.categoria_id }
         if (catIndex >= 0) spCategoria.setSelection(catIndex)
+
+        if (producto.proveedor_id != null) {
+            val provIndex = proveedoresList.indexOfFirst { it.id_proveedor == producto.proveedor_id }
+            if (provIndex >= 0) spProveedor.setSelection(provIndex + 1)
+        }
+
+        spEstado.setSelection(if (producto.activo == 1) 0 else 1)
 
         etNombre.setText(producto.nombre)
         etPrecioCompra.setText(producto.precio_compra.toString())
         etPrecioVenta.setText(producto.precio_venta.toString())
         etStock.setText(producto.stock_actual.toString())
+        etStockMinimo.setText(producto.stock_minimo.toString())
         etDescripcion.setText(producto.descripcion ?: "")
 
         if (!producto.imagen_url.isNullOrEmpty()) {
@@ -231,6 +306,9 @@ class ProductosAdminActivity : AppCompatActivity() {
             .setView(view)
             .setPositiveButton("Actualizar") { _, _ ->
                 val catId = categoriasList[spCategoria.selectedItemPosition].id_categoria
+                val provId = if (spProveedor.selectedItemPosition > 0)
+                    proveedoresList[spProveedor.selectedItemPosition - 1].id_proveedor.toString() else ""
+                val activo = if (spEstado.selectedItemPosition == 0) "1" else "0"
                 
                 var imagePart: MultipartBody.Part? = null
                 currentImageUri?.let { uri ->
@@ -248,14 +326,14 @@ class ProductosAdminActivity : AppCompatActivity() {
                 ApiClient.instance.updateProducto(
                     producto.id_producto,
                     createPartFromString(catId.toString()),
-                    createPartFromString(producto.proveedor_id?.toString() ?: ""),
+                    createPartFromString(provId),
                     createPartFromString(etNombre.text.toString()),
                     createPartFromString(etDescripcion.text.toString()),
                     createPartFromString(etPrecioCompra.text.toString()),
                     createPartFromString(etPrecioVenta.text.toString()),
                     createPartFromString(etStock.text.toString()),
-                    createPartFromString(producto.stock_minimo.toString()),
-                    createPartFromString(producto.activo.toString()),
+                    createPartFromString(if(etStockMinimo.text.isEmpty()) "0" else etStockMinimo.text.toString()),
+                    createPartFromString(activo),
                     imagePart,
                     imageUrlPart
                 ).enqueue(object : Callback<Void> {

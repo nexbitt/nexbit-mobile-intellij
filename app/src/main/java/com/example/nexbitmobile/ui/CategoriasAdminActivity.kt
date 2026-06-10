@@ -1,6 +1,8 @@
 package com.example.nexbitmobile.ui
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
@@ -22,6 +24,9 @@ class CategoriasAdminActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CategoriaAdapter
     private lateinit var fabAdd: FloatingActionButton
+    private lateinit var etSearch: EditText
+
+    private var allCategorias = listOf<Categoria>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,21 +39,44 @@ class CategoriasAdminActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerView)
         fabAdd = findViewById(R.id.fabAdd)
+        etSearch = findViewById(R.id.etSearch)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = CategoriaAdapter(emptyList(), this::showEditDialog, this::deleteCategoria)
         recyclerView.adapter = adapter
+
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                filterCategorias()
+            }
+        })
 
         fabAdd.setOnClickListener { showCreateDialog() }
 
         loadCategorias()
     }
 
+    private fun filterCategorias() {
+        val query = etSearch.text.toString().trim().lowercase()
+        val filtered = if (query.isEmpty()) {
+            allCategorias
+        } else {
+            allCategorias.filter { c ->
+                (c.nombre.lowercase().contains(query)) ||
+                (c.descripcion?.lowercase()?.contains(query) == true)
+            }
+        }
+        adapter.updateData(filtered)
+    }
+
     private fun loadCategorias() {
         ApiClient.instance.getCategorias().enqueue(object : Callback<List<Categoria>> {
             override fun onResponse(call: Call<List<Categoria>>, response: Response<List<Categoria>>) {
                 if (response.isSuccessful) {
-                    adapter.updateData(response.body() ?: emptyList())
+                    allCategorias = response.body() ?: emptyList()
+                    filterCategorias()
                 } else {
                     Toast.makeText(this@CategoriasAdminActivity, "Error al cargar categorías", Toast.LENGTH_SHORT).show()
                 }

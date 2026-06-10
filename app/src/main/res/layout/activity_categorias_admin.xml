@@ -19,6 +19,21 @@
             app:titleTextColor="@color/text_on_primary"
             app:elevation="4dp" />
 
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:hint="Buscar por nombre o descripción..."
+            android:background="@drawable/bg_input"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:inputType="text"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"

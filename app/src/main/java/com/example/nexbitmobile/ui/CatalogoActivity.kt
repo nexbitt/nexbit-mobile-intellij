@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
+import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -206,16 +208,31 @@ class CatalogoActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val cart = response.body() ?: emptyList()
                     updateCartBadge(cart.size)
-                    Toast.makeText(this@CatalogoActivity, "${producto.nombre} agregado", Toast.LENGTH_SHORT).show()
+                    showCartAddedSnackbar(producto)
                 } else {
-                    Toast.makeText(this@CatalogoActivity, "Error al agregar (${response.code()})", Toast.LENGTH_SHORT).show()
+                    showCartErrorSnackbar("Error al agregar (${response.code()})")
                 }
             }
 
             override fun onFailure(call: Call<List<CarritoItem>>, t: Throwable) {
-                Toast.makeText(this@CatalogoActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                showCartErrorSnackbar("Error de conexión")
             }
         })
+    }
+
+    private fun showCartAddedSnackbar(producto: Producto) {
+        val snackbar = Snackbar.make(findViewById(R.id.main), "✓ ${producto.nombre} agregado", Snackbar.LENGTH_SHORT)
+        snackbar.setAction("Ver Carrito") {
+            startActivity(Intent(this, CarritoActivity::class.java))
+        }
+        snackbar.setActionTextColor(resources.getColor(R.color.secondary, theme))
+        snackbar.show()
+    }
+
+    private fun showCartErrorSnackbar(msg: String) {
+        val snackbar = Snackbar.make(findViewById(R.id.main), msg, Snackbar.LENGTH_SHORT)
+        snackbar.setTextColor(resources.getColor(R.color.error_text, theme))
+        snackbar.show()
     }
 
     private fun loadCartCount() {
@@ -235,10 +252,15 @@ class CatalogoActivity : AppCompatActivity() {
     }
 
     private fun updateCartBadge(count: Int) {
+        val wasEmpty = cartItemCount == 0
         cartItemCount = count
         if (count > 0) {
             tvCartBadge.text = if (count > 99) "99+" else count.toString()
             tvCartBadge.visibility = View.VISIBLE
+            if (!wasEmpty) {
+                val bump = AnimationUtils.loadAnimation(this, R.anim.badge_bump)
+                tvCartBadge.startAnimation(bump)
+            }
         } else {
             tvCartBadge.visibility = View.GONE
         }

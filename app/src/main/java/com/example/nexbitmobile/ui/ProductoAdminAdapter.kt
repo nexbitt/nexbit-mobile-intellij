@@ -6,10 +6,13 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.model.Producto
+import java.text.NumberFormat
+import java.util.Locale
 
 class ProductoAdminAdapter(
     private var productos: List<Producto>,
@@ -22,6 +25,7 @@ class ProductoAdminAdapter(
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvCategoria: TextView = view.findViewById(R.id.tvCategoria)
         val tvStock: TextView = view.findViewById(R.id.tvStock)
+        val tvEstado: TextView = view.findViewById(R.id.tvEstado)
         val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
         val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
     }
@@ -33,13 +37,31 @@ class ProductoAdminAdapter(
 
     override fun onBindViewHolder(holder: ProductoViewHolder, position: Int) {
         val producto = productos[position]
-        holder.tvNombre.text = producto.nombre
-        holder.tvCategoria.text = "Categoría: ${producto.categoria_nombre ?: "General"}"
-        holder.tvStock.text = "Stock: ${producto.stock_actual}"
+        val ctx = holder.itemView.context
 
-        Glide.with(holder.itemView.context)
+        holder.tvNombre.text = producto.nombre
+        holder.tvCategoria.text = "${producto.categoria_nombre ?: "General"} • ${producto.proveedor_nombre ?: "Sin proveedor"}"
+
+        // Stock with low-stock warning
+        val isLowStock = producto.stock_actual <= producto.stock_minimo
+        holder.tvStock.text = "Stock: ${producto.stock_actual} (mín: ${producto.stock_minimo})"
+        holder.tvStock.setTextColor(
+            if (isLowStock) ContextCompat.getColor(ctx, R.color.error_text)
+            else ContextCompat.getColor(ctx, R.color.text_secondary)
+        )
+
+        // Estado chip
+        val isActive = producto.activo == 1
+        holder.tvEstado.text = if (isActive) "Activo" else "Inactivo"
+        holder.tvEstado.setTextColor(
+            if (isActive) ContextCompat.getColor(ctx, R.color.success)
+            else ContextCompat.getColor(ctx, R.color.text_light)
+        )
+
+        Glide.with(ctx)
             .load(producto.imagen_url)
-            .placeholder(android.R.drawable.ic_menu_gallery)
+            .placeholder(R.drawable.ic_placeholder)
+            .error(R.drawable.ic_placeholder)
             .into(holder.ivProducto)
 
         holder.btnEdit.setOnClickListener { onEdit(producto) }
