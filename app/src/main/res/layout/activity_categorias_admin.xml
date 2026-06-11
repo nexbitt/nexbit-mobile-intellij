@@ -14,10 +14,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary"
+            android:background="@color/bg_surface"
             app:title="Categorías (Admin)"
-            app:titleTextColor="@color/text_on_primary"
-            app:elevation="4dp" />
+            app:titleTextColor="@color/text_main"
+            app:elevation="1dp"
+            app:subtitleTextColor="@color/text_secondary" />
 
         <EditText
             android:id="@+id/etSearch"
@@ -27,12 +28,24 @@
             android:paddingHorizontal="16dp"
             android:paddingVertical="10dp"
             android:hint="Buscar por nombre o descripción..."
-            android:background="@drawable/bg_input"
+            android:background="@drawable/bg_search_bar"
             android:textSize="14sp"
             android:maxLines="1"
             android:inputType="text"
             android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="8dp" />
+            android:drawablePadding="8dp"
+            android:textColorHint="@color/text_light" />
+
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="No hay categorías registradas"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp"
+            android:layout_marginTop="48dp"
+            android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

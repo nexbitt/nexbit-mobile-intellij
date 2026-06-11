@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvCarouselTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sales Overview"
+            android:textColor="@color/text_main"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCarouselDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jan 2026"
+            android:textColor="@color/label"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/tvCarouselMainValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="$18,750.63"
+            android:textColor="@color/text_main"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:paddingStart="8dp"
+            android:paddingEnd="4dp">
+
+            <View android:layout_width="6dp" android:layout_height="16dp" android:layout_marginEnd="4dp" android:background="@drawable/bg_spark_bar" />
+            <View android:layout_width="6dp" android:layout_height="24dp" android:layout_marginEnd="4dp" android:background="@drawable/bg_spark_bar" />
+            <View android:layout_width="6dp" android:layout_height="28dp" android:layout_marginEnd="4dp" android:background="@drawable/bg_spark_bar" />
+            <View android:layout_width="6dp" android:layout_height="20dp" android:layout_marginEnd="4dp" android:background="@drawable/bg_spark_bar" />
+            <View android:layout_width="6dp" android:layout_height="10dp" android:background="@drawable/bg_spark_bar" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/card_border"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+            <TextView android:id="@+id/tvMetric1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$63,508" android:textColor="@color/text_main" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Revenue" android:textColor="@color/label" android:textSize="11sp" android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <View android:layout_width="0.5dp" android:layout_height="32dp" android:background="@color/card_border" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+            <TextView android:id="@+id/tvMetric2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="120" android:textColor="@color/text_main" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Product" android:textColor="@color/label" android:textSize="11sp" android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <View android:layout_width="0.5dp" android:layout_height="32dp" android:background="@color/card_border" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+            <TextView android:id="@+id/tvMetric3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2,405" android:textColor="@color/text_main" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Customer" android:textColor="@color/label" android:textSize="11sp" android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <View android:layout_width="0.5dp" android:layout_height="32dp" android:background="@color/card_border" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+            <TextView android:id="@+id/tvMetric4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$40.81" android:textColor="@color/text_main" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Average" android:textColor="@color/label" android:textSize="11sp" android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

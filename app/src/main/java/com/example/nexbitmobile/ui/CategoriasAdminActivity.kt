@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.Categoria
+import com.example.nexbitmobile.model.CategoriaCreateResponse
+import com.example.nexbitmobile.model.CategoriaRequest
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,6 +29,7 @@ class CategoriasAdminActivity : AppCompatActivity() {
     private lateinit var adapter: CategoriaAdapter
     private lateinit var fabAdd: FloatingActionButton
     private lateinit var etSearch: EditText
+    private lateinit var tvEmpty: TextView
 
     private var allCategorias = listOf<Categoria>()
 
@@ -40,6 +45,7 @@ class CategoriasAdminActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         fabAdd = findViewById(R.id.fabAdd)
         etSearch = findViewById(R.id.etSearch)
+        tvEmpty = findViewById(R.id.tvEmpty)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = CategoriaAdapter(emptyList(), this::showEditDialog, this::deleteCategoria)
@@ -69,6 +75,8 @@ class CategoriasAdminActivity : AppCompatActivity() {
             }
         }
         adapter.updateData(filtered)
+        tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        recyclerView.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
     private fun loadCategorias() {
@@ -93,28 +101,40 @@ class CategoriasAdminActivity : AppCompatActivity() {
         val etNombre = view.findViewById<EditText>(R.id.etNombre)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Nueva Categoría")
             .setView(view)
-            .setPositiveButton("Guardar") { _, _ ->
-                val categoria = Categoria(0, etNombre.text.toString(), etDescripcion.text.toString())
-                ApiClient.instance.createCategoria(categoria).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        if (response.isSuccessful) {
-                            Toast.makeText(this@CategoriasAdminActivity, "Categoría creada", Toast.LENGTH_SHORT).show()
-                            loadCategorias()
-                        } else {
-                            Log.e("CategoriasAdmin", "Create error: ${response.code()}")
-                        }
-                    }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("CategoriasAdmin", "Create category failed", t)
-                        Toast.makeText(this@CategoriasAdminActivity, "Error al crear categoría", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
+            .setPositiveButton("Guardar", null)
             .setNegativeButton("Cancelar", null)
             .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            if (nombre.isEmpty()) {
+                etNombre.error = "El nombre es obligatorio"
+                return@setOnClickListener
+            }
+            val request = CategoriaRequest(nombre, etDescripcion.text.toString().trim().ifEmpty { null })
+            ApiClient.instance.createCategoria(request).enqueue(object : Callback<CategoriaCreateResponse> {
+                override fun onResponse(call: Call<CategoriaCreateResponse>, response: Response<CategoriaCreateResponse>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@CategoriasAdminActivity, "Categoría creada", Toast.LENGTH_SHORT).show()
+                        loadCategorias()
+                        dialog.dismiss()
+                    } else {
+                        val errorMsg = when (response.code()) {
+                            400 -> "La categoría ya existe o datos inválidos"
+                            401 -> "No autorizado"
+                            else -> "Error al crear categoría (${response.code()})"
+                        }
+                        Toast.makeText(this@CategoriasAdminActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<CategoriaCreateResponse>, t: Throwable) {
+                    Toast.makeText(this@CategoriasAdminActivity, "Error de conexión al crear categoría", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     private fun showEditDialog(categoria: Categoria) {
@@ -125,28 +145,40 @@ class CategoriasAdminActivity : AppCompatActivity() {
         etNombre.setText(categoria.nombre)
         etDescripcion.setText(categoria.descripcion)
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Editar Categoría")
             .setView(view)
-            .setPositiveButton("Actualizar") { _, _ ->
-                val updated = Categoria(categoria.id_categoria, etNombre.text.toString(), etDescripcion.text.toString())
-                ApiClient.instance.updateCategoria(categoria.id_categoria, updated).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        if (response.isSuccessful) {
-                            Toast.makeText(this@CategoriasAdminActivity, "Categoría actualizada", Toast.LENGTH_SHORT).show()
-                            loadCategorias()
-                        } else {
-                            Log.e("CategoriasAdmin", "Update error: ${response.code()}")
-                        }
-                    }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("CategoriasAdmin", "Update category failed", t)
-                        Toast.makeText(this@CategoriasAdminActivity, "Error al actualizar categoría", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
+            .setPositiveButton("Actualizar", null)
             .setNegativeButton("Cancelar", null)
             .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            if (nombre.isEmpty()) {
+                etNombre.error = "El nombre es obligatorio"
+                return@setOnClickListener
+            }
+            val request = CategoriaRequest(nombre, etDescripcion.text.toString().trim().ifEmpty { null })
+            ApiClient.instance.updateCategoria(categoria.id_categoria, request).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@CategoriasAdminActivity, "Categoría actualizada", Toast.LENGTH_SHORT).show()
+                        loadCategorias()
+                        dialog.dismiss()
+                    } else {
+                        val errorMsg = when (response.code()) {
+                            400 -> "Datos inválidos"
+                            404 -> "Categoría no encontrada"
+                            else -> "Error al actualizar (${response.code()})"
+                        }
+                        Toast.makeText(this@CategoriasAdminActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Toast.makeText(this@CategoriasAdminActivity, "Error de conexión al actualizar", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     private fun deleteCategoria(categoria: Categoria) {

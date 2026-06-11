@@ -5,3 +5,8 @@ data class Categoria(
     val nombre: String,
     val descripcion: String?
 )
+
+data class CategoriaCreateResponse(
+    val message: String?,
+    val id_categoria: Int?
+)

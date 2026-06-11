@@ -30,6 +30,7 @@ class CatalogoActivity : AppCompatActivity() {
     private lateinit var tvCartBadge: TextView
     private lateinit var llCategoryChips: LinearLayout
     private lateinit var etSearch: EditText
+    private lateinit var btnRetry: Button
 
     private var allProductos: List<Producto> = emptyList()
     private var categorias: List<Categoria> = emptyList()
@@ -50,6 +51,7 @@ class CatalogoActivity : AppCompatActivity() {
         rvProductos = findViewById(R.id.rvProductos)
         progressBar = findViewById(R.id.progressBar)
         tvEmpty = findViewById(R.id.tvEmpty)
+        btnRetry = findViewById(R.id.btnRetry)
         tvCartBadge = findViewById(R.id.tvCartBadge)
         llCategoryChips = findViewById(R.id.llCategoryChips)
         etSearch = findViewById(R.id.etSearch)
@@ -80,6 +82,8 @@ class CatalogoActivity : AppCompatActivity() {
             }
         })
 
+        btnRetry.setOnClickListener { loadProducts() }
+
         loadProducts()
         loadCategories()
         loadCartCount()
@@ -92,7 +96,8 @@ class CatalogoActivity : AppCompatActivity() {
 
     private fun loadProducts() {
         progressBar.visibility = View.VISIBLE
-        tvEmpty.visibility = View.GONE
+        findViewById<LinearLayout>(R.id.llEmptyState).visibility = View.GONE
+        rvProductos.visibility = View.GONE
 
         ApiClient.instance.getProductosPublico().enqueue(object : Callback<List<Producto>> {
             override fun onResponse(call: Call<List<Producto>>, response: Response<List<Producto>>) {
@@ -101,17 +106,22 @@ class CatalogoActivity : AppCompatActivity() {
                     allProductos = response.body() ?: emptyList()
                     filterProducts()
                 } else {
-                    tvEmpty.text = "Error cargando productos (${response.code()})"
-                    tvEmpty.visibility = View.VISIBLE
+                    showError("Error al cargar productos (${response.code()})")
                 }
             }
 
             override fun onFailure(call: Call<List<Producto>>, t: Throwable) {
                 progressBar.visibility = View.GONE
-                tvEmpty.text = "Sin conexión al servidor"
-                tvEmpty.visibility = View.VISIBLE
+                showError("Sin conexión al servidor")
             }
         })
+    }
+
+    private fun showError(message: String) {
+        tvEmpty.text = message
+        btnRetry.visibility = View.VISIBLE
+        findViewById<LinearLayout>(R.id.llEmptyState).visibility = View.VISIBLE
+        rvProductos.visibility = View.GONE
     }
 
     private fun loadCategories() {
@@ -182,8 +192,10 @@ class CatalogoActivity : AppCompatActivity() {
         }
 
         adapter.updateList(filtered)
-        tvEmpty.visibility = if (filtered.isEmpty() && progressBar.visibility != View.VISIBLE)
-            View.VISIBLE else View.GONE
+        val isEmpty = filtered.isEmpty() && progressBar.visibility != View.VISIBLE
+        findViewById<LinearLayout>(R.id.llEmptyState).visibility = if (isEmpty) View.VISIBLE else View.GONE
+        btnRetry.visibility = View.GONE
+        tvEmpty.text = "No hay productos disponibles"
         rvProductos.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 

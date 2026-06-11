@@ -2,15 +2,16 @@ package com.example.nexbitmobile.ui
 
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -42,6 +43,7 @@ class ProductosAdminActivity : AppCompatActivity() {
     private lateinit var adapter: ProductoAdminAdapter
     private lateinit var fabAdd: FloatingActionButton
     private lateinit var etSearch: EditText
+    private lateinit var tvEmpty: TextView
 
     private var allProductos = listOf<Producto>()
     private var categoriasList = listOf<Categoria>()
@@ -71,6 +73,7 @@ class ProductosAdminActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         fabAdd = findViewById(R.id.fabAdd)
         etSearch = findViewById(R.id.etSearch)
+        tvEmpty = findViewById(R.id.tvEmpty)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = ProductoAdminAdapter(emptyList(), this::showEditDialog, this::deleteProducto)
@@ -103,6 +106,8 @@ class ProductosAdminActivity : AppCompatActivity() {
             }
         }
         adapter.updateData(filtered)
+        tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        recyclerView.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
     private fun loadCategorias() {
@@ -200,53 +205,69 @@ class ProductosAdminActivity : AppCompatActivity() {
             selectImageLauncher.launch("image/*")
         }
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Nuevo Producto")
             .setView(view)
-            .setPositiveButton("Guardar") { _, _ ->
-                if (categoriasList.isEmpty() || etNombre.text.isEmpty()) {
-                    Toast.makeText(this, "Faltan datos", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                
-                val catId = categoriasList[spCategoria.selectedItemPosition].id_categoria
-                val provId = if (spProveedor.selectedItemPosition > 0)
-                    proveedoresList[spProveedor.selectedItemPosition - 1].id_proveedor.toString() else ""
-                val activo = if (spEstado.selectedItemPosition == 0) "1" else "0"
-                
-                var imagePart: MultipartBody.Part? = null
-                currentImageUri?.let { uri ->
-                    getFileFromUri(uri)?.let { file ->
-                        val mimeType = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
-                        val reqFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
-                        imagePart = MultipartBody.Part.createFormData("imagen", file.name, reqFile)
-                    }
-                }
-
-                ApiClient.instance.createProducto(
-                    createPartFromString(catId.toString()),
-                    createPartFromString(provId),
-                    createPartFromString(etNombre.text.toString()),
-                    createPartFromString(etDescripcion.text.toString()),
-                    createPartFromString(if(etPrecioCompra.text.isEmpty()) "0" else etPrecioCompra.text.toString()),
-                    createPartFromString(if(etPrecioVenta.text.isEmpty()) "0" else etPrecioVenta.text.toString()),
-                    createPartFromString(if(etStock.text.isEmpty()) "0" else etStock.text.toString()),
-                    createPartFromString(if(etStockMinimo.text.isEmpty()) "0" else etStockMinimo.text.toString()),
-                    createPartFromString(activo),
-                    imagePart
-                ).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Toast.makeText(this@ProductosAdminActivity, "Producto creado", Toast.LENGTH_SHORT).show()
-                        loadProductos()
-                    }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("ProductosAdmin", "Create product failed", t)
-                        Toast.makeText(this@ProductosAdminActivity, "Error al crear producto", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
+            .setPositiveButton("Guardar", null)
             .setNegativeButton("Cancelar", null)
             .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            if (nombre.isEmpty()) {
+                etNombre.error = "El nombre es obligatorio"
+                return@setOnClickListener
+            }
+            if (categoriasList.isEmpty()) {
+                Toast.makeText(this, "No hay categorías disponibles. Crea una primero.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val catId = categoriasList[spCategoria.selectedItemPosition].id_categoria
+            val provId = if (spProveedor.selectedItemPosition > 0)
+                proveedoresList[spProveedor.selectedItemPosition - 1].id_proveedor.toString() else ""
+            val activo = if (spEstado.selectedItemPosition == 0) "1" else "0"
+
+            var imagePart: MultipartBody.Part? = null
+            currentImageUri?.let { uri ->
+                getFileFromUri(uri)?.let { file ->
+                    val mimeType = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
+                    val reqFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
+                    imagePart = MultipartBody.Part.createFormData("imagen", file.name, reqFile)
+                }
+            }
+
+            ApiClient.instance.createProducto(
+                createPartFromString(catId.toString()),
+                createPartFromString(provId),
+                createPartFromString(nombre),
+                createPartFromString(etDescripcion.text.toString().trim()),
+                createPartFromString(if(etPrecioCompra.text.isEmpty()) "0" else etPrecioCompra.text.toString()),
+                createPartFromString(if(etPrecioVenta.text.isEmpty()) "0" else etPrecioVenta.text.toString()),
+                createPartFromString(if(etStock.text.isEmpty()) "0" else etStock.text.toString()),
+                createPartFromString(if(etStockMinimo.text.isEmpty()) "0" else etStockMinimo.text.toString()),
+                createPartFromString(activo),
+                imagePart
+            ).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@ProductosAdminActivity, "Producto creado", Toast.LENGTH_SHORT).show()
+                        loadProductos()
+                        dialog.dismiss()
+                    } else {
+                        val errorMsg = when (response.code()) {
+                            400 -> "Datos inválidos. Verifica los campos obligatorios."
+                            401 -> "No autorizado"
+                            else -> "Error al crear producto (${response.code()})"
+                        }
+                        Toast.makeText(this@ProductosAdminActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Toast.makeText(this@ProductosAdminActivity, "Error de conexión al crear producto", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     private fun showEditDialog(producto: Producto) {
@@ -273,7 +294,6 @@ class ProductosAdminActivity : AppCompatActivity() {
         val estados = arrayOf("Activo", "Inactivo")
         spEstado.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, estados)
 
-        // Set existing values
         val catIndex = categoriasList.indexOfFirst { it.id_categoria == producto.categoria_id }
         if (catIndex >= 0) spCategoria.setSelection(catIndex)
 
@@ -301,54 +321,71 @@ class ProductosAdminActivity : AppCompatActivity() {
             selectImageLauncher.launch("image/*")
         }
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Editar Producto")
             .setView(view)
-            .setPositiveButton("Actualizar") { _, _ ->
-                val catId = categoriasList[spCategoria.selectedItemPosition].id_categoria
-                val provId = if (spProveedor.selectedItemPosition > 0)
-                    proveedoresList[spProveedor.selectedItemPosition - 1].id_proveedor.toString() else ""
-                val activo = if (spEstado.selectedItemPosition == 0) "1" else "0"
-                
-                var imagePart: MultipartBody.Part? = null
-                currentImageUri?.let { uri ->
-                    getFileFromUri(uri)?.let { file ->
-                        val mimeType = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
-                        val reqFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
-                        imagePart = MultipartBody.Part.createFormData("imagen", file.name, reqFile)
-                    }
-                }
-
-                val imageUrlPart = if (imagePart == null && !producto.imagen_url.isNullOrEmpty()) {
-                    createPartFromString(producto.imagen_url)
-                } else null
-
-                ApiClient.instance.updateProducto(
-                    producto.id_producto,
-                    createPartFromString(catId.toString()),
-                    createPartFromString(provId),
-                    createPartFromString(etNombre.text.toString()),
-                    createPartFromString(etDescripcion.text.toString()),
-                    createPartFromString(etPrecioCompra.text.toString()),
-                    createPartFromString(etPrecioVenta.text.toString()),
-                    createPartFromString(etStock.text.toString()),
-                    createPartFromString(if(etStockMinimo.text.isEmpty()) "0" else etStockMinimo.text.toString()),
-                    createPartFromString(activo),
-                    imagePart,
-                    imageUrlPart
-                ).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Toast.makeText(this@ProductosAdminActivity, "Producto actualizado", Toast.LENGTH_SHORT).show()
-                        loadProductos()
-                    }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("ProductosAdmin", "Update product failed", t)
-                        Toast.makeText(this@ProductosAdminActivity, "Error al actualizar producto", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
+            .setPositiveButton("Actualizar", null)
             .setNegativeButton("Cancelar", null)
             .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            if (nombre.isEmpty()) {
+                etNombre.error = "El nombre es obligatorio"
+                return@setOnClickListener
+            }
+
+            val catId = categoriasList[spCategoria.selectedItemPosition].id_categoria
+            val provId = if (spProveedor.selectedItemPosition > 0)
+                proveedoresList[spProveedor.selectedItemPosition - 1].id_proveedor.toString() else ""
+            val activo = if (spEstado.selectedItemPosition == 0) "1" else "0"
+
+            var imagePart: MultipartBody.Part? = null
+            currentImageUri?.let { uri ->
+                getFileFromUri(uri)?.let { file ->
+                    val mimeType = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
+                    val reqFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
+                    imagePart = MultipartBody.Part.createFormData("imagen", file.name, reqFile)
+                }
+            }
+
+            val imageUrlPart = if (imagePart == null && !producto.imagen_url.isNullOrEmpty()) {
+                createPartFromString(producto.imagen_url)
+            } else null
+
+            ApiClient.instance.updateProducto(
+                producto.id_producto,
+                createPartFromString(catId.toString()),
+                createPartFromString(provId),
+                createPartFromString(nombre),
+                createPartFromString(etDescripcion.text.toString().trim()),
+                createPartFromString(etPrecioCompra.text.toString()),
+                createPartFromString(etPrecioVenta.text.toString()),
+                createPartFromString(etStock.text.toString()),
+                createPartFromString(if(etStockMinimo.text.isEmpty()) "0" else etStockMinimo.text.toString()),
+                createPartFromString(activo),
+                imagePart,
+                imageUrlPart
+            ).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@ProductosAdminActivity, "Producto actualizado", Toast.LENGTH_SHORT).show()
+                        loadProductos()
+                        dialog.dismiss()
+                    } else {
+                        val errorMsg = when (response.code()) {
+                            400 -> "Datos inválidos. Verifica los campos."
+                            404 -> "Producto no encontrado"
+                            else -> "Error al actualizar (${response.code()})"
+                        }
+                        Toast.makeText(this@ProductosAdminActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Toast.makeText(this@ProductosAdminActivity, "Error de conexión al actualizar", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
     private fun deleteProducto(producto: Producto) {

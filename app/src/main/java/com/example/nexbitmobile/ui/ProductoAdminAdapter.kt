@@ -6,13 +6,13 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import java.text.NumberFormat
+import java.util.Locale
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.model.Producto
-import java.text.NumberFormat
-import java.util.Locale
 
 class ProductoAdminAdapter(
     private var productos: List<Producto>,
@@ -25,6 +25,7 @@ class ProductoAdminAdapter(
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvCategoria: TextView = view.findViewById(R.id.tvCategoria)
         val tvStock: TextView = view.findViewById(R.id.tvStock)
+        val tvPrecio: TextView = view.findViewById(R.id.tvPrecio)
         val tvEstado: TextView = view.findViewById(R.id.tvEstado)
         val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
         val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
@@ -49,6 +50,14 @@ class ProductoAdminAdapter(
             if (isLowStock) ContextCompat.getColor(ctx, R.color.error_text)
             else ContextCompat.getColor(ctx, R.color.text_secondary)
         )
+
+        // Price display
+        val format = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
+            minimumFractionDigits = 0
+            maximumFractionDigits = 0
+        }
+        holder.tvPrecio.text = format.format(producto.precio_venta)
+        holder.tvPrecio.visibility = View.VISIBLE
 
         // Estado chip
         val isActive = producto.activo == 1

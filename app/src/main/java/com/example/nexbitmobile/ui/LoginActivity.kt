@@ -40,13 +40,13 @@ class LoginActivity : AppCompatActivity() {
                             .putString("userAddress", user?.direccion)
                             .apply()
 
-                        val intent = Intent(this@LoginActivity, com.example.nexbitmobile.MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        val intent = Intent(this@LoginActivity, com.example.nexbitmobile.ui.MainOrbixActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
                     }
-                }
 
-                override fun onFailure(call: Call<com.example.nexbitmobile.model.Usuario>, t: Throwable) {
+                    override fun onFailure(call: Call<com.example.nexbitmobile.model.Usuario>, t: Throwable) {
                     Log.w("Login", "Token validation failed, allowing normal login", t)
                 }
             })
@@ -88,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
                             .putString("token", loginResponse?.token)
                             .apply()
 
-                        val intent = Intent(this@LoginActivity, com.example.nexbitmobile.MainActivity::class.java)
+                        val intent = Intent(this@LoginActivity, com.example.nexbitmobile.ui.MainOrbixActivity::class.java)
                         startActivity(intent)
                         finish()
                     } else {

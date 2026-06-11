@@ -6,9 +6,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <application
         android:name=".NexbitApplication"
         android:allowBackup="true"
@@ -73,6 +70,11 @@
         <activity android:name=".ui.EntregasActivity" android:exported="false" />
         <activity android:name=".ui.MisPedidosActivity" android:exported="false" />
         <activity android:name=".ui.PruebasActivity" android:exported="false" />
+
+        <!-- Orbix UI Activities -->
+        <activity android:name=".ui.MainOrbixActivity" android:exported="false" />
+        <activity android:name=".ui.OrdersActivity" android:exported="false" />
+        <activity android:name=".ui.OrderDetailActivity" android:exported="false" />
 
     </application>
 

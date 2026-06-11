@@ -92,10 +92,10 @@ interface ApiService {
     fun getCategorias(): Call<List<Categoria>>
 
     @POST("categorias")
-    fun createCategoria(@Body categoria: Categoria): Call<Void>
+    fun createCategoria(@Body categoria: CategoriaRequest): Call<CategoriaCreateResponse>
 
     @PUT("categorias/{id}")
-    fun updateCategoria(@Path("id") id: Int, @Body categoria: Categoria): Call<Void>
+    fun updateCategoria(@Path("id") id: Int, @Body categoria: CategoriaRequest): Call<Void>
 
     @DELETE("categorias/{id}")
     fun deleteCategoria(@Path("id") id: Int): Call<Void>
@@ -105,6 +105,9 @@ interface ApiService {
 
     @GET("pedidos/usuario/{usuarioId}")
     fun getMisPedidos(@Path("usuarioId") usuarioId: Int): Call<List<Pedido>>
+
+    @GET("pedidos/{id}")
+    fun getPedido(@Path("id") id: Int): Call<Pedido>
 
     @GET("pedidos/{id}/ticket")
     fun getPedidoTicket(@Path("id") id: Int): Call<Pedido>

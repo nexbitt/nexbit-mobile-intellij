@@ -12,12 +12,12 @@
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="56dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
-        android:background="@color/primary"
-        android:elevation="4dp"
+        android:background="@color/bg_surface"
+        android:elevation="1dp"
         android:layout_alignParentTop="true">
 
         <ImageButton
@@ -27,7 +27,7 @@
             android:src="@android:drawable/ic_menu_revert"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Volver"
-            android:tint="@color/white" />
+            android:tint="@color/text_main" />
 
         <TextView
             android:id="@+id/tvToolbarTitle"
@@ -35,10 +35,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Detalle de Producto"
-            android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textColor="@color/text_main"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_marginStart="12dp"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
             android:maxLines="1"
             android:ellipsize="end" />
     </LinearLayout>
@@ -49,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/white"
+        android:background="@color/bg_surface"
         android:elevation="16dp"
         android:padding="16dp"
         android:layout_alignParentBottom="true">
@@ -57,11 +58,11 @@
         <Button
             android:id="@+id/btnAddToCart"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="50dp"
             android:background="@drawable/bg_btn_rounded"
             android:text="Agregar al carrito"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:textAllCaps="false" />
     </LinearLayout>
@@ -284,7 +285,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:visibility="gone">
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"

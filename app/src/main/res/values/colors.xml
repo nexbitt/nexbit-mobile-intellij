@@ -3,43 +3,67 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="primary">#111111</color>
+    <!-- Orbix Studio Palette -->
+    <color name="primary">#1A1A1A</color>
     <color name="primary_dark">#000000</color>
     <color name="primary_light">#333333</color>
     <color name="on_primary">#FFFFFF</color>
 
-    <color name="secondary">#3b82f6</color>
-    <color name="secondary_dark">#2563eb</color>
+    <color name="secondary">#6C757D</color>
+    <color name="secondary_dark">#495057</color>
     <color name="on_secondary">#FFFFFF</color>
 
-    <color name="bg_page">#f3f4f6</color>
+    <!-- Backgrounds -->
+    <color name="bg_page">#F8F9FA</color>
+    <color name="bg_page_alt">#F1F3F5</color>
     <color name="bg_surface">#FFFFFF</color>
     <color name="bg_card">#FFFFFF</color>
 
-    <color name="text_main">#111827</color>
-    <color name="text_secondary">#6b7280</color>
-    <color name="text_light">#94a3b8</color>
+    <!-- Text -->
+    <color name="text_main">#1A1A1A</color>
+    <color name="text_secondary">#6C757D</color>
+    <color name="text_light">#868E96</color>
     <color name="text_on_primary">#FFFFFF</color>
 
-    <color name="input_bg">#f9fafb</color>
-    <color name="input_border">#d1d5db</color>
+    <color name="input_bg">#F1F3F5</color>
+    <color name="input_border">#E9ECEF</color>
 
-    <color name="error_bg">#fee2e2</color>
-    <color name="error_text">#dc2626</color>
-    <color name="success">#16a34a</color>
-    <color name="warning">#d97706</color>
-    <color name="info">#2563eb</color>
+    <!-- Status Colors -->
+    <color name="success">#10B981</color>
+    <color name="success_light">#D1FAE5</color>
+    <color name="error_text">#EF4444</color>
+    <color name="error_bg">#FEE2E2</color>
+    <color name="warning">#F59E0B</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="info">#3B82F6</color>
+    <color name="info_light">#DBEAFE</color>
 
-    <color name="divider">#e5e7eb</color>
+    <color name="divider">#E9ECEF</color>
     <color name="overlay_bg">#80000000</color>
     <color name="card_bg">#FFFFFF</color>
-    <color name="bg_dark">#fafbfc</color>
+    <color name="bg_dark">#F8F9FA</color>
 
-    <color name="card_border">#e5e7eb</color>
-    <color name="badge_red">#dc2626</color>
-    <color name="chip_bg">#f3f4f6</color>
-    <color name="chip_selected_bg">#111111</color>
-    <color name="chip_text">#6b7280</color>
+    <color name="card_border">#E5E7EB</color>
+    <color name="badge_red">#EF4444</color>
+    <color name="chip_bg">#F1F3F5</color>
+    <color name="chip_selected_bg">#1A1A1A</color>
+    <color name="chip_text">#6C757D</color>
     <color name="chip_selected_text">#FFFFFF</color>
-    <color name="price_color">#111111</color>
+    <color name="price_color">#1A1A1A</color>
+    <color name="tab_inactive">#9CA3AF</color>
+    <color name="tab_active">#111827</color>
+    <color name="nav_active">#111827</color>
+    <color name="nav_inactive">#9CA3AF</color>
+    <color name="logout_bg">#FEE2E2</color>
+    <color name="logout_text">#EF4444</color>
+    <color name="menu_icon">#374151</color>
+    <color name="menu_text">#111827</color>
+    <color name="menu_divider">#F3F4F6</color>
+    <color name="field_bg">#F9FAFB</color>
+    <color name="avatar_border">#E5E7EB</color>
+    <color name="label">#6B7280</color>
+    <color name="value">#111827</color>
+    <color name="placeholder">#9CA3AF</color>
+    <color name="shadow_tint">#1A1A1A</color>
+    <color name="placeholder_bg">#F1F3F5</color>
 </resources>

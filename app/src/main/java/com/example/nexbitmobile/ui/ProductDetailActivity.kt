@@ -122,7 +122,6 @@ class ProductDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvTechId).text = "#${producto.id_producto}"
         findViewById<TextView>(R.id.tvTechSupplier).text = producto.proveedor_nombre ?: "No especificado"
         findViewById<TextView>(R.id.tvTechStock).text = "${producto.stock_actual} unidades"
-        findViewById<TextView>(R.id.tvTechWarranty).text = "6 meses con el fabricante"
 
         Glide.with(this)
             .load(producto.imagen_url)
