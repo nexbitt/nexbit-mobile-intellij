@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page">
+    android:background="@color/crud_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,10 +14,22 @@
             android:id="@+id/toolbarProveedores"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary"
+            android:background="@color/crud_card_bg"
             app:title="Proveedores"
-            app:titleTextColor="@color/text_on_primary"
-            app:elevation="4dp" />
+            app:titleTextColor="@color/crud_text_main"
+            app:elevation="1dp" />
+
+        <!-- Empty -->
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="No hay proveedores registrados"
+            android:textColor="@color/crud_text_secondary"
+            android:textSize="15sp"
+            android:layout_marginTop="48dp"
+            android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewProveedores"
@@ -34,8 +46,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/secondary"
-        app:tint="@color/on_secondary" />
+        android:src="@drawable/ic_plus"
+        app:tint="@color/white"
+        app:backgroundTint="@color/crud_primary"
+        app:fabSize="normal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

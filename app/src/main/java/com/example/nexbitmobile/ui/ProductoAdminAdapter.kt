@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import java.text.NumberFormat
 import java.util.Locale
@@ -26,9 +27,7 @@ class ProductoAdminAdapter(
         val tvCategoria: TextView = view.findViewById(R.id.tvCategoria)
         val tvStock: TextView = view.findViewById(R.id.tvStock)
         val tvPrecio: TextView = view.findViewById(R.id.tvPrecio)
-        val tvEstado: TextView = view.findViewById(R.id.tvEstado)
-        val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
-        val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
+        val btnMenu: ImageButton = view.findViewById(R.id.btnMenu)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductoViewHolder {
@@ -41,9 +40,8 @@ class ProductoAdminAdapter(
         val ctx = holder.itemView.context
 
         holder.tvNombre.text = producto.nombre
-        holder.tvCategoria.text = "${producto.categoria_nombre ?: "General"} • ${producto.proveedor_nombre ?: "Sin proveedor"}"
+        holder.tvCategoria.text = producto.categoria_nombre ?: "General"
 
-        // Stock with low-stock warning
         val isLowStock = producto.stock_actual <= producto.stock_minimo
         holder.tvStock.text = "Stock: ${producto.stock_actual} (mín: ${producto.stock_minimo})"
         holder.tvStock.setTextColor(
@@ -51,7 +49,6 @@ class ProductoAdminAdapter(
             else ContextCompat.getColor(ctx, R.color.text_secondary)
         )
 
-        // Price display
         val format = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
             minimumFractionDigits = 0
             maximumFractionDigits = 0
@@ -59,22 +56,28 @@ class ProductoAdminAdapter(
         holder.tvPrecio.text = format.format(producto.precio_venta)
         holder.tvPrecio.visibility = View.VISIBLE
 
-        // Estado chip
-        val isActive = producto.activo == 1
-        holder.tvEstado.text = if (isActive) "Activo" else "Inactivo"
-        holder.tvEstado.setTextColor(
-            if (isActive) ContextCompat.getColor(ctx, R.color.success)
-            else ContextCompat.getColor(ctx, R.color.text_light)
-        )
-
         Glide.with(ctx)
             .load(producto.imagen_url)
             .placeholder(R.drawable.ic_placeholder)
             .error(R.drawable.ic_placeholder)
             .into(holder.ivProducto)
 
-        holder.btnEdit.setOnClickListener { onEdit(producto) }
-        holder.btnDelete.setOnClickListener { onDelete(producto) }
+        holder.itemView.setOnClickListener { onEdit(producto) }
+
+        holder.btnMenu.visibility = View.VISIBLE
+        holder.btnMenu.setOnClickListener { v ->
+            val popup = PopupMenu(ctx, v)
+            popup.menu.add(0, 1, 0, "Editar")
+            popup.menu.add(0, 2, 0, "Eliminar")
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    1 -> { onEdit(producto); true }
+                    2 -> { onDelete(producto); true }
+                    else -> false
+                }
+            }
+            popup.show()
+        }
     }
 
     override fun getItemCount() = productos.size

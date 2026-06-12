@@ -17,4 +17,12 @@
     </style>
 
     <style name="Theme.NexbitMobile" parent="Base.Theme.NexbitMobile"/>
+
+    <style name="CrudTextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="boxStrokeColor">@color/crud_border</item>
+        <item name="hintTextColor">@color/crud_text_secondary</item>
+        <item name="android:textColorHint">@color/crud_text_secondary</item>
+    </style>
 </resources>

@@ -7,7 +7,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
@@ -17,7 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
@@ -44,6 +43,7 @@ class ProductosAdminActivity : AppCompatActivity() {
     private lateinit var fabAdd: FloatingActionButton
     private lateinit var etSearch: EditText
     private lateinit var tvEmpty: TextView
+    private lateinit var llSkeleton: View
 
     private var allProductos = listOf<Producto>()
     private var categoriasList = listOf<Categoria>()
@@ -51,12 +51,18 @@ class ProductosAdminActivity : AppCompatActivity() {
     
     private var currentImageUri: Uri? = null
     private var currentImageView: ImageView? = null
+    private var currentFlUpload: View? = null
 
     private val selectImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             currentImageUri = it
             currentImageView?.let { iv ->
                 Glide.with(this).load(it).into(iv)
+                iv.visibility = View.VISIBLE
+            }
+            currentFlUpload?.let { fl ->
+                fl.foreground = null
+                fl.findViewById<View>(R.id.flImageOverlay)?.visibility = View.GONE
             }
         }
     }
@@ -74,8 +80,9 @@ class ProductosAdminActivity : AppCompatActivity() {
         fabAdd = findViewById(R.id.fabAdd)
         etSearch = findViewById(R.id.etSearch)
         tvEmpty = findViewById(R.id.tvEmpty)
+        llSkeleton = findViewById(R.id.llSkeleton)
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
         adapter = ProductoAdminAdapter(emptyList(), this::showEditDialog, this::deleteProducto)
         recyclerView.adapter = adapter
 
@@ -126,8 +133,12 @@ class ProductosAdminActivity : AppCompatActivity() {
     }
 
     private fun loadProductos() {
+        llSkeleton.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+
         ApiClient.instance.getProductos().enqueue(object : Callback<List<Producto>> {
             override fun onResponse(call: Call<List<Producto>>, response: Response<List<Producto>>) {
+                llSkeleton.visibility = View.GONE
                 if (response.isSuccessful) {
                     allProductos = response.body() ?: emptyList()
                     filterProducts()
@@ -137,6 +148,7 @@ class ProductosAdminActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<List<Producto>>, t: Throwable) {
+                llSkeleton.visibility = View.GONE
                 Toast.makeText(this@ProductosAdminActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
             }
         })
@@ -189,8 +201,9 @@ class ProductosAdminActivity : AppCompatActivity() {
         val etStockMinimo = view.findViewById<EditText>(R.id.etStockMinimo)
         val spEstado = view.findViewById<Spinner>(R.id.spEstado)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
-        val btnSeleccionarImagen = view.findViewById<Button>(R.id.btnSeleccionarImagen)
+        val flImageUpload = view.findViewById<View>(R.id.flImageUpload)
         currentImageView = view.findViewById(R.id.ivPreview)
+        currentFlUpload = flImageUpload
 
         val catNames = categoriasList.map { it.nombre }
         spCategoria.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, catNames)
@@ -201,7 +214,7 @@ class ProductosAdminActivity : AppCompatActivity() {
         val estados = arrayOf("Activo", "Inactivo")
         spEstado.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, estados)
 
-        btnSeleccionarImagen.setOnClickListener {
+        flImageUpload.setOnClickListener {
             selectImageLauncher.launch("image/*")
         }
 
@@ -282,8 +295,9 @@ class ProductosAdminActivity : AppCompatActivity() {
         val etStockMinimo = view.findViewById<EditText>(R.id.etStockMinimo)
         val spEstado = view.findViewById<Spinner>(R.id.spEstado)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
-        val btnSeleccionarImagen = view.findViewById<Button>(R.id.btnSeleccionarImagen)
+        val flImageUpload = view.findViewById<View>(R.id.flImageUpload)
         currentImageView = view.findViewById(R.id.ivPreview)
+        currentFlUpload = flImageUpload
 
         val catNames = categoriasList.map { it.nombre }
         spCategoria.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, catNames)
@@ -312,12 +326,17 @@ class ProductosAdminActivity : AppCompatActivity() {
         etDescripcion.setText(producto.descripcion ?: "")
 
         if (!producto.imagen_url.isNullOrEmpty()) {
-            currentImageView?.let {
-                Glide.with(this).load(producto.imagen_url).into(it)
+            currentImageView?.let { iv ->
+                iv.visibility = View.VISIBLE
+                Glide.with(this).load(producto.imagen_url).into(iv)
+            }
+            currentFlUpload?.let { fl ->
+                fl.foreground = null
+                fl.findViewById<View>(R.id.flImageOverlay)?.visibility = View.GONE
             }
         }
 
-        btnSeleccionarImagen.setOnClickListener {
+        flImageUpload.setOnClickListener {
             selectImageLauncher.launch("image/*")
         }
 
@@ -389,22 +408,28 @@ class ProductosAdminActivity : AppCompatActivity() {
     }
 
     private fun deleteProducto(producto: Producto) {
+        val view = layoutInflater.inflate(R.layout.dialog_delete_confirm, null)
+        val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+        tvMessage.text = "¿Deseas eliminar el producto ${producto.nombre}?"
+
         AlertDialog.Builder(this)
-            .setTitle("Eliminar")
-            .setMessage("¿Deseas eliminar el producto ${producto.nombre}?")
-            .setPositiveButton("Sí") { _, _ ->
-                ApiClient.instance.deleteProducto(producto.id_producto).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Toast.makeText(this@ProductosAdminActivity, "Producto eliminado", Toast.LENGTH_SHORT).show()
-                        loadProductos()
-                    }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("ProductosAdmin", "Delete product failed", t)
-                        Toast.makeText(this@ProductosAdminActivity, "Error al eliminar producto", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
-            .setNegativeButton("No", null)
+            .setView(view)
             .show()
+            .apply {
+                view.findViewById<View>(R.id.btnCancel).setOnClickListener { dismiss() }
+                view.findViewById<View>(R.id.btnConfirm).setOnClickListener {
+                    ApiClient.instance.deleteProducto(producto.id_producto).enqueue(object : Callback<Void> {
+                        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                            Toast.makeText(this@ProductosAdminActivity, "Producto eliminado", Toast.LENGTH_SHORT).show()
+                            loadProductos()
+                            dismiss()
+                        }
+                        override fun onFailure(call: Call<Void>, t: Throwable) {
+                            Log.e("ProductosAdmin", "Delete product failed", t)
+                            Toast.makeText(this@ProductosAdminActivity, "Error al eliminar producto", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
+            }
     }
 }

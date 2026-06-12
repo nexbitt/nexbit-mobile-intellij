@@ -2,7 +2,9 @@ package com.example.nexbitmobile.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -175,27 +177,34 @@ class ProveedorActivity : AppCompatActivity() {
 
     private fun deleteProveedor(proveedor: Proveedor) {
         val id = proveedor.id_proveedor ?: return
-        AlertDialog.Builder(this)
-            .setTitle("Eliminar Proveedor")
-            .setMessage("¿Deseas eliminar al proveedor ${proveedor.nombre}?")
-            .setPositiveButton("Sí") { _, _ ->
-                ApiClient.instance.deleteProveedor(id).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        if (response.isSuccessful) {
-                            Toast.makeText(this@ProveedorActivity, "Proveedor eliminado exitosamente", Toast.LENGTH_SHORT).show()
-                            loadProveedores()
-                        } else {
-                            Toast.makeText(this@ProveedorActivity, "Error al eliminar proveedor", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+        val view = layoutInflater.inflate(R.layout.dialog_delete_confirm, null)
+        val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+        tvMessage.text = "¿Deseas eliminar al proveedor ${proveedor.nombre}?"
 
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("ProveedorActivity", "Error de conexión al eliminar proveedor", t)
-                        Toast.makeText(this@ProveedorActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
-            .setNegativeButton("No", null)
+        AlertDialog.Builder(this)
+            .setView(view)
             .show()
+            .apply {
+                view.findViewById<View>(R.id.btnCancel).setOnClickListener { dismiss() }
+                view.findViewById<View>(R.id.btnConfirm).setOnClickListener {
+                    ApiClient.instance.deleteProveedor(id).enqueue(object : Callback<Void> {
+                        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(this@ProveedorActivity, "Proveedor eliminado exitosamente", Toast.LENGTH_SHORT).show()
+                                loadProveedores()
+                            } else {
+                                Toast.makeText(this@ProveedorActivity, "Error al eliminar proveedor", Toast.LENGTH_SHORT).show()
+                            }
+                            dismiss()
+                        }
+
+                        override fun onFailure(call: Call<Void>, t: Throwable) {
+                            Log.e("ProveedorActivity", "Error de conexión al eliminar proveedor", t)
+                            Toast.makeText(this@ProveedorActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                            dismiss()
+                        }
+                    })
+                }
+            }
     }
 }

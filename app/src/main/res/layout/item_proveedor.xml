@@ -1,81 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="@color/crud_card_bg"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="72dp"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
 
+        <!-- Avatar Circle -->
+        <LinearLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_avatar_circle"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_truck"
+                android:contentDescription="Icono" />
+        </LinearLayout>
+
+        <!-- Text -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvProveedorId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="#1"
-                android:textColor="#64748b"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+            android:orientation="vertical"
+            android:paddingStart="12dp">
 
             <TextView
                 android:id="@+id/tvProveedorNombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nombre del Proveedor"
-                android:textColor="#0f172a"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textColor="@color/crud_text_main"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvProveedorNit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="NIT: 12345678-9"
-                android:textColor="#475569"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-
-            <TextView
-                android:id="@+id/tvProveedorEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="proveedor@ejemplo.com"
-                android:textColor="#475569"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-
-            <TextView
-                android:id="@+id/tvProveedorTelefono"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Teléfono: 123456789"
-                android:textColor="#475569"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-
-            <TextView
-                android:id="@+id/tvProveedorDireccion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dirección: Calle 123 #45-67"
-                android:textColor="#475569"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-
+                android:textColor="@color/crud_text_secondary"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
 
+        <!-- Actions -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,20 +70,19 @@
 
             <ImageButton
                 android:id="@+id/btnEditProveedor"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_edit"
-                android:tint="#3b82f6" />
+                android:src="@drawable/ic_edit"
+                android:scaleType="center" />
 
             <ImageButton
                 android:id="@+id/btnDeleteProveedor"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
-                android:tint="#ef4444" />
+                android:src="@drawable/ic_trash"
+                android:scaleType="center" />
         </LinearLayout>
-
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

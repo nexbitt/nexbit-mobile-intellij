@@ -3,111 +3,97 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="1dp"
-    app:cardBackgroundColor="@color/bg_card"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/crud_card_bg"
     app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center_vertical">
-        
+        android:orientation="vertical">
+
+        <!-- Image -->
         <ImageView
             android:id="@+id/ivProducto"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
             android:scaleType="centerCrop"
-            android:layout_marginEnd="12dp"
-            android:background="@color/chip_bg" />
+            android:background="#F1F5F9"
+            android:foreground="?attr/selectableItemBackground" />
 
+        <!-- Content -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="10dp">
 
-            <TextView
-                android:id="@+id/tvNombre"
-                android:layout_width="wrap_content"
+            <!-- Name + Price row -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nombre Producto"
-                android:textColor="@color/text_main"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
+                <TextView
+                    android:id="@+id/tvNombre"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Nombre Producto"
+                    android:textColor="@color/crud_text_main"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+
+                <ImageButton
+                    android:id="@+id/btnMenu"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert"
+                    android:visibility="gone"
+                    android:scaleType="center" />
+            </LinearLayout>
+
+            <!-- Category Badge -->
             <TextView
                 android:id="@+id/tvCategoria"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Categoría"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textColor="@color/crud_chip_text"
+                android:textSize="11sp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:background="@drawable/bg_crud_chip"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
-            <LinearLayout
+            <!-- Stock indicator -->
+            <TextView
+                android:id="@+id/tvStock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="2dp"
-                android:gravity="center_vertical">
+                android:layout_marginTop="6dp"
+                android:text="Stock: 10"
+                android:textColor="@color/crud_text_secondary"
+                android:textSize="12sp" />
 
-                <TextView
-                    android:id="@+id/tvStock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Stock: 10"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
+            <!-- Price -->
+            <TextView
+                android:id="@+id/tvPrecio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="$0"
+                android:textColor="@color/crud_price"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvPrecio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$0"
-                    android:textColor="@color/price_color"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp" />
-
-                <TextView
-                    android:id="@+id/tvEstado"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Activo"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:background="@drawable/bg_chip" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/btnEdit"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_edit"
-                android:tint="@color/secondary" />
-
-            <ImageButton
-                android:id="@+id/btnDelete"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
-                android:tint="@color/error_text" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

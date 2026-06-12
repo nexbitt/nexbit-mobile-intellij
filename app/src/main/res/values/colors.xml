@@ -67,6 +67,20 @@
     <color name="shadow_tint">#1A1A1A</color>
     <color name="placeholder_bg">#F1F3F5</color>
 
+    <!-- CRUD Redesign Palette -->
+    <color name="crud_primary">#1E3A8A</color>
+    <color name="crud_accent">#3B82F6</color>
+    <color name="crud_bg">#F1F5F9</color>
+    <color name="crud_card_bg">#FFFFFF</color>
+    <color name="crud_text_main">#0F172A</color>
+    <color name="crud_text_secondary">#64748B</color>
+    <color name="crud_border">#CBD5E1</color>
+    <color name="crud_success">#10B981</color>
+    <color name="crud_error">#EF4444</color>
+    <color name="crud_price">#1E3A8A</color>
+    <color name="crud_chip_bg">#E2E8F0</color>
+    <color name="crud_chip_text">#475569</color>
+
     <!-- Recovery / Password Reset Palette -->
     <color name="recovery_primary">#2563EB</color>
     <color name="recovery_primary_dark">#1D4ED8</color>

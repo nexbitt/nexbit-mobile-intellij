@@ -182,26 +182,33 @@ class CategoriasAdminActivity : AppCompatActivity() {
     }
 
     private fun deleteCategoria(categoria: Categoria) {
+        val view = layoutInflater.inflate(R.layout.dialog_delete_confirm, null)
+        val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+        tvMessage.text = "¿Deseas eliminar la categoría ${categoria.nombre}?"
+
         AlertDialog.Builder(this)
-            .setTitle("Eliminar")
-            .setMessage("¿Deseas eliminar la categoría ${categoria.nombre}?")
-            .setPositiveButton("Sí") { _, _ ->
-                ApiClient.instance.deleteCategoria(categoria.id_categoria).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        if (response.isSuccessful) {
-                            Toast.makeText(this@CategoriasAdminActivity, "Categoría eliminada", Toast.LENGTH_SHORT).show()
-                            loadCategorias()
-                        } else {
-                            Log.e("CategoriasAdmin", "Delete error: ${response.code()}")
-                        }
-                    }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("CategoriasAdmin", "Delete category failed", t)
-                        Toast.makeText(this@CategoriasAdminActivity, "Error al eliminar categoría", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
-            .setNegativeButton("No", null)
+            .setView(view)
             .show()
+            .apply {
+                view.findViewById<View>(R.id.btnCancel).setOnClickListener { dismiss() }
+                view.findViewById<View>(R.id.btnConfirm).setOnClickListener {
+                    ApiClient.instance.deleteCategoria(categoria.id_categoria).enqueue(object : Callback<Void> {
+                        override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(this@CategoriasAdminActivity, "Categoría eliminada", Toast.LENGTH_SHORT).show()
+                                loadCategorias()
+                            } else {
+                                Log.e("CategoriasAdmin", "Delete error: ${response.code()}")
+                            }
+                            dismiss()
+                        }
+                        override fun onFailure(call: Call<Void>, t: Throwable) {
+                            Log.e("CategoriasAdmin", "Delete category failed", t)
+                            Toast.makeText(this@CategoriasAdminActivity, "Error al eliminar categoría", Toast.LENGTH_SHORT).show()
+                            dismiss()
+                        }
+                    })
+                }
+            }
     }
 }

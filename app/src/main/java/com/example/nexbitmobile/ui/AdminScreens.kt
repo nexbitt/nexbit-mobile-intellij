@@ -29,12 +29,20 @@ class AdminScreens(private val activity: MainOrbixActivity) {
     private var allProductos = listOf<Producto>()
     private var currentImageUri: Uri? = null
     private var currentImageView: ImageView? = null
+    private var currentFlUpload: View? = null
     private val selectImageLauncher = activity.registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             currentImageUri = it
-            currentImageView?.let { iv -> Glide.with(activity).load(it).into(iv) }
+            currentImageView?.let { iv ->
+                iv.visibility = View.VISIBLE
+                Glide.with(activity).load(it).into(iv)
+            }
+            currentFlUpload?.let { fl ->
+                fl.foreground = null
+                fl.findViewById<View>(R.id.flImageOverlay)?.visibility = View.GONE
+            }
         }
     }
 
@@ -139,8 +147,9 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         val etStockMinimo = view.findViewById<EditText>(R.id.etStockMinimo)
         val spEstado = view.findViewById<Spinner>(R.id.spEstado)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
-        val btnSeleccionarImagen = view.findViewById<Button>(R.id.btnSeleccionarImagen)
+        val flImageUpload = view.findViewById<View>(R.id.flImageUpload)
         currentImageView = view.findViewById(R.id.ivPreview)
+        currentFlUpload = flImageUpload
 
         spCategoria.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, categoriasList.map { it.nombre })
         spProveedor.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Sin proveedor") + proveedoresList.map { it.nombre })
@@ -161,11 +170,18 @@ class AdminScreens(private val activity: MainOrbixActivity) {
             etStockMinimo.setText(existing.stock_minimo.toString())
             etDescripcion.setText(existing.descripcion ?: "")
             if (!existing.imagen_url.isNullOrEmpty()) {
-                currentImageView?.let { Glide.with(activity).load(existing.imagen_url).into(it) }
+                currentImageView?.let { iv ->
+                    iv.visibility = View.VISIBLE
+                    Glide.with(activity).load(existing.imagen_url).into(iv)
+                }
+                currentFlUpload?.let { fl ->
+                    fl.foreground = null
+                    fl.findViewById<View>(R.id.flImageOverlay)?.visibility = View.GONE
+                }
             }
         }
 
-        btnSeleccionarImagen.setOnClickListener { selectImageLauncher.launch("image/*") }
+        flImageUpload.setOnClickListener { selectImageLauncher.launch("image/*") }
 
         val dialog = AlertDialog.Builder(activity)
             .setTitle(title).setView(view)

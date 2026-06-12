@@ -16,12 +16,8 @@ class ProveedorAdapter(
 ) : RecyclerView.Adapter<ProveedorAdapter.ProveedorViewHolder>() {
 
     class ProveedorViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvProveedorId: TextView = view.findViewById(R.id.tvProveedorId)
         val tvProveedorNombre: TextView = view.findViewById(R.id.tvProveedorNombre)
         val tvProveedorNit: TextView = view.findViewById(R.id.tvProveedorNit)
-        val tvProveedorEmail: TextView = view.findViewById(R.id.tvProveedorEmail)
-        val tvProveedorTelefono: TextView = view.findViewById(R.id.tvProveedorTelefono)
-        val tvProveedorDireccion: TextView = view.findViewById(R.id.tvProveedorDireccion)
         val btnEditProveedor: ImageButton = view.findViewById(R.id.btnEditProveedor)
         val btnDeleteProveedor: ImageButton = view.findViewById(R.id.btnDeleteProveedor)
     }
@@ -33,12 +29,8 @@ class ProveedorAdapter(
 
     override fun onBindViewHolder(holder: ProveedorViewHolder, position: Int) {
         val proveedor = proveedores[position]
-        holder.tvProveedorId.text = "#${proveedor.id_proveedor ?: ""}"
         holder.tvProveedorNombre.text = proveedor.nombre
         holder.tvProveedorNit.text = "NIT: ${proveedor.nit}"
-        holder.tvProveedorEmail.text = proveedor.correo
-        holder.tvProveedorTelefono.text = "Teléfono: ${proveedor.telefono}"
-        holder.tvProveedorDireccion.text = "Dirección: ${proveedor.direccion}"
 
         holder.btnEditProveedor.setOnClickListener { onEdit(proveedor) }
         holder.btnDeleteProveedor.setOnClickListener { onDelete(proveedor) }

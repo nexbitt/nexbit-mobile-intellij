@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page">
+    android:background="@color/crud_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,39 +14,56 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/bg_surface"
-            app:title="Productos (Admin)"
-            app:titleTextColor="@color/text_main"
-            app:elevation="1dp"
-            app:subtitleTextColor="@color/text_secondary" />
+            android:background="@color/crud_card_bg"
+            app:title="Productos"
+            app:titleTextColor="@color/crud_text_main"
+            app:elevation="1dp" />
 
+        <!-- Search -->
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="10dp"
-            android:hint="Buscar por nombre, categoría o proveedor..."
-            android:background="@drawable/bg_search_bar"
+            android:paddingVertical="12dp"
+            android:hint="Buscar productos..."
+            android:background="@drawable/bg_crud_input"
             android:textSize="14sp"
             android:maxLines="1"
             android:inputType="text"
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="8dp"
-            android:textColorHint="@color/text_light" />
+            android:textColorHint="@color/crud_text_secondary"
+            android:textColor="@color/crud_text_main" />
 
+        <!-- Empty -->
         <TextView
             android:id="@+id/tvEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="No hay productos registrados"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
+            android:textColor="@color/crud_text_secondary"
+            android:textSize="15sp"
             android:layout_marginTop="48dp"
             android:visibility="gone" />
 
+        <!-- Skeleton (shown while loading) -->
+        <LinearLayout
+            android:id="@+id/llSkeleton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <include layout="@layout/item_skeleton_product" />
+            <include layout="@layout/item_skeleton_product" />
+            <include layout="@layout/item_skeleton_product" />
+        </LinearLayout>
+
+        <!-- Product Grid -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
@@ -62,8 +79,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
-        app:tint="@color/on_secondary"
-        app:backgroundTint="@color/secondary" />
+        android:src="@drawable/ic_plus"
+        app:tint="@color/white"
+        app:backgroundTint="@color/crud_primary"
+        app:fabSize="normal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

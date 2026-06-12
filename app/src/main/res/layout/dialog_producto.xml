@@ -12,7 +12,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nombre del Producto"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            style="@style/CrudTextInputLayout">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNombre"
                 android:layout_width="match_parent"
@@ -24,47 +25,72 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Categoría:"
-            android:textColor="#64748b"
+            android:textColor="#64748B"
+            android:textSize="13sp"
             android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/spCategoria"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="12dp"
-            android:background="#f1f5f9" />
+            android:background="@drawable/bg_crud_input"
+            android:paddingHorizontal="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Proveedor:"
-            android:textColor="#64748b"
+            android:textColor="#64748B"
+            android:textSize="13sp"
             android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/spProveedor"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="12dp"
-            android:background="#f1f5f9" />
+            android:background="@drawable/bg_crud_input"
+            android:paddingHorizontal="12dp" />
 
-        <LinearLayout
+        <!-- Image upload dashed box -->
+        <FrameLayout
+            android:id="@+id/flImageUpload"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12dp"
-            android:gravity="center_vertical">
+            android:layout_height="140dp"
+            android:background="@drawable/bg_dashed_border"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:id="@+id/flImageOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_camera"
+                    android:contentDescription="Cámara" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Subir imagen"
+                    android:textColor="#3B82F6"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
             <ImageView
                 android:id="@+id/ivPreview"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:background="#e2e8f0"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:layout_marginEnd="16dp" />
-            <Button
-                android:id="@+id/btnSeleccionarImagen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Subir Imagen" />
-        </LinearLayout>
+                android:visibility="gone" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -78,7 +104,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="Precio Compra"
-                android:layout_marginEnd="6dp">
+                android:layout_marginEnd="6dp"
+                style="@style/CrudTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPrecioCompra"
                     android:layout_width="match_parent"
@@ -91,7 +118,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="Precio Venta"
-                android:layout_marginStart="6dp">
+                android:layout_marginStart="6dp"
+                style="@style/CrudTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPrecioVenta"
                     android:layout_width="match_parent"
@@ -112,7 +140,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="Stock Actual"
-                android:layout_marginEnd="6dp">
+                android:layout_marginEnd="6dp"
+                style="@style/CrudTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etStock"
                     android:layout_width="match_parent"
@@ -125,7 +154,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="Stock Mínimo"
-                android:layout_marginStart="6dp">
+                android:layout_marginStart="6dp"
+                style="@style/CrudTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etStockMinimo"
                     android:layout_width="match_parent"
@@ -138,20 +168,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Estado:"
-            android:textColor="#64748b"
+            android:textColor="#64748B"
+            android:textSize="13sp"
             android:layout_marginBottom="4dp"/>
         <Spinner
             android:id="@+id/spEstado"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="12dp"
-            android:background="#f1f5f9" />
+            android:background="@drawable/bg_crud_input"
+            android:paddingHorizontal="12dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Descripción"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            style="@style/CrudTextInputLayout">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDescripcion"
                 android:layout_width="match_parent"

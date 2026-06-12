@@ -16,7 +16,6 @@ class CategoriaAdapter(
 ) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
 
     class CategoriaViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvId: TextView = view.findViewById(R.id.tvId)
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvDescripcion: TextView = view.findViewById(R.id.tvDescripcion)
         val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
@@ -30,7 +29,6 @@ class CategoriaAdapter(
 
     override fun onBindViewHolder(holder: CategoriaViewHolder, position: Int) {
         val categoria = categorias[position]
-        holder.tvId.text = "#${categoria.id_categoria}"
         holder.tvNombre.text = categoria.nombre
         holder.tvDescripcion.text = categoria.descripcion ?: "Sin descripción"
 
