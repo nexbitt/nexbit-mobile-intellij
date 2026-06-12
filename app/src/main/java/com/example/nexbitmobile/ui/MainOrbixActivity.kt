@@ -333,12 +333,75 @@ class MainOrbixActivity : AppCompatActivity() {
         if (navStack.isEmpty()) return
         val prev = navStack.removeAt(navStack.size - 1)
         currentScreen = prev
-        if (navStack.isEmpty()) toolbarSub.visibility = View.GONE
+        if (navStack.isEmpty()) {
+            toolbarSub.visibility = View.GONE
+        }
         when (prev) {
-            "home" -> showHome()
+            "home" -> { showHome(); startAutoRotate() }
             "profile" -> showProfile()
             else -> showHome()
         }
+    }
+
+    // ──────────── SCREEN A: PANEL DE REPORTES ────────────
+
+    private fun showReportsList() {
+        contentContainer.removeAllViews()
+        val view = LayoutInflater.from(this)
+            .inflate(R.layout.panel_reportes_list, contentContainer, false)
+        contentContainer.addView(view)
+
+        // Slide-in animation
+        view.translationX = resources.displayMetrics.widthPixels.toFloat()
+        view.animate()
+            .translationX(0f)
+            .setDuration(250)
+            .setInterpolator(PathInterpolator(0.2f, 0f, 0f, 1f))
+            .start()
+
+        // Back button
+        view.findViewById<View>(R.id.btnReportBack).setOnClickListener { goBack() }
+
+        // Card click listeners
+        val cardIds = listOf(
+            R.id.cardReport1 to "Ventas y Facturación",
+            R.id.cardReport2 to "Inventario y Ganancias",
+            R.id.cardReport3 to "Seguridad y Accesos",
+            R.id.cardReport4 to "Carritos Activos",
+            R.id.cardReport5 to "Repartidores y Logística"
+        )
+        for ((cardId, title) in cardIds) {
+            view.findViewById<View>(cardId).setOnClickListener {
+                navigateToReportDetail(title)
+            }
+        }
+    }
+
+    // ──────────── SCREEN B: DETALLE DE REPORTE ────────────
+
+    private fun showReportDetail(title: String) {
+        contentContainer.removeAllViews()
+
+        // For now, use sales detail layout as template; in future, load by title
+        val layoutRes = R.layout.report_detail_sales
+        val view = LayoutInflater.from(this)
+            .inflate(layoutRes, contentContainer, false)
+        contentContainer.addView(view)
+
+        // Update title
+        view.findViewById<TextView>(R.id.tvDetailTitle)?.text = title
+
+        // Back button
+        view.findViewById<View>(R.id.btnDetailBack).setOnClickListener { goBack() }
+
+        // Fade-in stagger animation
+        view.alpha = 0f
+        view.animate()
+            .alpha(1f)
+            .setDuration(300)
+            .setStartDelay(100)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
     }
 
     // ──────────── HOME ────────────
@@ -452,84 +515,25 @@ class MainOrbixActivity : AppCompatActivity() {
         autoRotateRunnable = null
     }
 
-    // ──────────── TAP TO EXPAND ────────────
-
-    private var currentExpandedPage = 0
+    // ──────────── TAP TO NAVIGATE TO REPORT LIST ────────────
 
     private fun onCarouselPageClick(position: Int) {
-        if (isExpanded) return
-        isExpanded = true
         stopAutoRotate()
-        currentExpandedPage = position
-
-        // Inflate expanded detail
-        val expandedView = LayoutInflater.from(this)
-            .inflate(carouselLayouts[position], expandedContainer, false)
-        expandedContainer.removeAllViews()
-        expandedContainer.addView(expandedView)
-
-        // Set expanded container to match original card dimensions
-        expandedContainer.visibility = View.VISIBLE
-        expandedContainer.alpha = 0f
-        expandedContainer.scaleY = 0.9f
-
-        // Animate card height from 200dp to expanded
-        val targetHeight = dp(380)
-        carouselCard.animate()
-            .scaleX(0.97f)
-            .scaleY(0.97f)
-            .setDuration(200)
-            .withEndAction {
-                // Change carousel card height
-                val clp = carouselCard.layoutParams
-                clp.height = targetHeight
-                carouselCard.layoutParams = clp
-                carouselCard.scaleX = 1f
-                carouselCard.scaleY = 1f
-
-                // Show expanded content with spring-like animation
-                expandedContainer.animate()
-                    .alpha(1f)
-                    .scaleY(1f)
-                    .setDuration(280)
-                    .setInterpolator(PathInterpolator(0.16f, 1f, 0.3f, 1f))
-                    .start()
-            }
-            .start()
-
-        // Close button
-        expandedView.findViewById<View>(R.id.btnCloseExpand)?.setOnClickListener {
-            collapseExpanded()
-        }
-
-        // Add styled margin/padding to expanded content
-        expandedView.setPadding(16, 8, 16, 16)
+        navigateToReportList()
     }
 
-    private fun collapseExpanded() {
-        isExpanded = false
-        val originalHeight = dp(200)
+    private fun navigateToReportList() {
+        navStack.add(currentScreen)
+        currentScreen = "report_list"
+        toolbarSub.visibility = View.GONE
+        showReportsList()
+    }
 
-        expandedContainer.animate()
-            .alpha(0f)
-            .scaleY(0.9f)
-            .setDuration(150)
-            .withEndAction { expandedContainer.visibility = View.GONE }
-            .start()
-
-        carouselCard.animate()
-            .scaleX(0.97f)
-            .scaleY(0.97f)
-            .setDuration(150)
-            .withEndAction {
-                val clp = carouselCard.layoutParams
-                clp.height = originalHeight
-                carouselCard.layoutParams = clp
-                carouselCard.scaleX = 1f
-                carouselCard.scaleY = 1f
-                startAutoRotate()
-            }
-            .start()
+    private fun navigateToReportDetail(title: String) {
+        navStack.add(currentScreen)
+        currentScreen = "report_detail"
+        toolbarSub.visibility = View.GONE
+        showReportDetail(title)
     }
 
     private fun dp(value: Int): Int {

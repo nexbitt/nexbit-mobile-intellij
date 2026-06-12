@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
@@ -13,9 +14,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
@@ -31,11 +34,16 @@ class CatalogoActivity : AppCompatActivity() {
     private lateinit var llCategoryChips: LinearLayout
     private lateinit var etSearch: EditText
     private lateinit var btnRetry: Button
+    private lateinit var btnEntrar: Button
+    private lateinit var ivProfileAvatar: ImageView
 
     private var allProductos: List<Producto> = emptyList()
     private var categorias: List<Categoria> = emptyList()
     private var selectedCategoriaId: Int? = null
     private var cartItemCount = 0
+
+    private var isLoggedIn = false
+    private var isAdmin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,10 +63,14 @@ class CatalogoActivity : AppCompatActivity() {
         tvCartBadge = findViewById(R.id.tvCartBadge)
         llCategoryChips = findViewById(R.id.llCategoryChips)
         etSearch = findViewById(R.id.etSearch)
+        btnEntrar = findViewById(R.id.btnEntrar)
+        ivProfileAvatar = findViewById(R.id.ivProfileAvatar)
+
+        checkAuthState()
 
         adapter = ProductoAdapter(
             emptyList(),
-            onAddToCart = { producto -> addToCart(producto) },
+            onAddToCart = { producto -> handleAddToCart(producto) },
             onItemClick = { producto ->
                 val intent = Intent(this, ProductDetailActivity::class.java).apply {
                     putExtra("id_producto", producto.id_producto)
@@ -69,9 +81,24 @@ class CatalogoActivity : AppCompatActivity() {
         rvProductos.layoutManager = GridLayoutManager(this, 2)
         rvProductos.adapter = adapter
 
-        findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
+        btnEntrar.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+
+        ivProfileAvatar.setOnClickListener {
+            if (isAdmin) {
+                startActivity(Intent(this, MainOrbixActivity::class.java))
+            } else {
+                startActivity(Intent(this, ClientProfileActivity::class.java))
+            }
+        }
+
         findViewById<FrameLayout>(R.id.btnCartContainer).setOnClickListener {
-            startActivity(Intent(this, CarritoActivity::class.java))
+            if (isLoggedIn) {
+                startActivity(Intent(this, CarritoActivity::class.java))
+            } else {
+                showLoginBottomSheet()
+            }
         }
 
         etSearch.addTextChangedListener(object : TextWatcher {
@@ -86,12 +113,57 @@ class CatalogoActivity : AppCompatActivity() {
 
         loadProducts()
         loadCategories()
-        loadCartCount()
+        if (isLoggedIn) loadCartCount()
     }
 
     override fun onResume() {
         super.onResume()
-        loadCartCount()
+        checkAuthState()
+        if (isLoggedIn) loadCartCount()
+    }
+
+    private fun checkAuthState() {
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val token = prefs.getString("token", null)
+        val rolId = prefs.getInt("rolId", 0)
+        val avatarUrl = prefs.getString("userAvatar", "") ?: ""
+
+        isLoggedIn = !token.isNullOrEmpty()
+        isAdmin = rolId == 1
+
+        if (isLoggedIn) {
+            btnEntrar.visibility = View.GONE
+            ivProfileAvatar.visibility = View.VISIBLE
+            if (avatarUrl.isNotEmpty()) {
+                Glide.with(this).load(avatarUrl).circleCrop().into(ivProfileAvatar)
+            }
+        } else {
+            btnEntrar.visibility = View.VISIBLE
+            ivProfileAvatar.visibility = View.GONE
+        }
+    }
+
+    private fun handleAddToCart(producto: Producto) {
+        if (!isLoggedIn) {
+            showLoginBottomSheet()
+            return
+        }
+        addToCart(producto)
+    }
+
+    private fun showLoginBottomSheet() {
+        val dialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_login_prompt, null)
+        view.findViewById<Button>(R.id.btnLoginPrompt).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+        view.findViewById<Button>(R.id.btnRegisterPrompt).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, RegistroActivity::class.java))
+        }
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     private fun loadProducts() {
@@ -140,9 +212,7 @@ class CatalogoActivity : AppCompatActivity() {
 
     private fun buildCategoryChips() {
         llCategoryChips.removeAllViews()
-
         addChip("Todos", null, selectedCategoriaId == null)
-
         for (cat in categorias) {
             addChip(cat.nombre, cat.id_categoria, selectedCategoriaId == cat.id_categoria)
         }
@@ -166,7 +236,6 @@ class CatalogoActivity : AppCompatActivity() {
             )
             params.marginEnd = 8
             layoutParams = params
-
             setOnClickListener {
                 selectedCategoriaId = catId
                 buildCategoryChips()
@@ -179,18 +248,15 @@ class CatalogoActivity : AppCompatActivity() {
     private fun filterProducts() {
         val query = etSearch.text.toString().trim().lowercase()
         var filtered = allProductos
-
         if (selectedCategoriaId != null) {
             filtered = filtered.filter { it.categoria_id == selectedCategoriaId }
         }
-
         if (query.isNotEmpty()) {
             filtered = filtered.filter {
                 it.nombre.lowercase().contains(query) ||
                         (it.descripcion?.lowercase()?.contains(query) == true)
             }
         }
-
         adapter.updateList(filtered)
         val isEmpty = filtered.isEmpty() && progressBar.visibility != View.VISIBLE
         findViewById<LinearLayout>(R.id.llEmptyState).visibility = if (isEmpty) View.VISIBLE else View.GONE
@@ -202,11 +268,7 @@ class CatalogoActivity : AppCompatActivity() {
     private fun addToCart(producto: Producto) {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userId = prefs.getInt("userId", 0)
-
-        if (userId == 0) {
-            Toast.makeText(this, "Inicia sesión para agregar al carrito", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (userId == 0) return
 
         val request = CarritoAddRequest(
             usuario_id = userId,
@@ -233,7 +295,7 @@ class CatalogoActivity : AppCompatActivity() {
     }
 
     private fun showCartAddedSnackbar(producto: Producto) {
-        val snackbar = Snackbar.make(findViewById(R.id.main), "✓ ${producto.nombre} agregado", Snackbar.LENGTH_SHORT)
+        val snackbar = Snackbar.make(findViewById(R.id.main), "${producto.nombre} agregado", Snackbar.LENGTH_SHORT)
         snackbar.setAction("Ver Carrito") {
             startActivity(Intent(this, CarritoActivity::class.java))
         }

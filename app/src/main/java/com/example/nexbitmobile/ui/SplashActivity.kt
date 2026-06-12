@@ -1,0 +1,73 @@
+package com.example.nexbitmobile.ui
+
+import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import androidx.appcompat.app.AppCompatActivity
+import com.example.nexbitmobile.api.ApiClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+class SplashActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(com.example.nexbitmobile.R.layout.activity_splash)
+
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val token = prefs.getString("token", null)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (!token.isNullOrEmpty()) {
+                validateToken(token)
+            } else {
+                goToCatalog()
+            }
+        }, 600)
+    }
+
+    private fun validateToken(token: String) {
+        ApiClient.instance.getMe().enqueue(object : Callback<com.example.nexbitmobile.model.Usuario> {
+            override fun onResponse(
+                call: Call<com.example.nexbitmobile.model.Usuario>,
+                response: Response<com.example.nexbitmobile.model.Usuario>
+            ) {
+                if (response.isSuccessful) {
+                    val user = response.body()
+                    val prefs = getSharedPreferences("app", MODE_PRIVATE)
+                    prefs.edit()
+                        .putInt("userId", user?.id_usuario ?: 0)
+                        .putInt("rolId", user?.rol_id ?: 0)
+                        .putString("userName", user?.nombre)
+                        .putString("userEmail", user?.email)
+                        .apply()
+
+                    routeByRole(user?.rol_id ?: 2)
+                } else {
+                    goToCatalog()
+                }
+            }
+
+            override fun onFailure(call: Call<com.example.nexbitmobile.model.Usuario>, t: Throwable) {
+                goToCatalog()
+            }
+        })
+    }
+
+    private fun routeByRole(rolId: Int) {
+        val intent: Intent = when (rolId) {
+            1 -> Intent(this, MainOrbixActivity::class.java)
+            3 -> Intent(this, EntregasActivity::class.java)
+            else -> Intent(this, CatalogoActivity::class.java)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun goToCatalog() {
+        startActivity(Intent(this, CatalogoActivity::class.java))
+        finish()
+    }
+}
