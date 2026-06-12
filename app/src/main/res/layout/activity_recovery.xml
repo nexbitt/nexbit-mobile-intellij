@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/recovery_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="32dp">
+
+        <!-- ============================================================
+             STEP 1: SOLICITUD DE CÓDIGO (Email)
+             ============================================================ -->
+        <LinearLayout
+            android:id="@+id/stepEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/btnBackStep1"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_arrow_left"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Atrás"
+                android:padding="10dp"
+                android:scaleType="fitCenter" />
+
+            <!-- Icon -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_recovery_icon_circle"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_lock_key"
+                    android:contentDescription="Recuperar" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="Recuperar contraseña"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:text="Introduce el correo electrónico asociado a tu cuenta y te enviaremos un código de verificación."
+                android:textColor="@color/recovery_text_secondary"
+                android:textSize="15sp"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- Email Input -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Correo electrónico"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_recovery_input"
+                android:hint="ejemplo@correo.com"
+                android:textColorHint="@color/recovery_disabled_text"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="16sp"
+                android:inputType="textEmailAddress"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="12dp"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Error -->
+            <TextView
+                android:id="@+id/tvMessageStep1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/recovery_error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Send Button -->
+            <Button
+                android:id="@+id/btnSendCode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_recovery_btn_primary"
+                android:text="Enviar Código"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+
+        <!-- ============================================================
+             STEP 2: VERIFICACIÓN OTP
+             ============================================================ -->
+        <LinearLayout
+            android:id="@+id/stepOtp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/btnBackStep2"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_arrow_left"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Atrás"
+                android:padding="10dp"
+                android:scaleType="fitCenter" />
+
+            <!-- Icon -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_recovery_icon_circle"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_mail"
+                    android:contentDescription="Correo" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="Verifica tu correo"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvOtpDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="28dp"
+                android:gravity="center"
+                android:textColor="@color/recovery_text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- 6 OTP Boxes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <EditText
+                    android:id="@+id/otp0"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_recovery_otp_box"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/recovery_text_main"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:padding="0dp"
+                    android:layout_marginEnd="6dp" />
+                <EditText
+                    android:id="@+id/otp1"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_recovery_otp_box"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/recovery_text_main"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:padding="0dp"
+                    android:layout_marginEnd="6dp" />
+                <EditText
+                    android:id="@+id/otp2"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_recovery_otp_box"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/recovery_text_main"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:padding="0dp"
+                    android:layout_marginEnd="6dp" />
+                <EditText
+                    android:id="@+id/otp3"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_recovery_otp_box"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/recovery_text_main"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:padding="0dp"
+                    android:layout_marginEnd="6dp" />
+                <EditText
+                    android:id="@+id/otp4"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_recovery_otp_box"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/recovery_text_main"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:padding="0dp"
+                    android:layout_marginEnd="6dp" />
+                <EditText
+                    android:id="@+id/otp5"
+                    android:layout_width="45dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_recovery_otp_box"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/recovery_text_main"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:padding="0dp" />
+            </LinearLayout>
+
+            <!-- Error -->
+            <TextView
+                android:id="@+id/tvMessageStep2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/recovery_error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Verify Button -->
+            <Button
+                android:id="@+id/btnVerifyOtp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_recovery_btn_primary"
+                android:text="Validar Código"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:stateListAnimator="@null" />
+
+            <!-- Countdown / Resend -->
+            <TextView
+                android:id="@+id/tvResend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/recovery_text_secondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- ============================================================
+             STEP 3: NUEVA CONTRASEÑA
+             ============================================================ -->
+        <LinearLayout
+            android:id="@+id/stepPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Back Button -->
+            <ImageButton
+                android:id="@+id/btnBackStep3"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_arrow_left"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Atrás"
+                android:padding="10dp"
+                android:scaleType="fitCenter" />
+
+            <!-- Icon -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_recovery_icon_circle"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_lock"
+                    android:contentDescription="Contraseña" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="Nueva contraseña"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:text="Crea una contraseña segura que no uses en otros sitios."
+                android:textColor="@color/recovery_text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- New Password -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nueva contraseña"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp">
+
+                <EditText
+                    android:id="@+id/etNewPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_recovery_input"
+                    android:hint="••••••••"
+                    android:textColorHint="@color/recovery_disabled_text"
+                    android:textColor="@color/recovery_text_main"
+                    android:textSize="16sp"
+                    android:inputType="textPassword"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="12dp"
+                    android:paddingEnd="44dp" />
+
+                <ImageButton
+                    android:id="@+id/btnTogglePassword"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_eye_off"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Mostrar contraseña"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:gravity="center" />
+            </RelativeLayout>
+
+            <!-- Confirm Password -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirmar contraseña"
+                android:textColor="@color/recovery_text_main"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="24dp">
+
+                <EditText
+                    android:id="@+id/etConfirmPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_recovery_input"
+                    android:hint="••••••••"
+                    android:textColorHint="@color/recovery_disabled_text"
+                    android:textColor="@color/recovery_text_main"
+                    android:textSize="16sp"
+                    android:inputType="textPassword"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="12dp"
+                    android:paddingEnd="44dp" />
+
+                <ImageButton
+                    android:id="@+id/btnToggleConfirm"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_eye_off"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Mostrar contraseña"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:gravity="center" />
+            </RelativeLayout>
+
+            <!-- Error -->
+            <TextView
+                android:id="@+id/tvMessageStep3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/recovery_error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Reset Button -->
+            <Button
+                android:id="@+id/btnResetPassword"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_recovery_btn_primary"
+                android:text="Actualizar Contraseña"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

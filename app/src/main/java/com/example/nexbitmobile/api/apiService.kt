@@ -142,6 +142,15 @@ interface ApiService {
     @POST("carrito/clear")
     fun clearCarrito(@Body request: CarritoClearRequest): Call<List<CarritoItem>>
 
+    @POST("auth/recover-password")
+    fun recoverPassword(@Body request: RecoverPasswordRequest): Call<AuthResponse>
+
+    @POST("auth/verify-otp")
+    fun verifyOtp(@Body request: VerifyOtpRequest): Call<AuthResponse>
+
+    @POST("auth/reset-password")
+    fun resetPassword(@Body request: ResetPasswordRequest): Call<AuthResponse>
+
     @GET("repartidores/{id}")
     fun getRepartidor(@Path("id") id: Int): Call<RepartidorResponse>
 

@@ -80,6 +80,8 @@
         <activity android:name=".ui.MisPedidosActivity" android:exported="false" />
         <activity android:name=".ui.PruebasActivity" android:exported="false" />
 
+        <activity android:name=".ui.RecoveryActivity" android:exported="false" />
+
         <!-- Orbix UI Activities -->
         <activity android:name=".ui.MainOrbixActivity" android:exported="false" />
         <activity android:name=".ui.OrdersActivity" android:exported="false" />

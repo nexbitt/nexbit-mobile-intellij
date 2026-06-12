@@ -66,4 +66,17 @@
     <color name="placeholder">#9CA3AF</color>
     <color name="shadow_tint">#1A1A1A</color>
     <color name="placeholder_bg">#F1F3F5</color>
+
+    <!-- Recovery / Password Reset Palette -->
+    <color name="recovery_primary">#2563EB</color>
+    <color name="recovery_primary_dark">#1D4ED8</color>
+    <color name="recovery_bg">#F8FAFC</color>
+    <color name="recovery_text_main">#0F172A</color>
+    <color name="recovery_text_secondary">#475569</color>
+    <color name="recovery_border">#CBD5E1</color>
+    <color name="recovery_success">#16A34A</color>
+    <color name="recovery_error">#DC2626</color>
+    <color name="recovery_disabled_bg">#E2E8F0</color>
+    <color name="recovery_disabled_text">#94A3B8</color>
+    <color name="recovery_icon_muted">#64748B</color>
 </resources>

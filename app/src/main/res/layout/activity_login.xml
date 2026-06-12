@@ -90,6 +90,20 @@
             android:visibility="gone"
             android:layout_marginBottom="12dp" />
 
+        <!-- Forgot Password -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Olvidé mi contraseña"
+            android:textColor="@color/recovery_primary"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:layout_marginBottom="20dp"
+            android:clickable="true"
+            android:focusable="true" />
+
         <!-- Login Button -->
         <Button
             android:id="@+id/btnLogin"
