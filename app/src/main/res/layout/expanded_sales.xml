@@ -14,7 +14,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Facturación del Día"
+            android:text="Comprobantes del Día"
             android:textColor="@color/text_main"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -63,7 +63,7 @@
         android:gravity="center"
         android:paddingHorizontal="16dp"
         android:layout_marginTop="12dp"
-        android:text="Descargar Facturas Recientes"
+        android:text="Descargar Comprobantes Recientes"
         android:textColor="@color/text_main"
         android:textSize="12sp"
         android:background="@drawable/bg_action_btn"

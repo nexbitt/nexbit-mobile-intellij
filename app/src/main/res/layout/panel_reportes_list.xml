@@ -57,7 +57,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
-            <!-- Card 1: Ventas y Facturacion -->
+            <!-- Card 1: Ventas y Comprobantes -->
             <include
                 android:id="@+id/cardReport1"
                 layout="@layout/item_report_card"

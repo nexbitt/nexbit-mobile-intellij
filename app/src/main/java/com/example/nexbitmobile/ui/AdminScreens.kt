@@ -580,9 +580,75 @@ class AdminScreens(private val activity: MainOrbixActivity) {
     // ──────────── ROLES ────────────
 
     fun showRoles(root: View) {
-        root.findViewById<TextView>(R.id.tvEmpty).apply {
-            text = "Gestión de Roles\n(Próximamente)"
-            visibility = View.VISIBLE
-        }
+        val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
+        val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+
+        rv.layoutManager = LinearLayoutManager(activity)
+        val adapter = RolAdapter(emptyList()) { rol -> editRol(rol, rv, tvEmpty) }
+        rv.adapter = adapter
+
+        ApiClient.instance.getRoles().enqueue(object : Callback<List<Rol>> {
+            override fun onResponse(c: Call<List<Rol>>, res: Response<List<Rol>>) {
+                if (res.isSuccessful) {
+                    val list = res.body() ?: emptyList()
+                    adapter.updateData(list)
+                    rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+                    tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+            override fun onFailure(c: Call<List<Rol>>, t: Throwable) {
+                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun editRol(rol: Rol, rv: RecyclerView, tvEmpty: TextView) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_rol, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val etDesc = view.findViewById<EditText>(R.id.etDescripcion)
+
+        etNombre.setText(rol.nombre)
+        etDesc.setText(rol.descripcion ?: "")
+
+        AlertDialog.Builder(activity)
+            .setTitle("Editar Rol")
+            .setView(view)
+            .setPositiveButton("Actualizar") { _, _ ->
+                val nombre = etNombre.text.toString().trim()
+                if (nombre.isEmpty()) {
+                    Toast.makeText(activity, "Nombre obligatorio", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                ApiClient.instance.updateRol(rol.id_rol, RolUpdateRequest(nombre, etDesc.text.toString().trim().ifEmpty { null }))
+                    .enqueue(object : Callback<Void> {
+                        override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                            if (res.isSuccessful) {
+                                Toast.makeText(activity, "Rol actualizado", Toast.LENGTH_SHORT).show()
+                                reloadRoles(rv, tvEmpty, rv.adapter as RolAdapter)
+                            } else {
+                                Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        override fun onFailure(c: Call<Void>, t: Throwable) {
+                            Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun reloadRoles(rv: RecyclerView, tvEmpty: TextView, adapter: RolAdapter) {
+        ApiClient.instance.getRoles().enqueue(object : Callback<List<Rol>> {
+            override fun onResponse(c: Call<List<Rol>>, res: Response<List<Rol>>) {
+                if (res.isSuccessful) {
+                    val list = res.body() ?: emptyList()
+                    adapter.updateData(list)
+                    rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+                    tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+            override fun onFailure(c: Call<List<Rol>>, t: Throwable) {}
+        })
     }
 }

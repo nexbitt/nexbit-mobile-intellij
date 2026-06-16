@@ -162,5 +162,11 @@ interface ApiService {
 
     @POST("repartidores/{id}/asignar-pedido")
     fun asignarPedido(@Path("id") id: Int, @Body request: AsignarPedidoRequest): Call<Void>
+
+    @GET("roles")
+    fun getRoles(): Call<List<Rol>>
+
+    @PUT("roles/{id}")
+    fun updateRol(@Path("id") id: Int, @Body request: RolUpdateRequest): Call<Void>
 }
 

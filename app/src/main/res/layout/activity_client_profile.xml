@@ -226,7 +226,7 @@
 
         <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="@color/menu_divider" />
 
-        <!-- Historial de Facturas -->
+        <!-- Historial de Tickets -->
         <LinearLayout
             android:id="@+id/rowFacturas"
             android:layout_width="match_parent"
@@ -249,7 +249,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="14dp"
-                android:text="Historial de Facturas"
+                android:text="Historial de Tickets"
                 android:textColor="@color/value"
                 android:textSize="14sp" />
 

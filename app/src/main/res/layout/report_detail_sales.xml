@@ -29,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Ventas y Facturación Detallada"
+            android:text="Ventas y Detalle de Compras"
             android:textColor="@color/text_main"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -94,7 +94,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total facturas"
+                        android:text="Total tickets"
                         android:textColor="@color/label"
                         android:textSize="11sp"
                         android:layout_marginTop="4dp"
@@ -322,7 +322,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- Transaction Card 1: F-008 -->
+            <!-- Ticket Card 1: F-008 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -340,7 +340,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Factura: F-008"
+                        android:text="Ticket: F-008"
                         android:textColor="@color/value"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -410,7 +410,7 @@
                 android:layout_height="1dp"
                 android:background="@color/menu_divider" />
 
-            <!-- Transaction Card 2: F-007 -->
+            <!-- Ticket Card 2: F-007 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -428,7 +428,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Factura: F-007"
+                        android:text="Ticket: F-007"
                         android:textColor="@color/value"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -498,7 +498,7 @@
                 android:layout_height="1dp"
                 android:background="@color/menu_divider" />
 
-            <!-- Transaction Card 3: F-006 -->
+            <!-- Ticket Card 3: F-006 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -516,7 +516,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Factura: F-006"
+                        android:text="Ticket: F-006"
                         android:textColor="@color/value"
                         android:textSize="13sp"
                         android:textStyle="bold" />

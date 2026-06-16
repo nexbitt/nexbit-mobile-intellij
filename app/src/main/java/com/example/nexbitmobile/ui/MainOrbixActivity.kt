@@ -364,7 +364,7 @@ class MainOrbixActivity : AppCompatActivity() {
 
         // Card click listeners
         val cardIds = listOf(
-            R.id.cardReport1 to "Ventas y Facturación",
+            R.id.cardReport1 to "Ventas y Comprobantes",
             R.id.cardReport2 to "Inventario y Ganancias",
             R.id.cardReport3 to "Seguridad y Accesos",
             R.id.cardReport4 to "Carritos Activos",
