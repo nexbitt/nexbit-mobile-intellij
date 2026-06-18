@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_margin="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,59 +23,68 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvClienteId"
+                android:id="@+id/tvId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="#1"
-                android:textColor="#64748b"
+                android:textColor="@color/text_light"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvClienteNombre"
+                android:id="@+id/tvNombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre del Cliente"
-                android:textColor="#0f172a"
+                android:text="Nombre"
+                android:textColor="@color/text_main"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
 
             <TextView
-                android:id="@+id/tvClienteDocumento"
+                android:id="@+id/tvEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Documento: C.C. 123456"
-                android:textColor="#475569"
+                android:text="email@ejemplo.com"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:layout_marginTop="2dp" />
 
             <TextView
-                android:id="@+id/tvClienteEmail"
+                android:id="@+id/tvTelefono"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="correo@ejemplo.com"
-                android:textColor="#475569"
+                android:text="Teléfono: N/A"
+                android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:layout_marginTop="2dp" />
 
-            <TextView
-                android:id="@+id/tvClienteTelefono"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Teléfono: 123456789"
-                android:textColor="#475569"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvClienteDireccion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dirección: Calle 123 #45-67"
-                android:textColor="#475569"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
+                <TextView
+                    android:id="@+id/tvEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Activo"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:layout_marginEnd="8dp" />
 
+                <TextView
+                    android:id="@+id/tvTotalPedidos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total: 0 | Activos: 0"
+                    android:textColor="@color/text_light"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -82,7 +93,7 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/btnEditCliente"
+                android:id="@+id/btnToggleActivo"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -90,13 +101,12 @@
                 android:tint="@color/secondary" />
 
             <ImageButton
-                android:id="@+id/btnDeleteCliente"
+                android:id="@+id/btnVerDetalle"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
-                android:tint="@color/error_text" />
+                android:src="@android:drawable/ic_menu_info_details"
+                android:tint="@color/info" />
         </LinearLayout>
-
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

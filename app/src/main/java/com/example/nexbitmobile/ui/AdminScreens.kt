@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -455,6 +456,218 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         })
     }
 
+    // ──────────── CLIENTES ADMIN ────────────
+
+    fun showClientes(root: View) {
+        val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
+        val fab = root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabAdd)
+        val etSearch = root.findViewById<EditText>(R.id.etSearch)
+        val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+
+        rv.layoutManager = LinearLayoutManager(activity)
+
+        var allClientes = listOf<Usuario>()
+
+        val adapter = ClienteAdapter(
+            emptyList(),
+            onEdit = { usuario -> showEditClienteDialog(usuario, rv, tvEmpty) },
+            onDelete = { usuario -> deleteCliente(usuario, rv, tvEmpty) }
+        )
+        rv.adapter = adapter
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val query = etSearch.text.toString().trim().lowercase()
+                val filtered = if (query.isEmpty()) allClientes
+                else allClientes.filter { c ->
+                    c.nombre.lowercase().contains(query) ||
+                        c.email.lowercase().contains(query) ||
+                        (c.numero_documento?.lowercase()?.contains(query) == true)
+                }
+                adapter.updateData(filtered)
+                tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                rv.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
+            }
+        })
+
+        fab.setOnClickListener { showCreateClienteDialog(rv, tvEmpty) }
+
+        loadClientes(rv, tvEmpty, adapter) { allClientes = it }
+    }
+
+    private fun loadClientes(rv: RecyclerView, tvEmpty: TextView, adapter: ClienteAdapter, onLoaded: (List<Usuario>) -> Unit) {
+        ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
+            override fun onResponse(c: Call<List<Usuario>>, res: Response<List<Usuario>>) {
+                if (res.isSuccessful) {
+                    val clientes = (res.body() ?: emptyList()).filter { it.rol_id == 2 }
+                    onLoaded(clientes)
+                    adapter.updateData(clientes)
+                    rv.visibility = if (clientes.isEmpty()) View.GONE else View.VISIBLE
+                    tvEmpty.visibility = if (clientes.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+            override fun onFailure(c: Call<List<Usuario>>, t: Throwable) {
+                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun reloadClientes(rv: RecyclerView, tvEmpty: TextView, adapter: ClienteAdapter) {
+        ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
+            override fun onResponse(c: Call<List<Usuario>>, res: Response<List<Usuario>>) {
+                if (res.isSuccessful) {
+                    val clientes = (res.body() ?: emptyList()).filter { it.rol_id == 2 }
+                    adapter.updateData(clientes)
+                    rv.visibility = if (clientes.isEmpty()) View.GONE else View.VISIBLE
+                    tvEmpty.visibility = if (clientes.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+            override fun onFailure(c: Call<List<Usuario>>, t: Throwable) {
+                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun showCreateClienteDialog(rv: RecyclerView, tvEmpty: TextView) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_cliente, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val spTipoDoc = view.findViewById<Spinner>(R.id.spTipoDocumento)
+        val etNumDoc = view.findViewById<EditText>(R.id.etNumeroDocumento)
+        val etEmail = view.findViewById<EditText>(R.id.etEmail)
+        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+        val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+
+        spTipoDoc.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item,
+            arrayOf("Cédula", "NIT", "Cédula de Extranjería"))
+
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle("Nuevo Cliente")
+            .setView(view)
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", null)
+            .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString()
+            if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(activity, "Nombre, email y contraseña son obligatorios", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val tipoDoc = when (spTipoDoc.selectedItemPosition) { 0 -> "CC"; 1 -> "NIT"; 2 -> "CE"; else -> "CC" }
+            ApiClient.instance.createUsuario(UsuarioCreateRequest(
+                rol_id = 2,
+                nombre = nombre,
+                email = email,
+                password = password,
+                tipo_documento = tipoDoc,
+                numero_documento = etNumDoc.text.toString().trim().ifEmpty { null },
+                telefono = etTelefono.text.toString().trim().ifEmpty { null },
+                direccion = etDireccion.text.toString().trim().ifEmpty { null }
+            )).enqueue(object : Callback<UsuarioCreateResponse> {
+                override fun onResponse(c: Call<UsuarioCreateResponse>, res: Response<UsuarioCreateResponse>) {
+                    if (res.isSuccessful) {
+                        Toast.makeText(activity, "Cliente creado", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        val adapter = rv.adapter as ClienteAdapter
+                        reloadClientes(rv, tvEmpty, adapter)
+                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                }
+                override fun onFailure(c: Call<UsuarioCreateResponse>, t: Throwable) {
+                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun showEditClienteDialog(usuario: Usuario, rv: RecyclerView, tvEmpty: TextView) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_cliente, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val spTipoDoc = view.findViewById<Spinner>(R.id.spTipoDocumento)
+        val etNumDoc = view.findViewById<EditText>(R.id.etNumeroDocumento)
+        val etEmail = view.findViewById<EditText>(R.id.etEmail)
+        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+        val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+
+        spTipoDoc.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item,
+            arrayOf("Cédula", "NIT", "Cédula de Extranjería"))
+
+        etNombre.setText(usuario.nombre)
+        etEmail.setText(usuario.email)
+        etNumDoc.setText(usuario.numero_documento ?: "")
+        etTelefono.setText(usuario.telefono ?: "")
+        etDireccion.setText(usuario.direccion ?: "")
+        etPassword.hint = "Contraseña (dejar vacío para mantener)"
+
+        val tipoDocIndex = when (usuario.tipo_documento) {
+            "CC" -> 0; "NIT" -> 1; "CE" -> 2; else -> 0
+        }
+        spTipoDoc.setSelection(tipoDocIndex)
+
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle("Editar Cliente")
+            .setView(view)
+            .setPositiveButton("Actualizar", null)
+            .setNegativeButton("Cancelar", null)
+            .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            if (nombre.isEmpty() || email.isEmpty()) {
+                Toast.makeText(activity, "Nombre y email son obligatorios", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val tipoDoc = when (spTipoDoc.selectedItemPosition) { 0 -> "CC"; 1 -> "NIT"; 2 -> "CE"; else -> "CC" }
+            val password = etPassword.text.toString().trim()
+            ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
+                rol_id = 2,
+                nombre = nombre,
+                email = email,
+                password = password.ifEmpty { null },
+                tipo_documento = tipoDoc,
+                numero_documento = etNumDoc.text.toString().trim().ifEmpty { null },
+                telefono = etTelefono.text.toString().trim().ifEmpty { null },
+                direccion = etDireccion.text.toString().trim().ifEmpty { null }
+            )).enqueue(object : Callback<Usuario> {
+                override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                    if (res.isSuccessful) {
+                        Toast.makeText(activity, "Cliente actualizado", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        val adapter = rv.adapter as ClienteAdapter
+                        reloadClientes(rv, tvEmpty, adapter)
+                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                }
+                override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun deleteCliente(usuario: Usuario, rv: RecyclerView, tvEmpty: TextView) {
+        AlertDialog.Builder(activity)
+            .setTitle("Eliminar").setMessage("¿Eliminar ${usuario.nombre}?")
+            .setPositiveButton("Sí") { _, _ ->
+                ApiClient.instance.deleteUsuario(usuario.id_usuario).enqueue(object : Callback<Void> {
+                    override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                        Toast.makeText(activity, "Eliminado", Toast.LENGTH_SHORT).show()
+                        val adapter = rv.adapter as ClienteAdapter
+                        reloadClientes(rv, tvEmpty, adapter)
+                    }
+                    override fun onFailure(c: Call<Void>, t: Throwable) {
+                        Toast.makeText(activity, "Error al eliminar", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            .setNegativeButton("No", null).show()
+    }
+
     // ──────────── PROVEEDORES ADMIN ────────────
 
     fun showProveedores(root: View) {
@@ -529,41 +742,68 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         })
     }
 
-    // ──────────── REPARTIDORES (Entregas) ────────────
+    // ──────────── REPARTIDORES ADMIN (CRUD) ────────────
 
     fun showRepartidores(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
+        val fab = root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabAdd)
+        val etSearch = root.findViewById<EditText>(R.id.etSearch)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
 
         rv.layoutManager = LinearLayoutManager(activity)
-        lateinit var adapter: EntregaAdapter
-        adapter = EntregaAdapter(
+
+        var allRepartidores = listOf<RepartidorListado>()
+
+        lateinit var adapter: RepartidorAdminAdapter
+        adapter = RepartidorAdminAdapter(
             emptyList(),
-            onVerMapaClick = { pedido ->
-                Toast.makeText(activity, "Mapa: Pedido #${pedido.id_pedido}", Toast.LENGTH_SHORT).show()
-            },
-            onConfirmarClick = { pedido ->
-                ApiClient.instance.cambiarEstadoPedido(pedido.id_pedido, EstadoPedidoRequest("ENTREGADO", null))
-                    .enqueue(object : Callback<Void> {
-                        override fun onResponse(c: Call<Void>, res: Response<Void>) {
-                            if (res.isSuccessful) {
-                                Toast.makeText(activity, "Pedido #${pedido.id_pedido} entregado", Toast.LENGTH_SHORT).show()
-                                adapter.updateData(emptyList())
-                            }
-                        }
-                        override fun onFailure(c: Call<Void>, t: Throwable) {}
-                    })
-            },
-            onItemClick = { pedido ->
-                AlertDialog.Builder(activity).setTitle("Pedido #${pedido.id_pedido}")
-                    .setMessage("Estado: ${pedido.estado}\nCliente: ${pedido.cliente?.nombre ?: "N/A"}")
-                    .setPositiveButton("OK", null).show()
-            }
+            onToggleActivo = { rep -> toggleActivoRepartidor(rep, rv, tvEmpty, adapter) },
+            onVerDetalle = { rep -> verDetalleRepartidor(rep) }
         )
         rv.adapter = adapter
 
-        ApiClient.instance.getPedidosSinAsignar().enqueue(object : Callback<List<PedidoRepartidor>> {
-            override fun onResponse(c: Call<List<PedidoRepartidor>>, res: Response<List<PedidoRepartidor>>) {
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val query = etSearch.text.toString().trim().lowercase()
+                val filtered = if (query.isEmpty()) allRepartidores
+                else allRepartidores.filter { r ->
+                    r.nombre.lowercase().contains(query) ||
+                        r.email.lowercase().contains(query) ||
+                        (r.telefono?.lowercase()?.contains(query) == true)
+                }
+                adapter.updateData(filtered)
+                tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                rv.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
+            }
+        })
+
+        fab.setOnClickListener { showCreateRepartidorDialog(rv, tvEmpty, adapter) }
+
+        loadRepartidores(rv, tvEmpty, adapter) { allRepartidores = it }
+    }
+
+    private fun loadRepartidores(rv: RecyclerView, tvEmpty: TextView, adapter: RepartidorAdminAdapter, onLoaded: (List<RepartidorListado>) -> Unit) {
+        ApiClient.instance.getRepartidores().enqueue(object : Callback<List<RepartidorListado>> {
+            override fun onResponse(c: Call<List<RepartidorListado>>, res: Response<List<RepartidorListado>>) {
+                if (res.isSuccessful) {
+                    val list = res.body() ?: emptyList()
+                    onLoaded(list)
+                    adapter.updateData(list)
+                    rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+                    tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+            override fun onFailure(c: Call<List<RepartidorListado>>, t: Throwable) {
+                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun reloadRepartidores(rv: RecyclerView, tvEmpty: TextView, adapter: RepartidorAdminAdapter) {
+        ApiClient.instance.getRepartidores().enqueue(object : Callback<List<RepartidorListado>> {
+            override fun onResponse(c: Call<List<RepartidorListado>>, res: Response<List<RepartidorListado>>) {
                 if (res.isSuccessful) {
                     val list = res.body() ?: emptyList()
                     adapter.updateData(list)
@@ -571,7 +811,379 @@ class AdminScreens(private val activity: MainOrbixActivity) {
                     tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
                 }
             }
-            override fun onFailure(c: Call<List<PedidoRepartidor>>, t: Throwable) {
+            override fun onFailure(c: Call<List<RepartidorListado>>, t: Throwable) {
+                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun showCreateRepartidorDialog(rv: RecyclerView, tvEmpty: TextView, adapter: RepartidorAdminAdapter) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_repartidor, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val etEmail = view.findViewById<EditText>(R.id.etEmail)
+        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+        val swActivo = view.findViewById<Switch>(R.id.swActivo)
+
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle("Nuevo Repartidor")
+            .setView(view)
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", null)
+            .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString()
+            if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(activity, "Nombre, email y contraseña son obligatorios", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            ApiClient.instance.createUsuario(UsuarioCreateRequest(
+                rol_id = 4,
+                nombre = nombre,
+                email = email,
+                password = password,
+                telefono = etTelefono.text.toString().trim().ifEmpty { null }
+            )).enqueue(object : Callback<UsuarioCreateResponse> {
+                override fun onResponse(c: Call<UsuarioCreateResponse>, res: Response<UsuarioCreateResponse>) {
+                    if (res.isSuccessful) {
+                        Toast.makeText(activity, "Repartidor creado", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        reloadRepartidores(rv, tvEmpty, adapter)
+                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                }
+                override fun onFailure(c: Call<UsuarioCreateResponse>, t: Throwable) {
+                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun showEditRepartidorDialog(repartidor: RepartidorListado, rv: RecyclerView, tvEmpty: TextView, adapter: RepartidorAdminAdapter) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_repartidor, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val etEmail = view.findViewById<EditText>(R.id.etEmail)
+        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+        val swActivo = view.findViewById<Switch>(R.id.swActivo)
+
+        etNombre.setText(repartidor.nombre)
+        etEmail.setText(repartidor.email)
+        etTelefono.setText(repartidor.telefono ?: "")
+        etPassword.hint = "Contraseña (dejar vacío para mantener)"
+        swActivo.isChecked = repartidor.activo
+
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle("Editar Repartidor")
+            .setView(view)
+            .setPositiveButton("Actualizar", null)
+            .setNegativeButton("Cancelar", null)
+            .show()
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nombre = etNombre.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            if (nombre.isEmpty() || email.isEmpty()) {
+                Toast.makeText(activity, "Nombre y email son obligatorios", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val password = etPassword.text.toString().trim()
+            ApiClient.instance.updateUsuario(repartidor.id_usuario, UsuarioUpdateRequest(
+                rol_id = 4,
+                nombre = nombre,
+                email = email,
+                password = password.ifEmpty { null },
+                telefono = etTelefono.text.toString().trim().ifEmpty { null },
+                activo = swActivo.isChecked
+            )).enqueue(object : Callback<Usuario> {
+                override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                    if (res.isSuccessful) {
+                        Toast.makeText(activity, "Repartidor actualizado", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        reloadRepartidores(rv, tvEmpty, adapter)
+                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                }
+                override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun toggleActivoRepartidor(rep: RepartidorListado, rv: RecyclerView, tvEmpty: TextView, adapter: RepartidorAdminAdapter) {
+        val nuevoEstado = !rep.activo
+        ApiClient.instance.toggleActivoRepartidor(rep.id_usuario, mapOf("activo" to nuevoEstado))
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                    if (res.isSuccessful) {
+                        Toast.makeText(activity, if (nuevoEstado) "Repartidor activado" else "Repartidor desactivado", Toast.LENGTH_SHORT).show()
+                        reloadRepartidores(rv, tvEmpty, adapter)
+                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                }
+                override fun onFailure(c: Call<Void>, t: Throwable) {
+                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun verDetalleRepartidor(repartidor: RepartidorListado) {
+        ApiClient.instance.getRepartidor(repartidor.id_usuario).enqueue(object : Callback<RepartidorResponse> {
+            override fun onResponse(c: Call<RepartidorResponse>, res: Response<RepartidorResponse>) {
+                if (res.isSuccessful) {
+                    val data = res.body()
+                    if (data != null) showRepartidorDetailView(repartidor, data)
+                } else {
+                    Toast.makeText(activity, "Error al cargar detalle", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(c: Call<RepartidorResponse>, t: Throwable) {
+                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private var pedidosSinAsignar = listOf<PedidoRepartidor>()
+
+    private fun showRepartidorDetailView(rep: RepartidorListado, detalle: RepartidorResponse) {
+        val scrollView = ScrollView(activity)
+        val container = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(16, 16, 16, 16)
+        }
+        scrollView.addView(container)
+
+        // Card with repartidor info
+        val card = com.google.android.material.card.MaterialCardView(activity).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = 16 }
+            radius = 12f
+            cardElevation = 3f
+            setContentPadding(16, 16, 16, 16)
+        }
+        val cardContent = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        cardContent.addView(TextView(activity).apply {
+            text = "#${rep.id_usuario} - ${rep.nombre}"
+            textSize = 20f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(activity.resources.getColor(R.color.text_main, activity.theme))
+        })
+        cardContent.addView(TextView(activity).apply {
+            text = "Email: ${rep.email}"
+            textSize = 14f
+            setTextColor(activity.resources.getColor(R.color.text_secondary, activity.theme))
+        })
+        cardContent.addView(TextView(activity).apply {
+            text = "Tel: ${rep.telefono ?: "N/A"}"
+            textSize = 14f
+            setTextColor(activity.resources.getColor(R.color.text_secondary, activity.theme))
+        })
+        cardContent.addView(TextView(activity).apply {
+            text = "Total pedidos: ${rep.total_pedidos} | Activos: ${rep.pedidos_activos}"
+            textSize = 14f
+            setTextColor(activity.resources.getColor(R.color.text_secondary, activity.theme))
+        })
+        val estadoText = if (rep.activo) "Activo" else "Inactivo"
+        val estadoColor = if (rep.activo) R.color.success else R.color.error_text
+        cardContent.addView(TextView(activity).apply {
+            text = "Estado: $estadoText"
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(activity.resources.getColor(estadoColor, activity.theme))
+        })
+
+        // Toggle button
+        val btnToggle = Button(activity).apply {
+            text = if (rep.activo) "Desactivar" else "Activar"
+            setTextColor(android.graphics.Color.WHITE)
+            setBackgroundColor(activity.resources.getColor(
+                if (rep.activo) R.color.error_text else R.color.success, activity.theme
+            ))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 12 }
+            setOnClickListener {
+                ApiClient.instance.toggleActivoRepartidor(rep.id_usuario, mapOf("activo" to !rep.activo))
+                    .enqueue(object : Callback<Void> {
+                        override fun onResponse(c: Call<Void>, res2: Response<Void>) {
+                            if (res2.isSuccessful) {
+                                Toast.makeText(activity, "Estado actualizado", Toast.LENGTH_SHORT).show()
+                                (scrollView.parent as? ViewGroup)?.removeView(scrollView)
+                            }
+                        }
+                        override fun onFailure(c: Call<Void>, t: Throwable) {}
+                    })
+            }
+        }
+        cardContent.addView(btnToggle)
+        card.addView(cardContent)
+        container.addView(card)
+
+        // Assign section
+        val assignSection = com.google.android.material.card.MaterialCardView(activity).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = 16 }
+            radius = 12f
+            cardElevation = 3f
+            setContentPadding(16, 16, 16, 16)
+        }
+        val assignContent = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        assignContent.addView(TextView(activity).apply {
+            text = "Asignar Pedido"
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(activity.resources.getColor(R.color.text_main, activity.theme))
+        })
+
+        val spPedidos = Spinner(activity)
+        spPedidos.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = 8 }
+
+        assignContent.addView(spPedidos)
+
+        val btnAsignar = Button(activity).apply {
+            text = "Asignar Pedido"
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 8 }
+            setOnClickListener {
+                if (spPedidos.selectedItemPosition < 0 || pedidosSinAsignar.isEmpty()) {
+                    Toast.makeText(activity, "Selecciona un pedido", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val pedidoId = pedidosSinAsignar[spPedidos.selectedItemPosition].id_pedido
+                ApiClient.instance.asignarPedido(rep.id_usuario, AsignarPedidoRequest(pedidoId))
+                    .enqueue(object : Callback<Void> {
+                        override fun onResponse(c: Call<Void>, res2: Response<Void>) {
+                            if (res2.isSuccessful) {
+                                Toast.makeText(activity, "Pedido asignado", Toast.LENGTH_SHORT).show()
+                                (scrollView.parent as? ViewGroup)?.removeView(scrollView)
+                            } else Toast.makeText(activity, "Error (${res2.code()})", Toast.LENGTH_SHORT).show()
+                        }
+                        override fun onFailure(c: Call<Void>, t: Throwable) {
+                            Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+            }
+        }
+        assignContent.addView(btnAsignar)
+        assignSection.addView(assignContent)
+        container.addView(assignSection)
+
+        // Load pedidos sin asignar
+        loadPedidosSinAsignar(spPedidos)
+
+        // Load assigned pedidos
+        if (detalle.pedidos_repartidor != null && detalle.pedidos_repartidor.isNotEmpty()) {
+            val assignedSection = com.google.android.material.card.MaterialCardView(activity).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                radius = 12f
+                cardElevation = 3f
+                setContentPadding(16, 16, 16, 16)
+            }
+            val assignedContent = LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+            }
+            assignedContent.addView(TextView(activity).apply {
+                text = "Pedidos Asignados"
+                textSize = 16f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(activity.resources.getColor(R.color.text_main, activity.theme))
+            })
+
+            for (pedido in detalle.pedidos_repartidor) {
+                val row = LinearLayout(activity).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = 8 }
+                }
+                row.addView(TextView(activity).apply {
+                    text = "#${pedido.id_pedido} - ${pedido.cliente?.nombre ?: "N/A"} (${pedido.estado})"
+                    layoutParams = LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                    )
+                    textSize = 13f
+                })
+                val btnDesasignar = ImageButton(activity).apply {
+                    setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+                    setBackgroundResource(android.R.drawable.ic_menu_delete)
+                    setOnClickListener {
+                        desasignarPedido(pedido.id_pedido, scrollView)
+                    }
+                }
+                row.addView(btnDesasignar)
+                assignedContent.addView(row)
+            }
+            assignedSection.addView(assignedContent)
+            container.addView(assignedSection)
+        }
+
+        AlertDialog.Builder(activity)
+            .setTitle("Detalle del Repartidor")
+            .setView(scrollView)
+            .setPositiveButton("Cerrar", null)
+            .show()
+    }
+
+    private fun loadPedidosSinAsignar(sp: Spinner) {
+        ApiClient.instance.getPedidosSinAsignar().enqueue(object : Callback<List<PedidoRepartidor>> {
+            override fun onResponse(c: Call<List<PedidoRepartidor>>, res: Response<List<PedidoRepartidor>>) {
+                if (res.isSuccessful) {
+                    pedidosSinAsignar = res.body() ?: emptyList()
+                    val nombres = pedidosSinAsignar.map { "#${it.id_pedido} - ${it.cliente?.nombre ?: "N/A"}" }
+                    sp.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, nombres)
+                }
+            }
+            override fun onFailure(c: Call<List<PedidoRepartidor>>, t: Throwable) {}
+        })
+    }
+
+    private fun asignarPedido(repartidorId: Int, pedidoId: Int) {
+        ApiClient.instance.asignarPedido(repartidorId, AsignarPedidoRequest(pedidoId))
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                    if (res.isSuccessful) {
+                        Toast.makeText(activity, "Pedido asignado", Toast.LENGTH_SHORT).show()
+                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                }
+                override fun onFailure(c: Call<Void>, t: Throwable) {
+                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun desasignarPedido(pedidoId: Int, scrollView: ScrollView) {
+        ApiClient.instance.desasignarPedido(pedidoId).enqueue(object : Callback<Void> {
+            override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                if (res.isSuccessful) {
+                    Toast.makeText(activity, "Pedido desasignado", Toast.LENGTH_SHORT).show()
+                    (scrollView.parent as? ViewGroup)?.removeView(scrollView)
+                } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+            }
+            override fun onFailure(c: Call<Void>, t: Throwable) {
                 Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         })

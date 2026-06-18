@@ -151,6 +151,15 @@ interface ApiService {
     @POST("auth/reset-password")
     fun resetPassword(@Body request: ResetPasswordRequest): Call<AuthResponse>
 
+    @GET("repartidores")
+    fun getRepartidores(): Call<List<RepartidorListado>>
+
+    @PUT("repartidores/{id}/activo")
+    fun toggleActivoRepartidor(@Path("id") id: Int, @Body body: Map<String, Boolean>): Call<Void>
+
+    @PUT("repartidores/pedidos/{pedidoId}/desasignar")
+    fun desasignarPedido(@Path("pedidoId") pedidoId: Int): Call<Void>
+
     @GET("repartidores/{id}")
     fun getRepartidor(@Path("id") id: Int): Call<RepartidorResponse>
 

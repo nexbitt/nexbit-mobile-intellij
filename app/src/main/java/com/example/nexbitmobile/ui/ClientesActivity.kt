@@ -32,7 +32,7 @@ class ClientesActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewClientes)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter = ClienteAdapter(emptyList(), this::deleteCliente)
+        adapter = ClienteAdapter(emptyList(), onEdit = {}, onDelete = this::deleteCliente)
         recyclerView.adapter = adapter
 
         loadClientes()

@@ -13,7 +13,7 @@
         android:layout_margin="12dp"
         android:paddingHorizontal="16dp"
         android:paddingVertical="10dp"
-        android:hint="Buscar repartidores..."
+        android:hint="Buscar clientes..."
         android:background="@drawable/bg_search_bar"
         android:textSize="14sp"
         android:maxLines="1"
@@ -28,7 +28,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:text="No hay repartidores"
+        android:text="No hay clientes"
         android:textColor="@color/text_secondary"
         android:textSize="16sp"
         android:visibility="visible" />

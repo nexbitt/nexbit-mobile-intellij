@@ -171,6 +171,7 @@ class MainOrbixActivity : AppCompatActivity() {
         MenuItem("Productos", R.drawable.ic_icon_products, "productos_admin"),
         MenuItem("Categorías", R.drawable.ic_filter_orbix, "categorias_admin"),
 
+        MenuItem("Clientes", android.R.drawable.ic_menu_my_calendar, "clientes_admin"),
         MenuItem("Usuarios", android.R.drawable.ic_menu_myplaces, "usuarios_admin"),
         MenuItem("Proveedores", android.R.drawable.ic_menu_send, "proveedores_admin"),
         MenuItem("Repartidores", android.R.drawable.ic_menu_directions, "repartidores_admin"),
@@ -293,6 +294,13 @@ class MainOrbixActivity : AppCompatActivity() {
                     R.layout.inline_categorias_admin, contentContainer, false
                 )
                 contentContainer.addView(v); adminScreens.showCategorias(v)
+            }
+            "clientes_admin" -> {
+                tvToolbarTitle.text = "Clientes"
+                val v = LayoutInflater.from(this).inflate(
+                    R.layout.inline_clientes_admin, contentContainer, false
+                )
+                contentContainer.addView(v); adminScreens.showClientes(v)
             }
             "usuarios_admin" -> {
                 tvToolbarTitle.text = "Usuarios"

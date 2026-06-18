@@ -11,6 +11,7 @@ import com.example.nexbitmobile.model.Usuario
 
 class ClienteAdapter(
     private var clientes: List<Usuario>,
+    private val onEdit: (Usuario) -> Unit,
     private val onDelete: (Usuario) -> Unit
 ) : RecyclerView.Adapter<ClienteAdapter.ClienteViewHolder>() {
 
@@ -21,6 +22,7 @@ class ClienteAdapter(
         val tvClienteEmail: TextView = view.findViewById(R.id.tvClienteEmail)
         val tvClienteTelefono: TextView = view.findViewById(R.id.tvClienteTelefono)
         val tvClienteDireccion: TextView = view.findViewById(R.id.tvClienteDireccion)
+        val btnEditCliente: ImageButton = view.findViewById(R.id.btnEditCliente)
         val btnDeleteCliente: ImageButton = view.findViewById(R.id.btnDeleteCliente)
     }
 
@@ -46,6 +48,7 @@ class ClienteAdapter(
         holder.tvClienteTelefono.text = "Teléfono: ${cliente.telefono ?: "N/A"}"
         holder.tvClienteDireccion.text = "Dirección: ${cliente.direccion ?: "N/A"}"
 
+        holder.btnEditCliente.setOnClickListener { onEdit(cliente) }
         holder.btnDeleteCliente.setOnClickListener { onDelete(cliente) }
     }
 

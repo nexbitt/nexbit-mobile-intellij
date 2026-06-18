@@ -56,3 +56,13 @@ data class AsignarPedidoRequest(
     val pedido_id: Int
 )
 
+data class RepartidorListado(
+    val id_usuario: Int,
+    val nombre: String,
+    val telefono: String?,
+    val email: String,
+    val activo: Boolean,
+    val total_pedidos: Int,
+    val pedidos_activos: Int
+)
+
