@@ -239,7 +239,7 @@ class MisPedidosActivity : AppCompatActivity() {
                             </div>
                             <div class="info-item">
                                 <label>Fecha de Emisión</label>
-                                <span>${pedido.fecha}</span>
+                                <span>${pedido.fecha ?: pedido.fecha_pedido ?: "N/A"}</span>
                             </div>
                             <div class="info-item">
                                 <label>Estado del Pedido</label>
@@ -304,7 +304,7 @@ class MisPedidosActivity : AppCompatActivity() {
         sb.append("📦 Pedido #${pedido.id_pedido}\n")
         sb.append("────────────────────────\n")
         sb.append("Estado:    ${pedido.estado}\n")
-        sb.append("Fecha:     ${pedido.fecha_pedido?.take(16)?.replace("T", " ") ?: pedido.fecha.take(16).replace("T", " ")}\n")
+        sb.append("Fecha:     ${pedido.fecha_pedido?.take(16)?.replace("T", " ") ?: pedido.fecha?.take(16)?.replace("T", " ") ?: "N/A"}\n")
         sb.append("Dirección: ${pedido.direccion_entrega ?: "No especificada"}\n")
         sb.append("Total:     ${formatter.format(pedido.total)}\n")
 
@@ -384,7 +384,7 @@ class MisPedidosAdapter(
     override fun onBindViewHolder(h: VH, pos: Int) {
         val p = pedidos[pos]
         h.tvId.text     = "Pedido #${p.id_pedido}"
-        h.tvFecha.text  = p.fecha_pedido?.take(16)?.replace("T", " ") ?: p.fecha.take(16).replace("T", " ")
+        h.tvFecha.text  = p.fecha_pedido?.take(16)?.replace("T", " ") ?: p.fecha?.take(16)?.replace("T", " ") ?: "N/A"
         h.tvDir.text    = "📍 ${p.direccion_entrega ?: "Sin dirección"}"
         h.tvTotal.text  = fmt.format(p.total)
 

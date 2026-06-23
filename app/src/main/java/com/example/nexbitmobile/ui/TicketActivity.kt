@@ -86,7 +86,7 @@ class TicketActivity : AppCompatActivity() {
         tvTicketDireccion.text = pedido.direccion_entrega ?: "Sin dirección"
         tvTicketNit.text = "NIT: 901.XXX.XXX-X"
 
-        val fecha = pedido.fecha_pedido ?: pedido.fecha
+        val fecha = pedido.fecha_pedido ?: pedido.fecha ?: ""
         tvTicketFecha.text = try {
             val input = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
             val output = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "CO"))

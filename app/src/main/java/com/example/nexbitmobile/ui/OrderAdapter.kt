@@ -35,7 +35,7 @@ class OrderAdapter(
         val pedido = pedidos[position]
 
         holder.tvProductName.text = "Pedido #${pedido.id_pedido}"
-        holder.tvTime.text = pedido.fecha_pedido ?: pedido.fecha
+        holder.tvTime.text = pedido.fecha_pedido ?: pedido.fecha ?: ""
         holder.tvQty.text = "Total: $${pedido.total}"
         holder.tvBuyer.text = pedido.usuario_nombre ?: "Cliente"
         holder.tvOrderId.text = "#DXZ_${pedido.id_pedido.toString().padStart(5, '0')}"

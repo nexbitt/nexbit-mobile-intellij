@@ -1,0 +1,63 @@
+==================================================================================
+PLAN MAESTRO: MÓDULO, HISTORIAL Y FORMULARIO DE PEDIDOS (NEXBIT SYSTEM 2026)
+==================================================================================
+EL PROBLEMA CONCRETO:
+La gestión de pedidos actual presenta discrepancias entre las acciones rápidas de la web y la aplicación móvil. Se requiere unificar tanto la vista de consulta de historial (inspirada en la cuadrícula de image_d658a6.png) como el formulario de creación manual en una sola columna vertical adaptada a dispositivos móviles, eliminando elementos ambiguos y asegurando el control absoluto del flujo financiero.
+==================================================================================
+
+1. ARQUITECTURA DE LA VISTA GENERAL DE PEDIDOS (HISTORIAL)
+----------------------------------------------------------------------------------
+Cuando el usuario (o administrador) accede a la sección de "Pedidos" desde la barra inferior fija, se despliega un contenedor dinámico vertical:
+
+- Cabecera: Título "Mis Pedidos" en tipografía de 20px Bold, color Negro Premium (#111827).
+- Estructura de Tarjetas (Fiel reflejo de la base de datos de la web en image_d658a6.png):
+  * Contenedor: Fondo blanco puro (#FFFFFF), bordes redondeados a 16px con un perfil lineal fino de 1px en Gris de Bordes (#D1D5DB).
+  * Fila Superior Interna (Flexbox): 
+    - Izquierda: ID del pedido resaltado en negrita (ej. #1, #5, #11).
+    - Derecha: Badge de estado en formato óvalo plano con texto en mayúsculas sostenidas:
+      • "ENTREGADO": Fondo verde suave, texto Verde de Éxito (#10B981).
+      • "PENDIENTE_DE_PAGO": Fondo amarillo suave, texto café/amarillo texturizado.
+      • "ASIGNADO" / "EN_RUTA": Fondo azul suave, texto azul marino.
+  * Cuerpo Central: Muestra la etiqueta "Fecha de orden" (con validación de formato real en lugar de "Invalid Date") y "Total a pagar" destacado en tamaño 16px Bold (ej. $37.000).
+
+- Botonera Atómica de Acciones Rápidas (Base de cada Tarjeta - Altura 36px):
+  Alineados horizontalmente con un espacio de separación simétrico (gap-2):
+  1. Botón [Ojo + Ver Detalles]: Fondo gris claro (#F3F4F6), icono de ojo lineal (fa-eye) y texto negro. Abre el modal con el desglose de productos.
+  2. Botón [Ticket]: Fondo gris claro (#F3F4F6), icono lineal de descarga (fa-download) para exportar el comprobante tipo factura en formato PDF.
+  3. Botón [Subir Comprobante]: (Visible solo si el estado es PENDIENTE_DE_PAGO). Botón con borde fino, texto y un icono lineal de subida (fa-upload) que permite anexar la foto del pago.
+
+----------------------------------------------------------------------------------
+2. FORMULARIO DE CREACIÓN DE PEDIDOS MANUALES (INTERFAZ DE CARGA)
+----------------------------------------------------------------------------------
+Para el ingreso manual de pedidos por parte del administrador, la vista se reestructura en una sola columna vertical consecutiva para evitar recortes en la pantalla:
+
+2.1. Gestión de Zona Muerta y Notch (image_edited-image.png):
+- El contenedor raíz activa la propiedad de protección de ventanas del sistema (`fitsSystemWindows="true"`), forzando a la UI a renderizarse de manera segura exactamente debajo de la barra de estado o muesca de la cámara del teléfono.
+- El fondo general de la pantalla se tiñe de Gris de Fondo (#F3F4F6) para contrastar con las tarjetas de entrada.
+
+2.2. Campos de Interacción del Formulario (Altura Universal: 42px / Cero Emojis):
+- Campo "Seleccionar Cliente": Listado desplegable (Select) conectado a la API con buscador integrado. Icono izquierdo lineal de usuario (fa-user).
+- Campo "Dirección de Entrega": Entrada de texto libre. Icono izquierdo de ubicación lineal (fa-map-marker-alt).
+- Campo "Notas": Caja de texto multilínea expandida a 80px de alto. Icono izquierdo de documento (fa-file-alt).
+- Selector "Agregar Producto": Menú desplegable que consulta el catálogo general (image_d65802.png). Al elegir un artículo, se lista abajo en una cuadrícula dinámica donde cada fila cuenta con un botón circular de 32px y el icono de un basurero lineal (fa-trash-alt) en color Rojo de Alerta (#EF4444) para removerlo instantáneamente.
+
+2.3. Área de Comprobante de Pago:
+- Un contenedor rectangular con borde punteado gris (#D1D5DB) e icono central de subida (fa-upload). Si el administrador carga un archivo digital, la app procesa el binario y transiciona automáticamente el estado futuro del pedido a "EN_REVISION" en la base de datos.
+
+----------------------------------------------------------------------------------
+3. DESGLOSE MATEMÁTICO EN TIEMPO REAL Y BOTONES DE CONTROL
+----------------------------------------------------------------------------------
+En la base del formulario, antes de procesar el envío, se calcula de forma estricta el impacto financiero de la transacción:
+
+- Cuadro de Liquidación Dinámica:
+  * Subtotal: Sumatoria directa del precio unitario de los productos por sus cantidades.
+  * IVA (19%): Multiplicación exacta mediante la fórmula matemática $$IVA = Subtotal \times 0.19$$ renderizada al instante en pantalla.
+  * Total: Suma final del Subtotal + IVA en texto destacado de 16px Bold Negro Premium (#111827).
+
+- Botonera de Control Inferior (Fijada a la base):
+  * Botón Cancelar (Izquierda): Formato cápsula de 42px de alto, fondo blanco, borde gris. Limpia el formulario y regresa a la vista de historial.
+  * Botón Crear Pedido (Derecha): Formato cápsula sólida de 42px de alto, color Negro Premium (#111827) con texto blanco Bold. Empaqueta el JSON estructurado y realiza la petición segura vía `POST /api/pedidos`.
+
+==================================================================================
+FIN DEL PLAN INTEGRADO DE PEDIDOS - NEXBIT SYSTEM 2026
+==================================================================================

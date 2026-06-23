@@ -1,22 +1,33 @@
 package com.example.nexbitmobile.ui
 
 import android.animation.Animator
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.print.PrintAttributes
+import android.print.PrintDocumentAdapter
+import android.print.PrintManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.PathInterpolator
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
@@ -26,6 +37,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 class MainOrbixActivity : AppCompatActivity() {
@@ -73,6 +85,22 @@ class MainOrbixActivity : AppCompatActivity() {
         R.layout.expanded_carts,
         R.layout.expanded_logistics
     )
+
+    // ─── Comprobante upload ───
+    private var currentSheetUri: android.net.Uri? = null
+    private var currentSheetFileNameView: TextView? = null
+
+    private val comprobanteLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            currentSheetUri = uri
+            currentSheetFileNameView?.let {
+                it.text = uri.lastPathSegment ?: "Comprobante seleccionado"
+                it.visibility = View.VISIBLE
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -350,13 +378,11 @@ class MainOrbixActivity : AppCompatActivity() {
 
         when (screenKey) {
             "pedidos_admin" -> {
-                closeMenu()
-                val intent = Intent(this, PedidosAdminActivity::class.java)
-                intent.putExtra("isClienteView", false)
-                startActivity(intent)
-                toolbarSub.visibility = View.GONE
-                navStack.removeLastOrNull()
-                currentScreen = navStack.lastOrNull() ?: "home"
+                tvToolbarTitle.text = "Pedidos"
+                val v = LayoutInflater.from(this).inflate(
+                    R.layout.inline_pedidos_admin, contentContainer, false
+                )
+                contentContainer.addView(v); showPedidosInline(v)
             }
             "productos_admin" -> {
                 tvToolbarTitle.text = "Productos"
@@ -434,18 +460,24 @@ class MainOrbixActivity : AppCompatActivity() {
         val etSearch = root.findViewById<EditText>(R.id.etSearchPedidos)
 
         root.findViewById<View>(R.id.btnAddHeader).setOnClickListener {
-            startActivity(Intent(this, CheckoutManualActivity::class.java))
+            mostrarBottomSheetCrearPedido()
         }
 
         rv.layoutManager = LinearLayoutManager(this)
-        val adapter = OrderAdapter(emptyList()) { pedido ->
-            val intent = Intent(this, OrderDetailActivity::class.java)
-            intent.putExtra("pedido_id", pedido.id_pedido)
-            startActivity(intent)
+        rv.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator().apply {
+            addDuration = 300
+            removeDuration = 300
+            moveDuration = 300
+            changeDuration = 300
         }
+        val adapter = PedidoAdminAdapter(
+            pedidos = emptyList(),
+            onDetalle = { pedido -> mostrarDetallePedido(pedido) },
+            onEdit = { pedido -> mostrarBottomSheetEditarPedido(pedido) },
+            onDelete = { pedido -> confirmarEliminarPedido(pedido) }
+        )
         rv.adapter = adapter
 
-        // Status filter chips
         val chipMap = mapOf(
             R.id.chipTodos to null,
             R.id.chipPendiente to "pend",
@@ -459,18 +491,15 @@ class MainOrbixActivity : AppCompatActivity() {
         for ((chipId, filterValue) in chipMap) {
             root.findViewById<View>(chipId).setOnClickListener {
                 currentStatusFilter = filterValue
-                // Reset all chips to unselected
                 for ((id, _) in chipMap) {
                     val chip = root.findViewById<TextView>(id)
                     chip.setBackgroundResource(R.drawable.bg_chip)
                     chip.setTextColor(resources.getColor(R.color.chip_text, theme))
                 }
-                // Highlight selected chip
                 val selectedChip = root.findViewById<TextView>(chipId)
                 selectedChip.setBackgroundResource(R.drawable.bg_chip_selected)
                 selectedChip.setTextColor(resources.getColor(R.color.chip_selected_text, theme))
-                // Apply filters
-                aplicarFiltros(adapter, etSearch)
+                aplicarFiltrosPedidos(adapter, etSearch)
             }
         }
 
@@ -478,14 +507,14 @@ class MainOrbixActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
-                aplicarFiltros(adapter, etSearch)
+                aplicarFiltrosPedidos(adapter, etSearch)
             }
         })
 
-        loadPedidos(rv, tvEstado, tvEmpty, adapter)
+        loadPedidosInline(rv, tvEstado, tvEmpty, adapter)
     }
 
-    private fun aplicarFiltros(adapter: OrderAdapter, etSearch: EditText) {
+    private fun aplicarFiltrosPedidos(adapter: PedidoAdminAdapter, etSearch: EditText) {
         val query = etSearch.text.toString().trim().lowercase()
         val filtered = allPedidos.filter { p ->
             val matchesSearch = query.isEmpty() ||
@@ -495,17 +524,17 @@ class MainOrbixActivity : AppCompatActivity() {
                 p.estado.lowercase().contains(currentStatusFilter!!)
             matchesSearch && matchesStatus
         }
-        adapter.updateList(filtered)
+        adapter.updateData(filtered)
     }
 
     private var allPedidos = listOf<Pedido>()
 
-    private fun loadPedidos(rv: RecyclerView, tvEstado: TextView, tvEmpty: TextView, adapter: OrderAdapter) {
+    private fun loadPedidosInline(rv: RecyclerView, tvEstado: TextView, tvEmpty: TextView, adapter: PedidoAdminAdapter) {
         ApiClient.instance.getPedidos().enqueue(object : Callback<List<Pedido>> {
             override fun onResponse(call: Call<List<Pedido>>, response: Response<List<Pedido>>) {
                 if (response.isSuccessful) {
                     allPedidos = response.body() ?: emptyList()
-                    adapter.updateList(allPedidos)
+                    adapter.updateData(allPedidos)
                     tvEstado.visibility = View.GONE
                     if (allPedidos.isEmpty()) {
                         tvEmpty.visibility = View.VISIBLE
@@ -520,6 +549,615 @@ class MainOrbixActivity : AppCompatActivity() {
                 tvEstado.text = "Error al cargar pedidos"
             }
         })
+    }
+
+    // ──────────── BOTTOM SHEET: CREAR PEDIDO ────────────
+
+    private fun mostrarBottomSheetCrearPedido() {
+        mostrarBottomSheetPedido(null)
+    }
+
+    private fun mostrarBottomSheetEditarPedido(pedido: Pedido) {
+        mostrarBottomSheetPedido(pedido)
+    }
+
+    private fun mostrarBottomSheetPedido(pedidoParaEditar: Pedido?) {
+        val isEdit = pedidoParaEditar != null
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_create_order, null)
+        dialog.setContentView(view)
+
+        // ── Views ──
+        val etSearchCliente = view.findViewById<EditText>(R.id.etSearchCliente)
+        val ivClearCliente = view.findViewById<ImageView>(R.id.ivClearCliente)
+        val lvClientes = view.findViewById<ListView>(R.id.lvClientes)
+        val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+        val etNotas = view.findViewById<EditText>(R.id.etNotas)
+        val frameUpload = view.findViewById<FrameLayout>(R.id.frameUpload)
+        val tvFileName = view.findViewById<TextView>(R.id.tvFileName)
+        val spProducto = view.findViewById<Spinner>(R.id.spProducto)
+        val etCantidad = view.findViewById<EditText>(R.id.etCantidad)
+        val btnAgregar = view.findViewById<ImageButton>(R.id.btnAgregarProducto)
+        val rvProductos = view.findViewById<RecyclerView>(R.id.rvProductosSheet)
+        val tvEmptyProductos = view.findViewById<TextView>(R.id.tvProductosEmpty)
+        val tvSubtotal = view.findViewById<TextView>(R.id.tvSubtotal)
+        val tvIva = view.findViewById<TextView>(R.id.tvIva)
+        val tvTotal = view.findViewById<TextView>(R.id.tvTotal)
+        val btnCancelar = view.findViewById<TextView>(R.id.btnCancelar)
+        val btnCrear = view.findViewById<TextView>(R.id.btnCrearPedido)
+        val btnClose = view.findViewById<ImageButton>(R.id.btnCloseSheet)
+
+        // ── Header ──
+        val tvSheetTitle = view.findViewById<TextView>(R.id.tvSheetTitle)
+        val headerTitle = if (isEdit) "Editar Pedido #${pedidoParaEditar!!.id_pedido}" else "Nuevo Pedido — Administrador"
+        tvSheetTitle.text = headerTitle
+        btnCrear.text = if (isEdit) "Actualizar Pedido" else "Crear Pedido"
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+        btnCancelar.setOnClickListener { dialog.dismiss() }
+
+        // ── Data ──
+        var clientes = listOf<Usuario>()
+        var productos = listOf<Producto>()
+        var selectedCliente: Usuario? = null
+        var selectedProducto: Producto? = null
+        val productosAgregados = mutableListOf<ProductoEnPedido>()
+
+        val fmt = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+
+        // ── Producto sheet adapter ──
+        rvProductos.layoutManager = LinearLayoutManager(this)
+        val sheetAdapter = ProductoSheetAdapter(productosAgregados) { pos ->
+            productosAgregados.removeAt(pos)
+            (rvProductos.adapter as? ProductoSheetAdapter)?.updateData(productosAgregados)
+            actualizarVisibilidadProductos(tvEmptyProductos, rvProductos, productosAgregados)
+            recalcularTotalesSheet(productosAgregados, tvSubtotal, tvIva, tvTotal, fmt)
+        }
+        rvProductos.adapter = sheetAdapter
+
+        // ── Cargar clientes ──
+        ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
+            override fun onResponse(c: Call<List<Usuario>>, res: Response<List<Usuario>>) {
+                clientes = res.body()?.filter { it.rol_nombre != "ADMIN" } ?: emptyList()
+                if (isEdit && pedidoParaEditar?.usuario_nombre != null) {
+                    val match = clientes.find { it.nombre == pedidoParaEditar!!.usuario_nombre }
+                    if (match != null) {
+                        selectedCliente = match
+                        etSearchCliente.setText("${match.nombre} (${match.email})")
+                        etSearchCliente.setSelection(etSearchCliente.text.length)
+                        ivClearCliente.visibility = View.VISIBLE
+                    }
+                }
+            }
+            override fun onFailure(c: Call<List<Usuario>>, t: Throwable) {
+                Toast.makeText(this@MainOrbixActivity, "Error al cargar clientes", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        // ── Cargar productos ──
+        ApiClient.instance.getProductos().enqueue(object : Callback<List<Producto>> {
+            override fun onResponse(c: Call<List<Producto>>, res: Response<List<Producto>>) {
+                productos = res.body()?.filter { it.activo == 1 } ?: emptyList()
+                val nombres = productos.map { "${it.nombre} — ${fmt.format(it.precio_venta)}" }.toMutableList()
+                nombres.add(0, "Elegir un producto de la lista...")
+                spProducto.adapter = ArrayAdapter(this@MainOrbixActivity, android.R.layout.simple_spinner_dropdown_item, nombres)
+            }
+            override fun onFailure(c: Call<List<Producto>>, t: Throwable) {
+                Toast.makeText(this@MainOrbixActivity, "Error al cargar productos", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        // ── Buscador de clientes ──
+        etSearchCliente.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val query = s?.toString()?.trim()?.lowercase() ?: ""
+                if (query.isEmpty() && selectedCliente == null) {
+                    lvClientes.visibility = View.GONE
+                    ivClearCliente.visibility = View.GONE
+                    return
+                }
+                // If user is editing after a client was selected, clear the selection
+                if (selectedCliente != null) {
+                    selectedCliente = null
+                }
+                ivClearCliente.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
+
+                val filtered = clientes.filter {
+                    it.nombre.lowercase().contains(query) || it.email.lowercase().contains(query)
+                }
+                if (filtered.isNotEmpty()) {
+                    val nombres = filtered.map { "${it.nombre} (${it.email})" }
+                    lvClientes.adapter = ArrayAdapter(this@MainOrbixActivity, android.R.layout.simple_list_item_1, nombres)
+                    lvClientes.visibility = View.VISIBLE
+                    lvClientes.setOnItemClickListener { _, _, pos, _ ->
+                        val cliente = filtered[pos]
+                        selectedCliente = cliente
+                        etSearchCliente.setText("${cliente.nombre} (${cliente.email})")
+                        etSearchCliente.setSelection(etSearchCliente.text.length)
+                        lvClientes.visibility = View.GONE
+                        ivClearCliente.visibility = View.VISIBLE
+                    }
+                } else {
+                    lvClientes.visibility = View.GONE
+                }
+            }
+        })
+
+        ivClearCliente.setOnClickListener {
+            selectedCliente = null
+            etSearchCliente.setText("")
+            lvClientes.visibility = View.GONE
+            ivClearCliente.visibility = View.GONE
+        }
+
+        // ── Producto spinner selection ──
+        spProducto.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+                selectedProducto = if (pos > 0 && pos - 1 < productos.size) productos[pos - 1] else null
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // ── Agregar producto a la lista ──
+        btnAgregar.setOnClickListener {
+            val prod = selectedProducto
+            if (prod == null) {
+                Toast.makeText(this, "Selecciona un producto", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val cant = etCantidad.text.toString().toIntOrNull()
+            if (cant == null || cant < 1) {
+                Toast.makeText(this, "Cantidad inválida", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // Check if product already exists, update quantity
+            val existing = productosAgregados.indexOfFirst { it.producto.id_producto == prod.id_producto }
+            if (existing >= 0) {
+                productosAgregados[existing] = productosAgregados[existing].copy(
+                    cantidad = productosAgregados[existing].cantidad + cant
+                )
+            } else {
+                productosAgregados.add(ProductoEnPedido(prod, cant))
+            }
+            sheetAdapter.updateData(productosAgregados)
+            actualizarVisibilidadProductos(tvEmptyProductos, rvProductos, productosAgregados)
+            recalcularTotalesSheet(productosAgregados, tvSubtotal, tvIva, tvTotal, fmt)
+            etCantidad.setText("1")
+            spProducto.setSelection(0)
+            selectedProducto = null
+        }
+
+        // ── Subir comprobante ──
+        currentSheetFileNameView = tvFileName
+        currentSheetUri = null
+        tvFileName.visibility = View.GONE
+        frameUpload.setOnClickListener {
+            try {
+                comprobanteLauncher.launch("image/*")
+            } catch (_: Exception) {
+                Toast.makeText(this, "No hay una app para seleccionar archivos", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // ── Pre-fill en modo edición ──
+        if (isEdit) {
+            val p = pedidoParaEditar!!
+            etDireccion.setText(p.direccion_entrega ?: "")
+            etNotas.setText(p.notas_entrega ?: "")
+        }
+
+        // ── Crear / Actualizar pedido ──
+        btnCrear.setOnClickListener {
+            val cliente = selectedCliente
+            val direccion = etDireccion.text.toString().trim()
+            val notas = etNotas.text.toString().trim()
+
+            if (cliente == null) {
+                Toast.makeText(this, "Selecciona un cliente", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (productosAgregados.isEmpty()) {
+                Toast.makeText(this, "Agrega al menos un producto", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val totalSinIva = productosAgregados.sumOf { it.subtotal }
+            val totalConIva = totalSinIva + totalSinIva * 0.19
+
+            val request = PedidoRequest(
+                usuario_id = cliente.id_usuario,
+                total = totalConIva,
+                estado = pedidoParaEditar?.estado ?: "PENDIENTE_DE_PAGO",
+                direccion_entrega = direccion.ifBlank { null },
+                notas_entrega = notas.ifBlank { null }
+            )
+
+            btnCrear.isEnabled = false
+            btnCrear.text = if (isEdit) "Actualizando..." else "Creando..."
+
+            val call = if (isEdit) {
+                ApiClient.instance.updatePedido(pedidoParaEditar!!.id_pedido, request)
+            } else {
+                ApiClient.instance.createPedido(request)
+            }
+
+            call.enqueue(object : Callback<Void> {
+                override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                    btnCrear.isEnabled = true
+                    btnCrear.text = if (isEdit) "Actualizar Pedido" else "Crear Pedido"
+                    if (res.isSuccessful) {
+                        val msg = if (isEdit) "Pedido actualizado" else "Pedido creado con éxito"
+                        Toast.makeText(this@MainOrbixActivity, msg, Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        allPedidos = emptyList()
+                        val rv = findViewById<RecyclerView>(R.id.rvPedidosInline)
+                        val tvEstado = findViewById<TextView>(R.id.tvPedidosEstado)
+                        val tvEmpty = findViewById<TextView>(R.id.tvPedidosEmpty)
+                        if (rv != null) {
+                            val adapter = rv.adapter as? PedidoAdminAdapter
+                            if (adapter != null) {
+                                loadPedidosInline(rv, tvEstado, tvEmpty, adapter)
+                            }
+                        }
+                    } else {
+                        val errMsg = if (isEdit) "Error al actualizar (${res.code()})" else "Error al crear pedido (${res.code()})"
+                        Toast.makeText(this@MainOrbixActivity, errMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(c: Call<Void>, t: Throwable) {
+                    btnCrear.isEnabled = true
+                    btnCrear.text = if (isEdit) "Actualizar Pedido" else "Crear Pedido"
+                    Toast.makeText(this@MainOrbixActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        dialog.show()
+    }
+
+    private fun actualizarVisibilidadProductos(
+        tvEmpty: TextView,
+        rv: RecyclerView,
+        items: List<ProductoEnPedido>
+    ) {
+        if (items.isEmpty()) {
+            tvEmpty.visibility = View.VISIBLE
+            rv.visibility = View.GONE
+        } else {
+            tvEmpty.visibility = View.GONE
+            rv.visibility = View.VISIBLE
+        }
+    }
+
+    private fun recalcularTotalesSheet(
+        items: List<ProductoEnPedido>,
+        tvSubtotal: TextView,
+        tvIva: TextView,
+        tvTotal: TextView,
+        fmt: NumberFormat
+    ) {
+        val subtotal = items.sumOf { it.subtotal }
+        val iva = subtotal * 0.19
+        tvSubtotal.text = fmt.format(subtotal)
+        tvIva.text = fmt.format(iva)
+        tvTotal.text = fmt.format(subtotal + iva)
+    }
+
+    // ──────────── PEDIDOS: DETALLE, TICKET, DELETE ────────────
+
+    private fun mostrarDetallePedido(pedido: Pedido) {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_detalle_pedido, null)
+        dialog.setContentView(view)
+
+        val fmt = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+
+        // ── Views ──
+        val tvTitulo = view.findViewById<TextView>(R.id.tvDetalleTitulo)
+        val tvCliente = view.findViewById<TextView>(R.id.tvDetalleCliente)
+        val tvEstado = view.findViewById<TextView>(R.id.tvDetalleEstado)
+        val tvFecha = view.findViewById<TextView>(R.id.tvDetalleFecha)
+        val tvTotal = view.findViewById<TextView>(R.id.tvDetalleTotal)
+        val layoutProductos = view.findViewById<LinearLayout>(R.id.layoutProductosDetalle)
+        val ivComprobanteThumb = view.findViewById<ImageView>(R.id.ivComprobanteThumb)
+        val tvSinComprobante = view.findViewById<TextView>(R.id.tvSinComprobante)
+        val btnCancelar = view.findViewById<TextView>(R.id.btnCancelarPedido)
+        val btnVerComprobante = view.findViewById<TextView>(R.id.btnVerComprobante)
+        val btnClose = view.findViewById<ImageButton>(R.id.btnCloseDetalle)
+
+        // ── Header ──
+        tvTitulo.text = "Pedido #${String.format("%06d", pedido.id_pedido)}"
+
+        // ── Info card ──
+        tvCliente.text = pedido.usuario_nombre ?: "Sin nombre"
+
+        val (estadoBg, estadoColor, estadoLabel) = when {
+            pedido.estado.contains("ENTREG", true) -> Triple(R.drawable.bg_badge_ios_delivered, "#34C759", "ENTREGADO")
+            pedido.estado.contains("PENDIENTE", true) -> Triple(R.drawable.bg_badge_ios_pending, "#FF9500", "PENDIENTE DE PAGO")
+            pedido.estado.contains("CANCEL", true) -> Triple(R.drawable.bg_badge_ios_cancelled, "#FF3B30", "CANCELADO")
+            pedido.estado.contains("CONFIRM", true) -> Triple(R.drawable.bg_badge_ios_delivered, "#34C759", "CONFIRMADO")
+            pedido.estado.contains("RUTA", true) || pedido.estado.contains("CAMINO", true) -> Triple(R.drawable.bg_badge_ios_pending, "#FF9500", "EN CAMINO")
+            else -> Triple(R.drawable.bg_badge_ios_pending, "#FF9500", pedido.estado)
+        }
+        tvEstado.background = ContextCompat.getDrawable(this, estadoBg)
+        tvEstado.setTextColor(Color.parseColor(estadoColor))
+        tvEstado.text = estadoLabel
+
+        tvFecha.text = formatearFechaDetalle(pedido.fecha ?: pedido.fecha_pedido)
+        tvTotal.text = fmt.format(pedido.total)
+
+        // ── Comprobante thumbnail ──
+        val tieneComprobante = !pedido.comprobante_pago_url.isNullOrBlank()
+        if (tieneComprobante) {
+            ivComprobanteThumb.visibility = View.VISIBLE
+            tvSinComprobante.visibility = View.GONE
+            Glide.with(this).load(pedido.comprobante_pago_url).into(ivComprobanteThumb)
+        } else {
+            ivComprobanteThumb.visibility = View.GONE
+            tvSinComprobante.visibility = View.VISIBLE
+        }
+
+        // ── Productos ──
+        layoutProductos.removeAllViews()
+        val detalles = pedido.detalles
+        if (!detalles.isNullOrEmpty()) {
+            for (d in detalles) {
+                val row = layoutInflater.inflate(R.layout.item_producto_detalle, layoutProductos, false)
+                row.findViewById<TextView>(R.id.tvProdNombre).text = d.producto_nombre ?: "Producto"
+                row.findViewById<TextView>(R.id.tvProdCantidad).text = "Cantidad: ${d.cantidad}"
+                row.findViewById<TextView>(R.id.tvProdPrecioUnit).text = "Precio unitario: ${fmt.format(d.precio_unitario)}"
+                row.findViewById<TextView>(R.id.tvProdSubtotal).text = fmt.format(d.subtotal)
+                layoutProductos.addView(row)
+            }
+        } else {
+            val emptyView = TextView(this).apply {
+                text = "Sin productos detallados"
+                setTextColor(ContextCompat.getColor(this@MainOrbixActivity, R.color.crud_text_secondary))
+                textSize = 13f
+                gravity = android.view.Gravity.CENTER
+                setPadding(0, 24, 0, 24)
+            }
+            layoutProductos.addView(emptyView)
+        }
+
+        // ── Botones ──
+        btnClose.setOnClickListener { dialog.dismiss() }
+
+        btnCancelar.setOnClickListener {
+            dialog.dismiss()
+            confirmarCancelarPedido(pedido)
+        }
+
+        btnVerComprobante.setOnClickListener {
+            mostrarRevisionPago(pedido)
+        }
+
+        dialog.show()
+    }
+
+    private fun mostrarRevisionPago(pedido: Pedido) {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_revision_pago, null)
+        dialog.setContentView(view)
+
+        val etNota = view.findViewById<EditText>(R.id.etNotaRevision)
+        val ivImagen = view.findViewById<ImageView>(R.id.ivComprobanteImagen)
+        val layoutEmpty = view.findViewById<LinearLayout>(R.id.layoutComprobanteEmpty)
+        val btnAceptar = view.findViewById<TextView>(R.id.btnAceptarPago)
+        val btnRechazar = view.findViewById<TextView>(R.id.btnRechazarPago)
+        val btnChatear = view.findViewById<TextView>(R.id.btnChatearCliente)
+        val btnClose = view.findViewById<ImageButton>(R.id.btnCloseRevision)
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+
+        // Comprobante image
+        val tieneComprobante = !pedido.comprobante_pago_url.isNullOrBlank()
+        if (tieneComprobante) {
+            layoutEmpty.visibility = View.GONE
+            ivImagen.visibility = View.VISIBLE
+            Glide.with(this).load(pedido.comprobante_pago_url).into(ivImagen)
+        } else {
+            layoutEmpty.visibility = View.VISIBLE
+            ivImagen.visibility = View.GONE
+        }
+
+        // Aceptar pago
+        btnAceptar.setOnClickListener {
+            btnAceptar.isEnabled = false
+            ApiClient.instance.aprobarPago(pedido.id_pedido).enqueue(object : Callback<Void> {
+                override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                    btnAceptar.isEnabled = true
+                    if (res.isSuccessful) {
+                        Toast.makeText(this@MainOrbixActivity, "Pago aprobado — Pedido listo para repartidores", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                        recargarPedidosInline()
+                    } else {
+                        Toast.makeText(this@MainOrbixActivity, "Error al aprobar (${res.code()})", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(c: Call<Void>, t: Throwable) {
+                    btnAceptar.isEnabled = true
+                    Toast.makeText(this@MainOrbixActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        // Rechazar pago
+        btnRechazar.setOnClickListener {
+            val motivo = etNota.text.toString().trim()
+            btnRechazar.isEnabled = false
+            ApiClient.instance.rechazarPago(pedido.id_pedido, RechazarPagoRequest(motivo))
+                .enqueue(object : Callback<Void> {
+                    override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                        btnRechazar.isEnabled = true
+                        if (res.isSuccessful) {
+                            Toast.makeText(this@MainOrbixActivity, "Pago rechazado", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                            recargarPedidosInline()
+                        } else {
+                            Toast.makeText(this@MainOrbixActivity, "Error al rechazar (${res.code()})", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(c: Call<Void>, t: Throwable) {
+                        btnRechazar.isEnabled = true
+                        Toast.makeText(this@MainOrbixActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                    }
+                })
+        }
+
+        // Chatear
+        btnChatear.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, ChatActivity::class.java).apply {
+                putExtra("usuario_id", pedido.usuario_id)
+                putExtra("usuario_nombre", pedido.usuario_nombre ?: "Cliente")
+            }
+            startActivity(intent)
+        }
+
+        dialog.show()
+    }
+
+    private fun confirmarCancelarPedido(pedido: Pedido) {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Cancelar Pedido #${pedido.id_pedido}")
+            .setMessage("¿Estás seguro de cancelar este pedido?")
+            .setPositiveButton("Cancelar Pedido") { _, _ ->
+                ApiClient.instance.cancelarPedido(pedido.id_pedido).enqueue(object : Callback<Void> {
+                    override fun onResponse(c: Call<Void>, res: Response<Void>) {
+                        if (res.isSuccessful) {
+                            Toast.makeText(this@MainOrbixActivity, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                            recargarPedidosInline()
+                        } else {
+                            Toast.makeText(this@MainOrbixActivity, "Error al cancelar (${res.code()})", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(c: Call<Void>, t: Throwable) {
+                        Toast.makeText(this@MainOrbixActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            .setNegativeButton("Volver", null)
+            .show()
+    }
+
+    private fun formatearFechaDetalle(fechaRaw: String?): String {
+        if (fechaRaw.isNullOrBlank()) return "Fecha no disponible"
+        return try {
+            val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+            val date = isoFormat.parse(fechaRaw.take(19))
+            if (date != null) {
+                val outputFormat = SimpleDateFormat("d 'de' MMMM 'de' yyyy", Locale("es", "CO"))
+                outputFormat.format(date)
+            } else "Fecha no disponible"
+        } catch (_: Exception) {
+            fechaRaw.take(16)
+        }
+    }
+
+    private fun recargarPedidosInline() {
+        allPedidos = emptyList()
+        val rv = findViewById<RecyclerView>(R.id.rvPedidosInline)
+        val tvEstado = findViewById<TextView>(R.id.tvPedidosEstado)
+        val tvEmpty = findViewById<TextView>(R.id.tvPedidosEmpty)
+        if (rv != null) {
+            val adapter = rv.adapter as? PedidoAdminAdapter
+            if (adapter != null) {
+                loadPedidosInline(rv, tvEstado, tvEmpty, adapter)
+            }
+        }
+    }
+
+    private var ticketWebView: WebView? = null
+
+    private fun descargarTicketPedido(pedido: Pedido) {
+        ApiClient.instance.getPedidoTicket(pedido.id_pedido).enqueue(object : Callback<Pedido> {
+            override fun onResponse(call: Call<Pedido>, response: Response<Pedido>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { t -> generarHtmlYPdfPedido(t) }
+                        ?: Toast.makeText(this@MainOrbixActivity, "Error al obtener ticket", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainOrbixActivity, "Error al obtener ticket", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<Pedido>, t: Throwable) {
+                Log.e("MainOrbix", "Ticket error", t)
+                Toast.makeText(this@MainOrbixActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun confirmarEliminarPedido(pedido: Pedido) {
+        AlertDialog.Builder(this)
+            .setTitle("Eliminar Pedido #${pedido.id_pedido}")
+            .setMessage("¿Estás seguro de eliminar este pedido? Esta acción no se puede deshacer.")
+            .setPositiveButton("Eliminar") { _, _ ->
+                ApiClient.instance.deletePedido(pedido.id_pedido).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(this@MainOrbixActivity, "Pedido eliminado", Toast.LENGTH_SHORT).show()
+                            val rv = findViewById<RecyclerView>(R.id.rvPedidosInline)
+                            val tvEstado = findViewById<TextView>(R.id.tvPedidosEstado)
+                            val tvEmpty = findViewById<TextView>(R.id.tvPedidosEmpty)
+                            if (rv != null) {
+                                val adapter = rv.adapter as? PedidoAdminAdapter
+                                if (adapter != null) loadPedidosInline(rv, tvEstado, tvEmpty, adapter)
+                            }
+                        } else {
+                            Toast.makeText(this@MainOrbixActivity, "Error al eliminar", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Toast.makeText(this@MainOrbixActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun generarHtmlYPdfPedido(pedido: Pedido) {
+        val detalles = pedido.detalles ?: emptyList()
+        val filas = if (detalles.isNotEmpty()) {
+            detalles.joinToString("") { d ->
+                """<tr><td style="padding:8px;border-bottom:1px solid #e2e8f0;">${d.producto_nombre}</td><td style="padding:8px;border-bottom:1px solid #e2e8f0;text-align:center;">${d.cantidad}</td><td style="padding:8px;border-bottom:1px solid #e2e8f0;text-align:right;">$${d.precio_unitario}</td><td style="padding:8px;border-bottom:1px solid #e2e8f0;text-align:right;">$${d.subtotal}</td></tr>"""
+            }
+        } else {
+            "<tr><td colspan='4' style='padding:12px;text-align:center;color:#94a3b8;'>Sin productos detallados</td></tr>"
+        }
+        val html = """
+            <!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Ticket #${pedido.id_pedido}</title>
+            <style>*{margin:0;padding:0;box-sizing:border-box}
+            body{font-family:sans-serif;background:#e2e8f0;padding:40px 20px;color:#1e293b}
+            .ticket{max-width:600px;margin:0 auto;background:#fff;border-radius:4px;padding:32px;border-top:6px solid #0f172a}
+            .hdr{display:flex;justify-content:space-between;margin-bottom:24px}
+            .brand{font-size:1.75rem;font-weight:700;color:#0f172a}
+            table{width:100%;border-collapse:collapse;margin:24px 0}
+            th{text-align:left;padding:12px;border-bottom:2px solid #e2e8f0;font-size:.8rem;color:#64748b;text-transform:uppercase}
+            td{padding:12px;border-bottom:1px solid #f1f5f9}
+            .total{text-align:right;font-size:1.5rem;font-weight:700;margin-top:16px}
+            </style></head><body>
+            <div class="ticket">
+            <div class="hdr"><div class="brand">Nexbit</div><div class="order-id">#${String.format("%06d", pedido.id_pedido)}</div></div>
+            <p><strong>Cliente:</strong> ${pedido.usuario_nombre ?: "N/A"}</p>
+            <p><strong>Fecha:</strong> ${pedido.fecha ?: pedido.fecha_pedido ?: "N/A"}</p>
+            <p><strong>Estado:</strong> ${pedido.estado}</p>
+            <table><thead><tr><th>Producto</th><th>Cant</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>$filas</tbody></table>
+            <div class="total">Total: $${pedido.total}</div>
+            </div></body></html>
+        """.trimIndent()
+        val wv = WebView(this)
+        wv.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                (getSystemService(Context.PRINT_SERVICE) as PrintManager)
+                    .print("Nexbit Ticket", view.createPrintDocumentAdapter("Pedido"), PrintAttributes.Builder().build())
+                ticketWebView = null
+            }
+        }
+        wv.loadDataWithBaseURL(null, html, "text/HTML", "UTF-8", null)
+        ticketWebView = wv
     }
 
     // ──────────── SCREEN A: PANEL DE REPORTES ────────────

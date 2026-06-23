@@ -136,7 +136,7 @@ class ConfirmarPedidoActivity : AppCompatActivity() {
         tvOrderId.text = "Pedido #${pedido.id_pedido}"
         tvOrderStatus.text = "Estado: ${pedido.estado}"
         tvOrderTotal.text = "Total: ${formatter.format(pedido.total)}"
-        tvOrderDate.text = "Fecha: ${pedido.fecha_pedido?.take(16)?.replace("T", " ") ?: pedido.fecha.take(16).replace("T", " ")}"
+        tvOrderDate.text = "Fecha: ${pedido.fecha_pedido?.take(16)?.replace("T", " ") ?: pedido.fecha?.take(16)?.replace("T", " ") ?: "N/A"}"
         tvOrderAddress.text = "Dirección: ${pedido.direccion_entrega ?: "No especificada"}"
 
         updateReceiptStatus(pedido.estado)

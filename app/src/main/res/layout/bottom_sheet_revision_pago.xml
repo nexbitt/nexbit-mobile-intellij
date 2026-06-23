@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- ═══ HEADER ═══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Revisi\u00f3n de Pago"
+            android:textColor="#1C1C1E"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnCloseRevision"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_capsule_cancel"
+            android:scaleType="center"
+            android:src="@drawable/ic_close"
+            android:tint="#FF3B30"
+            android:contentDescription="Cerrar" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#C6C6C8" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        android:maxHeight="400dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:paddingBottom="56dp">
+
+            <!-- ═══ VISOR COMPROBANTE ═══ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="COMPROBANTE DE PAGO"
+                android:textColor="#8E8E93"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <FrameLayout
+                android:id="@+id/frameVisorComprobante"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@drawable/bg_dashed_border"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:id="@+id/layoutComprobanteEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_file"
+                        android:tint="#8E8E93" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Sin comprobante de pago"
+                        android:textColor="#8E8E93"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="El cliente a\u00fan no ha subido un comprobante para este pedido."
+                        android:textColor="#8E8E93"
+                        android:textSize="11sp"
+                        android:gravity="center"
+                        android:paddingHorizontal="20dp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivComprobanteImagen"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- ═══ NOTAS ═══ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nota para el cliente"
+                android:textColor="#8E8E93"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/etNotaRevision"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="#F2F2F7"
+                android:paddingStart="16dp"
+                android:paddingEnd="10dp"
+                android:hint="Escriba un comentario o motivo..."
+                android:textColor="#1C1C1E"
+                android:textColorHint="#8E8E93"
+                android:textSize="14sp"
+                android:inputType="textMultiLine"
+                android:gravity="start|top"
+                android:scrollbars="vertical" />
+
+            <!-- ═══ BOTONERA CAPSULAS ═══ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:id="@+id/btnAceptarPago"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_capsule_accept"
+                    android:drawableStart="@drawable/ic_accept_circle"
+                    android:drawablePadding="6dp"
+                    android:text="Aceptar"
+                    android:textColor="#34C759"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground" />
+
+                <TextView
+                    android:id="@+id/btnRechazarPago"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_capsule_cancel"
+                    android:drawableStart="@drawable/ic_reject_circle"
+                    android:drawablePadding="6dp"
+                    android:text="Rechazar"
+                    android:textColor="#FF3B30"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground" />
+
+                <TextView
+                    android:id="@+id/btnChatearCliente"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_capsule_chat"
+                    android:drawableStart="@drawable/ic_chat"
+                    android:drawablePadding="6dp"
+                    android:text="Chatear"
+                    android:textColor="#007AFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

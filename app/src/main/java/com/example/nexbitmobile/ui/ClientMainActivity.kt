@@ -1,14 +1,22 @@
 package com.example.nexbitmobile.ui
 
-import android.content.DialogInterface
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -52,9 +60,16 @@ class ClientMainActivity : AppCompatActivity() {
         updateNavSelection("catalogo")
     }
 
-    override fun onBackPressed() {
-        if (navStack.isNotEmpty()) { goBack(); return }
-        super.onBackPressed()
+    private val backCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (navStack.isNotEmpty()) { goBack(); return }
+            isEnabled = false
+            onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    init {
+        onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
     // ──────────── 4-BUTTON BOTTOM NAV (ICONS ONLY) ────────────
@@ -110,14 +125,14 @@ class ClientMainActivity : AppCompatActivity() {
 
         when (screenKey) {
             "carrito" -> {
-                tvToolbarTitle.text = "Mi Carrito"
+                tvToolbarTitle.text = getString(R.string.mi_carrito)
                 val v = LayoutInflater.from(this).inflate(
                     R.layout.inline_carrito, contentContainer, false
                 )
                 contentContainer.addView(v); showCarritoInline(v)
             }
             "mispedidos" -> {
-                tvToolbarTitle.text = "Mis Pedidos"
+                tvToolbarTitle.text = getString(R.string.mis_pedidos)
                 val v = LayoutInflater.from(this).inflate(
                     R.layout.inline_mispedidos, contentContainer, false
                 )
@@ -160,7 +175,7 @@ class ClientMainActivity : AppCompatActivity() {
 
         // Welcome header
         container.addView(TextView(this).apply {
-            text = "Hola, $name"
+            text = getString(R.string.hola_name, name)
             textSize = 22f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(0xFF111827.toInt())
@@ -170,7 +185,7 @@ class ClientMainActivity : AppCompatActivity() {
             ).apply { setMargins(16, 20, 16, 4) }
         })
         container.addView(TextView(this).apply {
-            text = "Explora nuestros productos"
+            text = getString(R.string.explora_productos)
             textSize = 14f
             setTextColor(0xFF9CA3AF.toInt())
             layoutParams = LinearLayout.LayoutParams(
@@ -200,7 +215,7 @@ class ClientMainActivity : AppCompatActivity() {
                     }
                     if (productos.isEmpty()) {
                         container.addView(TextView(this@ClientMainActivity).apply {
-                            text = "No hay productos disponibles"
+                            text = getString(R.string.no_hay_productos)
                             textSize = 14f
                             setTextColor(0xFF9CA3AF.toInt())
                             layoutParams = LinearLayout.LayoutParams(
@@ -214,7 +229,7 @@ class ClientMainActivity : AppCompatActivity() {
             override fun onFailure(call: Call<List<Producto>>, t: Throwable) {
                 container.removeView(progressBar)
                 container.addView(TextView(this@ClientMainActivity).apply {
-                    text = "Error al cargar productos"
+                    text = getString(R.string.error_cargar_productos)
                     textSize = 14f
                     setTextColor(0xFFEF4444.toInt())
                     layoutParams = LinearLayout.LayoutParams(
@@ -289,12 +304,12 @@ class ClientMainActivity : AppCompatActivity() {
         }
         val catName = p.categoria_nombre ?: "General"
         centerCol.addView(TextView(this).apply {
-            text = "Sin descripción detallada. Categoría: $catName"
+            text = getString(R.string.sin_descripcion_categoria, catName)
             textSize = 12f
             setTextColor(0xFF9CA3AF.toInt())
         })
         centerCol.addView(TextView(this).apply {
-            text = "ⓘ Ver ficha técnica"
+            text = getString(R.string.ver_ficha_tecnica)
             textSize = 12f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(0xFF111827.toInt())
@@ -334,7 +349,7 @@ class ClientMainActivity : AppCompatActivity() {
             setBackgroundColor(0xFF111827.toInt())
             setOnClickListener {
                 if (userId == 0) {
-                    Toast.makeText(this@ClientMainActivity, "Inicia sesión para agregar al carrito", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClientMainActivity, getString(R.string.inicia_sesion_carrito), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val carritoReq = CarritoAddRequest(
@@ -346,14 +361,14 @@ class ClientMainActivity : AppCompatActivity() {
                 ApiClient.instance.addToCarrito(carritoReq).enqueue(object : Callback<List<CarritoItem>> {
                     override fun onResponse(call: Call<List<CarritoItem>>, res: Response<List<CarritoItem>>) {
                         if (res.isSuccessful) {
-                            Toast.makeText(this@ClientMainActivity, "Agregado al carrito", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ClientMainActivity, getString(R.string.agregado_carrito), Toast.LENGTH_SHORT).show()
                             updateCartBadge()
                         } else {
-                            Toast.makeText(this@ClientMainActivity, "Error al agregar", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ClientMainActivity, getString(R.string.error_agregar), Toast.LENGTH_SHORT).show()
                         }
                     }
                     override fun onFailure(call: Call<List<CarritoItem>>, t: Throwable) {
-                        Toast.makeText(this@ClientMainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
                     }
                 })
             }
@@ -415,7 +430,7 @@ class ClientMainActivity : AppCompatActivity() {
                 llEmpty.visibility = View.GONE
                 rvCarrito.visibility = View.VISIBLE
                 llSummary.visibility = View.VISIBLE
-                tvItemCount.text = "${items.sumOf { it.cantidad }} artículos"
+                tvItemCount.text = getString(R.string.n_articulos, items.sumOf { it.cantidad })
                 tvTotal.text = formatter.format(items.sumOf { it.subtotal })
                 cartTotal = items.sumOf { it.subtotal }
                 rvCarrito.adapter?.let { (it as CarritoAdapter).updateList(items) }
@@ -434,10 +449,10 @@ class ClientMainActivity : AppCompatActivity() {
                     .enqueue(object : Callback<List<CarritoItem>> {
                         override fun onResponse(call: Call<List<CarritoItem>>, res: Response<List<CarritoItem>>) {
                             if (res.isSuccessful) cargarCarrito(res.body() ?: emptyList())
-                            else Toast.makeText(this@ClientMainActivity, "Error actualizando cantidad", Toast.LENGTH_SHORT).show()
+                            else Toast.makeText(this@ClientMainActivity, getString(R.string.error_actualizar_cantidad), Toast.LENGTH_SHORT).show()
                         }
                         override fun onFailure(call: Call<List<CarritoItem>>, t: Throwable) {
-                            Toast.makeText(this@ClientMainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
                         }
                     })
             },
@@ -447,11 +462,11 @@ class ClientMainActivity : AppCompatActivity() {
                         override fun onResponse(call: Call<List<CarritoItem>>, res: Response<List<CarritoItem>>) {
                             if (res.isSuccessful) {
                                 cargarCarrito(res.body() ?: emptyList())
-                                Toast.makeText(this@ClientMainActivity, "Producto eliminado", Toast.LENGTH_SHORT).show()
-                            } else Toast.makeText(this@ClientMainActivity, "Error eliminando item", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@ClientMainActivity, getString(R.string.producto_eliminado), Toast.LENGTH_SHORT).show()
+                            } else Toast.makeText(this@ClientMainActivity, getString(R.string.error_eliminar_item), Toast.LENGTH_SHORT).show()
                         }
                         override fun onFailure(call: Call<List<CarritoItem>>, t: Throwable) {
-                            Toast.makeText(this@ClientMainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
                         }
                     })
             }
@@ -471,38 +486,38 @@ class ClientMainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<List<CarritoItem>>, res: Response<List<CarritoItem>>) {
                     progressBar.visibility = View.GONE
                     if (res.isSuccessful) cargarCarrito(res.body() ?: emptyList())
-                    else Toast.makeText(this@ClientMainActivity, "Error cargando carrito (${res.code()})", Toast.LENGTH_SHORT).show()
+                    else Toast.makeText(this@ClientMainActivity, getString(R.string.error_cargando_carrito, res.code()), Toast.LENGTH_SHORT).show()
                 }
                 override fun onFailure(call: Call<List<CarritoItem>>, t: Throwable) {
                     progressBar.visibility = View.GONE
-                    Toast.makeText(this@ClientMainActivity, "Sin conexión al servidor", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClientMainActivity, getString(R.string.sin_conexion_servidor), Toast.LENGTH_SHORT).show()
                 }
             })
         }
 
         btnCheckout.setOnClickListener {
             if (cartTotal <= 0.0) {
-                Toast.makeText(this, "El carrito está vacío", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.carrito_vacio), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             val userAddress = prefs.getString("userAddress", "")
             val input = EditText(this).apply {
-                hint = "Ej: Calle 45 #12-34, Bogotá"
+                hint = getString(R.string.ej_direccion)
                 inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 maxLines = 3
                 setPadding(48, 32, 48, 16)
                 setText(userAddress)
             }
             AlertDialog.Builder(this)
-                .setTitle("Dirección de entrega")
-                .setMessage("¿Dónde entregaremos tu pedido de ${formatter.format(cartTotal)}?")
+                .setTitle(getString(R.string.direccion_entrega))
+                .setMessage(getString(R.string.donde_entregamos, formatter.format(cartTotal)))
                 .setView(input)
-                .setPositiveButton("Confirmar Pedido") { _, _ ->
+                .setPositiveButton(getString(R.string.confirmar_pedido)) { _, _ ->
                     val direccion = input.text.toString().trim()
                     if (direccion.isEmpty()) {
-                        Toast.makeText(this, "La dirección es obligatoria", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.direccion_obligatoria), Toast.LENGTH_SHORT).show()
                     } else {
-                        prefs.edit().putString("userAddress", direccion).apply()
+                        prefs.edit { putString("userAddress", direccion) }
                         progressBar.visibility = View.VISIBLE
                         ApiClient.instance.checkout(CheckoutRequest(
                             usuario_id = userId,
@@ -512,34 +527,34 @@ class ClientMainActivity : AppCompatActivity() {
                                 progressBar.visibility = View.GONE
                                 if (res.isSuccessful) {
                                     val pedidoId = res.body()?.id_pedido
-                                    val msg = if (pedidoId != null) "Tu pedido #$pedidoId ha sido registrado con éxito.\n¡Ahora debes subir el comprobante de pago!"
-                                    else "Tu pedido ha sido registrado con éxito en el sistema."
+                                    val msg = if (pedidoId != null) getString(R.string.tu_pedido_registrado, pedidoId)
+                                    else getString(R.string.tu_pedido_registrado_sin_id)
                                     AlertDialog.Builder(this@ClientMainActivity)
-                                        .setTitle("Pedido Realizado!")
+                                        .setTitle(getString(R.string.pedido_realizado))
                                         .setMessage(msg)
                                         .setCancelable(false)
-                                        .setPositiveButton("Subir Comprobante") { _, _ ->
+                                        .setPositiveButton(getString(R.string.subir_comprobante)) { _, _ ->
                                             val intent = Intent(this@ClientMainActivity, ConfirmarPedidoActivity::class.java)
                                             intent.putExtra("pedido_id", pedidoId ?: 0)
                                             startActivity(intent)
                                         }
-                                        .setNegativeButton("Ver Mis Pedidos") { _, _ ->
+                                        .setNegativeButton(getString(R.string.ver_mis_pedidos)) { _, _ ->
                                             showInlineScreen("mispedidos")
                                         }
                                         .show()
                                 } else {
-                                    val errorMsg = res.errorBody()?.string() ?: "Error desconocido"
-                                    Toast.makeText(this@ClientMainActivity, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                    val errorMsg = res.errorBody()?.string() ?: getString(R.string.error_desconocido)
+                                    Toast.makeText(this@ClientMainActivity, getString(R.string.error_msg, errorMsg), Toast.LENGTH_LONG).show()
                                 }
                             }
                             override fun onFailure(call: Call<CheckoutResponse>, t: Throwable) {
                                 progressBar.visibility = View.GONE
-                                Toast.makeText(this@ClientMainActivity, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion_msg, t.message), Toast.LENGTH_SHORT).show()
                             }
                         })
                     }
                 }
-                .setNegativeButton("Cancelar", null)
+                .setNegativeButton(getString(R.string.cancelar), null)
                 .show()
         }
 
@@ -565,15 +580,15 @@ class ClientMainActivity : AppCompatActivity() {
             ApiClient.instance.cancelarPedido(pedidoId).enqueue(object : Callback<Void> {
                 override fun onResponse(call: Call<Void>, res: Response<Void>) {
                     if (res.isSuccessful) {
-                        Toast.makeText(this@ClientMainActivity, "Pedido cancelado", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ClientMainActivity, getString(R.string.pedido_cancelado), Toast.LENGTH_SHORT).show()
                         cargarPedidos()
                     } else {
-                        val msg = res.errorBody()?.string() ?: "Error al cancelar"
+                        val msg = res.errorBody()?.string() ?: getString(R.string.error_al_cancelar)
                         Toast.makeText(this@ClientMainActivity, msg, Toast.LENGTH_LONG).show()
                     }
                 }
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Toast.makeText(this@ClientMainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
                 }
             })
         }
@@ -599,10 +614,10 @@ class ClientMainActivity : AppCompatActivity() {
                                 rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter,
                                     onCancelar = { pedido ->
                                         AlertDialog.Builder(this@ClientMainActivity)
-                                            .setTitle("Cancelar Pedido #${pedido.id_pedido}")
+                                            .setTitle("${getString(R.string.cancelar_pedido)} #${pedido.id_pedido}")
                                             .setMessage("¿Estás seguro de que deseas cancelar este pedido?\nTotal: ${formatter.format(pedido.total)}")
-                                            .setPositiveButton("Sí, cancelar") { _, _ -> cancelarPedido(pedido.id_pedido) }
-                                            .setNegativeButton("No", null)
+                                            .setPositiveButton(getString(R.string.si_cancelar)) { _, _ -> cancelarPedido(pedido.id_pedido) }
+                                            .setNegativeButton(getString(R.string.no), null)
                                             .show()
                                     },
                                     onDetalle = { pedido ->
@@ -610,7 +625,7 @@ class ClientMainActivity : AppCompatActivity() {
                                         sb.append("📦 Pedido #${pedido.id_pedido}\n")
                                         sb.append("────────────────────────\n")
                                         sb.append("Estado:    ${pedido.estado}\n")
-                                        sb.append("Fecha:     ${pedido.fecha.take(16).replace("T", " ")}\n")
+                                        sb.append("Fecha:     ${(pedido.fecha ?: pedido.fecha_pedido ?: "").take(16).replace("T", " ")}\n")
                                         sb.append("Dirección: ${pedido.direccion_entrega ?: "No especificada"}\n")
                                         sb.append("Total:     ${formatter.format(pedido.total)}\n")
                                         val detalles = pedido.detalles
@@ -622,30 +637,30 @@ class ClientMainActivity : AppCompatActivity() {
                                             }
                                         }
                                         val dialog = AlertDialog.Builder(this@ClientMainActivity)
-                                            .setTitle("Detalle del Pedido")
+                                            .setTitle(getString(R.string.detalle_del_pedido))
                                             .setMessage(sb.toString())
-                                            .setPositiveButton("Cerrar", null)
+                                            .setPositiveButton(getString(R.string.cerrar), null)
                                             .create()
                                         dialog.setOnShowListener {
                                             if (pedido.estado == "PENDIENTE") {
-                                                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancelar Pedido") { _, _ ->
+                                                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.cancelar_pedido)) { _, _ ->
                                                     AlertDialog.Builder(this@ClientMainActivity)
-                                                        .setTitle("Cancelar Pedido #${pedido.id_pedido}")
+                                                        .setTitle("${getString(R.string.cancelar_pedido)} #${pedido.id_pedido}")
                                                         .setMessage("¿Estás seguro?")
-                                                        .setPositiveButton("Sí, cancelar") { _, _ -> cancelarPedido(pedido.id_pedido) }
-                                                        .setNegativeButton("No", null)
-                                                        .show()
-                                                }
-                                            }
-                                            if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
-                                                dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Subir Comprobante") { _, _ ->
+                                                        .setPositiveButton(getString(R.string.si_cancelar)) { _, _ -> cancelarPedido(pedido.id_pedido) }
+.setNegativeButton(getString(R.string.no), null)
+                                            .show()
+                                    }
+                                }
+                                if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
+                                                dialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.subir_comprobante)) { _, _ ->
                                                     val intent = Intent(this@ClientMainActivity, ConfirmarPedidoActivity::class.java)
                                                     intent.putExtra("pedido_id", pedido.id_pedido)
                                                     startActivity(intent)
                                                 }
                                             }
                                             if (pedido.estado != "CANCELADO" && pedido.estado != "ENTREGADO") {
-                                                dialog.setButton(DialogInterface.BUTTON3, "Chat") { _, _ ->
+                                                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.chat)) { _, _ ->
                                                     val intent = Intent(this@ClientMainActivity, ChatActivity::class.java)
                                                     intent.putExtra("pedido_id", pedido.id_pedido)
                                                     startActivity(intent)
@@ -660,18 +675,18 @@ class ClientMainActivity : AppCompatActivity() {
                                         }
                                         startActivity(intent)
                                     },
-                                    onTicket = {}
+                                    onTicket = { pedido -> onTicketClick(pedido) }
                                 )
                             }
                         } else {
-                            Toast.makeText(this@ClientMainActivity, "Error al cargar pedidos (${res.code()})", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ClientMainActivity, getString(R.string.error_cargar_pedidos, res.code()), Toast.LENGTH_SHORT).show()
                             rvPedidos.visibility = View.GONE
                             llEmpty.visibility = View.VISIBLE
                         }
                     }
                     override fun onFailure(call: Call<List<Pedido>>, t: Throwable) {
                         progressBar.visibility = View.GONE
-                        Toast.makeText(this@ClientMainActivity, "Sin conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ClientMainActivity, getString(R.string.sin_conexion_msg, t.message), Toast.LENGTH_SHORT).show()
                         rvPedidos.visibility = View.GONE
                         llEmpty.visibility = View.VISIBLE
                     }
@@ -680,6 +695,98 @@ class ClientMainActivity : AppCompatActivity() {
         }
 
         cargarPedidos()
+    }
+
+    private var ticketWebView: WebView? = null
+
+    private fun onTicketClick(pedido: Pedido) {
+        ApiClient.instance.getPedidoTicket(pedido.id_pedido).enqueue(object : Callback<Pedido> {
+            override fun onResponse(call: Call<Pedido>, response: Response<Pedido>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { pedidoTicket ->
+                        generarHtmlYPdf(pedidoTicket)
+                    } ?: run {
+                        Toast.makeText(this@ClientMainActivity, getString(R.string.error_obtener_ticket), Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@ClientMainActivity, getString(R.string.error_obtener_ticket), Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<Pedido>, t: Throwable) {
+                Log.e("ClientMain", "Ticket download failed", t)
+                Toast.makeText(this@ClientMainActivity, getString(R.string.fallo_conexion), Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun generarHtmlYPdf(pedido: Pedido) {
+        val detalles = pedido.detalles ?: emptyList()
+        val filasProductos = if (detalles.isNotEmpty()) {
+            detalles.joinToString("") { d ->
+                """
+                <tr>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">${d.producto_nombre}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${d.cantidad}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;">$${d.precio_unitario}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;">$${d.subtotal}</td>
+                </tr>
+                """
+            }
+        } else {
+            "<tr><td colspan='4' style='padding:12px;text-align:center;color:#94a3b8;'>Sin productos detallados</td></tr>"
+        }
+
+        val htmlContent = """
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8"/>
+                <title>Ticket - #${pedido.id_pedido}</title>
+                <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { font-family: 'Inter', sans-serif; background: #e2e8f0; padding: 40px 20px; color: #1e293b; }
+                    .ticket { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 4px; padding: 32px; }
+                    .header { display: flex; justify-content: space-between; margin-bottom: 24px; }
+                    .brand { font-size: 1.75rem; font-weight: 700; color: #0f172a; }
+                    .order-id { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+                    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+                    th { text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
+                    td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+                    .total { text-align: right; font-size: 1.5rem; font-weight: 700; margin-top: 16px; }
+                </style>
+            </head>
+            <body>
+                <div class="ticket">
+                    <div class="header"><div class="brand">Nexbit</div><div class="order-id">#${String.format(Locale.US, "%06d", pedido.id_pedido)}</div></div>
+                    <p><strong>Cliente:</strong> ${pedido.usuario_nombre ?: "N/A"}</p>
+                    <p><strong>Fecha:</strong> ${pedido.fecha ?: pedido.fecha_pedido ?: "N/A"}</p>
+                    <p><strong>Estado:</strong> ${pedido.estado}</p>
+                    <table><thead><tr><th>Producto</th><th>Cant</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>$filasProductos</tbody></table>
+                    <div class="total">Total: $${pedido.total}</div>
+                </div>
+            </body>
+            </html>
+        """.trimIndent()
+
+        doWebViewPrint(htmlContent)
+    }
+
+    private fun doWebViewPrint(htmlContent: String) {
+        val webView = WebView(this)
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                createWebPrintJob(view)
+                ticketWebView = null
+            }
+        }
+        webView.loadDataWithBaseURL(null, htmlContent, "text/HTML", "UTF-8", null)
+        ticketWebView = webView
+    }
+
+    private fun createWebPrintJob(webView: WebView) {
+        val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
+        val printAdapter = webView.createPrintDocumentAdapter("Pedido_Nexbit")
+        printManager.print("Nexbit Ticket", printAdapter, PrintAttributes.Builder().build())
     }
 
     // ──────────── PERFIL + CONFIGURACIÓN ────────────
@@ -750,9 +857,9 @@ class ClientMainActivity : AppCompatActivity() {
         val formFields = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
-        formFields.addView(createFormField("Teléfono", R.id.etProfilePhone, "phone", false))
-        formFields.addView(createFormField("Dirección", R.id.etProfileAddress, "text", false))
-        formFields.addView(createFormField("Ciudad", R.id.etProfileCity, "text", false))
+        formFields.addView(createFormField(getString(R.string.telefono), R.id.etProfilePhone))
+        formFields.addView(createFormField(getString(R.string.direccion), R.id.etProfileAddress))
+        formFields.addView(createFormField(getString(R.string.ciudad), R.id.etProfileCity))
         formCard.addView(formFields)
         container.addView(formCard)
 
@@ -780,7 +887,7 @@ class ClientMainActivity : AppCompatActivity() {
                 42.dpToPx()
             ).apply { setMargins(16, 20, 16, 0) }
             gravity = android.view.Gravity.CENTER
-            text = "Editar Datos"
+            text = getString(R.string.editar_datos)
             setTextColor(0xFF111827.toInt())
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
@@ -791,7 +898,7 @@ class ClientMainActivity : AppCompatActivity() {
                 val etCity = findViewById<EditText>(R.id.etProfileCity)
                 if (!isProfileEditing) {
                     isProfileEditing = true
-                    text = "Guardar"
+                    text = getString(R.string.guardar)
                     etPhone.isEnabled = true
                     etAddress.isEnabled = true
                     etCity.isEnabled = true
@@ -805,16 +912,16 @@ class ClientMainActivity : AppCompatActivity() {
                         )).enqueue(object : Callback<Usuario> {
                             override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
                                 if (res.isSuccessful) {
-                                    Toast.makeText(this@ClientMainActivity, "Perfil actualizado", Toast.LENGTH_SHORT).show()
-                                } else Toast.makeText(this@ClientMainActivity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@ClientMainActivity, getString(R.string.perfil_actualizado), Toast.LENGTH_SHORT).show()
+                                } else Toast.makeText(this@ClientMainActivity, getString(R.string.error_perfil, res.code()), Toast.LENGTH_SHORT).show()
                             }
                             override fun onFailure(c: Call<Usuario>, t: Throwable) {
-                                Toast.makeText(this@ClientMainActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
                             }
                         })
                     }
                     isProfileEditing = false
-                    text = "Editar Datos"
+                    text = getString(R.string.editar_datos)
                     etPhone.isEnabled = false
                     etAddress.isEnabled = false
                     etCity.isEnabled = false
@@ -852,7 +959,7 @@ class ClientMainActivity : AppCompatActivity() {
                     48.dpToPx()
                 )
                 gravity = android.view.Gravity.CENTER_VERTICAL
-                text = "  $lab"
+                text = lab
                 textSize = 14f
                 setTextColor(0xFF111827.toInt())
                 setPadding(16, 0, 16, 0)
@@ -879,13 +986,13 @@ class ClientMainActivity : AppCompatActivity() {
                 42.dpToPx()
             ).apply { setMargins(16, 20, 16, 32) }
             gravity = android.view.Gravity.CENTER
-            text = "Cerrar Sesión"
+            text = getString(R.string.cerrar_sesion)
             setTextColor(0xFFFFFFFF.toInt())
             textSize = 14f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setBackgroundColor(0xFFEF4444.toInt())
             setOnClickListener {
-                prefs.edit().clear().apply()
+                prefs.edit { clear() }
                 startActivity(Intent(this@ClientMainActivity, LoginActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 })
@@ -897,7 +1004,7 @@ class ClientMainActivity : AppCompatActivity() {
         contentContainer.addView(scrollView)
     }
 
-    private fun createFormField(hint: String, viewId: Int, inputType: String, enabled: Boolean): View {
+    private fun createFormField(hint: String, viewId: Int): View {
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(
@@ -917,11 +1024,10 @@ class ClientMainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 42.dpToPx()
             )
-            background = resources.getDrawable(R.drawable.bg_crud_input, theme)
+            background = ResourcesCompat.getDrawable(resources, R.drawable.bg_crud_input, theme)
             setPadding(12, 0, 12, 0)
             textSize = 14f
             setTextColor(0xFF111827.toInt())
-            isEnabled = enabled
         }
         container.addView(et)
         return container

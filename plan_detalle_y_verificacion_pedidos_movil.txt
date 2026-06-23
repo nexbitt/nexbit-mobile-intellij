@@ -1,0 +1,69 @@
+==================================================================================
+PLAN DE IMPLEMENTACIÓN: DETALLES DE PEDIDO Y REVISIÓN DE COMPROBANTE (MÓVIL)
+==================================================================================
+EL PROBLEMA CONCRETO:
+El administrador necesita validar la veracidad de los pagos desde el móvil antes de liberar el pedido al pool de repartidores. Para ello, se implementa el modal de "Detalles de Pedido" (image_e93a65.png) que anida de forma directa y fluida la sub-vista o modal secundario de "Revisión de Pago" (image_e93a85.png), manteniendo consistencia estética, alturas controladas de 42px e iconos lineales.
+==================================================================================
+
+1. COMPORTAMIENTO DEL CHASIS Y ACCESO DESDE EL CRUD
+----------------------------------------------------------------------------------
+- Activación: Se dispara al presionar el botón circular con el icono lineal del ojo (fa-eye) en la fila del pedido del CRUD principal.
+- Persistencia del Chasis Inferior: Al igual que el resto de formularios, este modal de detalles emerge como un BottomSheet/Overlay. La barra de navegación inferior de h-[56px] se mantiene visible y estática debajo del modal.
+
+----------------------------------------------------------------------------------
+2. MODAL A: DETALLES DEL PEDIDO (INSPIRADO EN image_e93a65.png)
+----------------------------------------------------------------------------------
+Estructura contenida en fondo blanco puro (#FFFFFF) con esquinas redondeadas superiores de 16px:
+
+2.1. Cabecera del Detalle:
+- Identificador: Texto a la izquierda "Pedido #000017" (fuente 18px Bold, #111827).
+- Botonera de Control Rápido (Alineada a la derecha, altura de 36px a 42px):
+  * Botón [Cancelar]: Fondo rojo sólido (#EF4444 o #DC2626), texto blanco con icono lineal de cruz (fa-times).
+  * Botón [Ver Comprobante]: Fondo café/naranja quemado (#9A3412 o #B45309), texto blanco con icono lineal de ojo (fa-eye). Al presionarse, despliega el Modal B de revisión.
+  * Icono de Cierre (X): Ubicado en el extremo superior derecho para mitigar o cerrar el overlay por completo.
+
+2.2. Tarjeta de Información General (Contenedor con borde gris sutil #E5E7EB):
+- Muestra en una cuadrícula vertical adaptada al móvil:
+  * CLIENTE: "Thomas Barrero" (Texto Negro destacado).
+  * ESTADO: Badge ovalado con fondo amarillo suave y texto "PENDIENTE DE PAGO".
+  * FECHA: Formato local limpio (Ej. "23 de junio de 2026").
+  * TOTAL: Monto destacado en fuente de 16px Bold (Ej. "$20,000").
+
+2.3. Sección Comprobante de Pago (Previsualización):
+- Etiqueta: "COMPROBANTE DE PAGO" en gris de 12px SemiBold.
+- Miniatura: Cuadro de 80x80px con bordes redondeados suaves. Si no se ha cargado, muestra el icono lineal de imagen (fa-image) y el texto inferior "Sin comprobante" en gris atenuado.
+
+2.4. Lista de Productos Incluidos:
+- Etiqueta: "PRODUCTOS".
+- Fila de Producto: Contenedor con fondo blanco, filete gris fino y padding de 12px.
+  * Izquierda: Icono lineal de caja (fa-box) dentro de un fondo gris muy tenue.
+  * Centro: Nombre del ítem ("Juego Utensilios"), "Cantidad: 4", "Precio unitario: $5,000".
+  * Derecha: Subtotal del producto destacado en formato Bold ("$20,000").
+
+----------------------------------------------------------------------------------
+3. MODAL B: REVISIÓN Y VERIFICACIÓN DE PAGO (INSPIRADO EN image_e93a85.png)
+----------------------------------------------------------------------------------
+Esta sub-vista se sobrepone sobre el detalle al pulsar "Ver Comprobante", proveyendo las herramientas necesarias para que el administrador valide la veracidad antes de la asignación a repartidores:
+
+3.1. Título de la Sub-sección:
+- "Revisión de Pago" en tipografía de 16px Bold (#111827).
+
+3.2. Visor del Comprobante (Área Central de Auditoría):
+- Caja con contorno punteado gris (`border-dashed`).
+- Caso Vacío: Muestra un icono de documento/imagen tachado o vacío (fa-file-image) con los textos "Sin comprobante de pago" y "El cliente aún no ha subido un comprobante para este pedido.".
+- Caso Exitoso: Renderiza la imagen del depósito bancario o transferencia con controles táctiles de zoom para auditar el número de transacción.
+
+3.3. Entrada de Notas de Auditoría:
+- Etiqueta: "Nota para el cliente" en tipografía de 12px SemiBold.
+- Input Field: Área de texto (TextArea) de altura fija (60px) con esquinas redondeadas de 8px. Placeholder: "Escriba un comentario o motivo...". Se utiliza para justificar rechazos o añadir observaciones del pago.
+
+3.4. Botonera de Verificación y Seguridad (Tres Columnas - Altura 42px):
+Alineados horizontalmente en la base del formulario (Flex Row, gap-2) para una toma de decisión expedita:
+
+1. Botón [Aceptar]: Fondo Verde de Éxito (#10B981 o #15803D), texto blanco, icono lineal de verificación (fa-check-circle). Cambia el estado del pedido a CONFIRMADO o EN CAMINO, habilitándolo inmediatamente en el pool de los repartidores.
+2. Botón [Rechazar]: Fondo Rojo de Alerta (#EF4444 o #DC2626), texto blanco, icono lineal de cancelación (fa-times-circle). Mantiene el pedido bloqueado y notifica al cliente con la nota ingresada.
+3. Botón [Chatear]: Fondo Azul/Morado de Comunicación (#6366F1), texto blanco, icono lineal de globo de diálogo (fa-comment-alt). Abre un canal directo de mensajería con el comprador para resolver dudas del pago sin salir del flujo.
+
+==================================================================================
+FIN DEL PLAN DE DETALLES Y AUDITORÍA DE PAGOS MÓVIL — NEXBIT SYSTEM 2026
+==================================================================================

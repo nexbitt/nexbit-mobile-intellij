@@ -1,0 +1,79 @@
+==================================================================================
+PLAN DE IMPLEMENTACIÓN DETALLADO: FORMULARIO DE PEDIDOS (MÓVIL OVERLAY)
+==================================================================================
+ESTRATEGIA DE MAQUETACIÓN:
+Para conservar la línea estética exacta de la web (image_e8c6b9.png) en un formato vertical móvil, los bloques se organizan de forma consecutiva en una sola columna con scroll interno, asegurando que todos los campos mantengan sus dimensiones, iconos lineales exactos y jerarquía visual. La barra de navegación inferior del chasis permanece fija abajo.
+==================================================================================
+
+1. CABECERA GENERAL DEL FORMULARIO
+----------------------------------------------------------------------------------
+- Texto del Título: "Nuevo Pedido — Administrador".
+- Estilo: Tipografía de 18px, peso Bold (700), color Negro Premium (#111827).
+- Línea Divisoria Inferior: 1px sólido en gris claro (#E5E7EB) para separar el título de los campos de entrada.
+
+----------------------------------------------------------------------------------
+2. BLOQUE IZQUIERDO (DATOS DE ENTREGA Y COMPROBANTE)
+----------------------------------------------------------------------------------
+Cada campo de entrada conserva su etiqueta superior en texto gris intermedio (tamaño 12px, peso SemiBold).
+
+2.1. Campo: Buscar Cliente *
+- Tipo: Selector dinámico desplegable con buscador en tiempo real.
+- Dimensiones: Altura fija de 42px, bordes redondeados a 8px, fondo blanco con filete gris (#D1D5DB).
+- Iconografía Lineal: Icono izquierdo de usuario (fa-user) y flecha derecha de despliegue (fa-chevron-down).
+- Texto Guía (Placeholder): "Seleccionar un cliente..." en color gris tenue (#9CA3AF).
+
+2.2. Campo: Dirección de Entrega
+- Tipo: Input de texto alfanumérico.
+- Dimensiones: Altura fija de 42px, bordes redondeados a 8px.
+- Iconografía Lineal: Icono izquierdo de pin de ubicación (fa-map-marker-alt).
+- Texto Guía (Placeholder): "Dirección...".
+
+2.3. Campo: Notas de Entrega
+- Tipo: Área de texto multilínea (TextArea) con indicador de redimensionamiento visual en la esquina inferior derecha.
+- Dimensiones: Altura extendida fija a 80px, bordes redondeados a 8px.
+- Iconografía Lineal: Icono izquierdo de documento de texto (fa-file-alt).
+- Texto Guía (Placeholder): "Instrucciones de entrega...".
+
+2.4. Campo: Comprobante de Pago
+- Tipo: Componente contenedor para la carga de archivos binarios/imágenes.
+- Estilo del Contenedor: Rectángulo con esquinas redondeadas de 8px y borde discontinuo/punteado fino (`border-dashed`) en color gris (#D1D5DB). Fondo gris muy suave o blanco.
+- Elementos Internos: Icono lineal central de subida con flecha hacia arriba (fa-upload) y el texto descriptivo inferior: "Haz clic para subir el comprobante".
+
+----------------------------------------------------------------------------------
+3. BLOQUE DERECHO (PRODUCTOS Y LIQUIDACIÓN FINANCIERA)
+----------------------------------------------------------------------------------
+
+3.1. Campo: Agregar Producto
+- Tipo: Selector dinámico conectado a la base de datos de inventario.
+- Dimensiones: Altura fija de 42px, bordes redondeados a 8px.
+- Iconografía Lineal: Icono izquierdo de caja/paquete (fa-box) y flecha derecha (fa-chevron-down).
+- Texto Guía (Placeholder): "Elegir un producto de la lista...".
+
+3.2. Tabla Dinámica: Detalle de la Transacción
+- Contenedor: Fondo blanco, borde gris sutil, esquinas curvas de 8px.
+- Estado Inicial (Vacío): Muestra el texto centrado en gris atenuado: "No hay productos agregados".
+- Estado Activo: Al añadir elementos, renderiza la lista vertical de ítems con sus respectivas cantidades y el botón lineal de remoción rápida (fa-trash-alt).
+
+3.3. Cuadro Resumen Financiero
+Bloque con bordes redondeados a 8px y filete perimetral gris fino (#D1D5DB). Contiene divisiones internas horizontales y alinea los textos a la izquierda y los montos monetarios a la derecha:
+- Subtotal: Texto base izquierdo, monto calculado a la derecha en formato dinámico (Ej. "$0.00").
+- IVA (19%): Texto informativo legal izquierdo, monto matemático a la derecha (Ej. "$0.00").
+- Total: Texto en tipografía destacada de 14px Bold (700) a la izquierda, con el valor final definitivo resaltado a la derecha (Ej. "$0.00").
+
+----------------------------------------------------------------------------------
+4. BOTONERA DE CONTROL (FOOTER DEL MODAL)
+----------------------------------------------------------------------------------
+Ubicada en la base inferior del contenedor superpuesto, alineada a la derecha con disposición horizontal (Flex Row, gap-3):
+
+- Botón Cancelar:
+  * Diseño: Estilo cápsula redondeada (`rounded-full`).
+  * Colores: Fondo blanco puro, borde perimetral de 1px en gris (#D1D5DB), texto interno color Negro Premium (#111827).
+  * Altura: Fija a 42px.
+
+- Botón Crear Pedido:
+  * Diseño: Estilo cápsula redondeada idéntica (`rounded-full`).
+  * Colores: Fondo sólido Negro Premium (#111827) con texto interno en color Blanco Puro (#FFFFFF) y peso Bold.
+  * Altura: Fija a 42px.
+==================================================================================
+FIN DEL ANÁLISIS DE CAMPOS COMPLETO — NEXBIT SYSTEM 2026
+==================================================================================

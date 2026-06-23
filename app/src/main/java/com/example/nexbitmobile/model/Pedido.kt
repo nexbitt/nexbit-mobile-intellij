@@ -7,7 +7,7 @@ data class Pedido(
     val numero_documento: String?,
     val total: Double,
     val estado: String,
-    val fecha: String,
+    val fecha: String? = null,
     val fecha_pedido: String?,
     val direccion_entrega: String? = null,
     val notas_entrega: String? = null,

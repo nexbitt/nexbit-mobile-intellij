@@ -1,0 +1,60 @@
+==================================================================================
+PLAN DE IMPLEMENTACIÓN UNIFICADO: CRUD DE PEDIDOS (ADMINISTRADOR MÓVIL)
+==================================================================================
+EL PROBLEMA CONCRETO:
+La administración de pedidos móviles debe abandonar los listados experimentales dispersos y adoptar de forma rigurosa la estructura de diseño nativa de Nexbit Mobile observada en Categorías y Productos (image_e8d4ae.png, image_e8525c.png). El listado debe estructurarse mediante filas atómicas con sus respectivos botones de acción a la derecha, mientras que el formulario de creación ("Nuevo Pedido") debe desplegarse como un overlay deslizante (BottomSheet), manteniendo la barra de navegación inferior 100% visible y estática en la base.
+==================================================================================
+
+1. REGLA DEL CHASIS: PERSISTENCIA ABSOLUTA DEL BOTTOM NAV
+----------------------------------------------------------------------------------
+- Estructura Global: La barra de navegación inferior (Bottom Navigation Bar) de h-[56px] actúa como el marco perimetral inalterable de la aplicación.
+- Comportamiento de Superposición: Ninguna transición de pantalla, scroll, ni la apertura del formulario de pedidos (image_e8c6b9.png) puede ocultar o solapar este componente. El formulario flotante se renderiza en una capa superior (Z-Index superior) pero su borde inferior se ancla de forma exacta sobre la parte más alta de la barra inferior (Bottom Nav), permitiendo cambiar de módulo en cualquier momento.
+
+----------------------------------------------------------------------------------
+2. INTERFAZ GENERAL DEL CRUD (LISTADO DE PEDIDOS ESTILO NEXBIT)
+----------------------------------------------------------------------------------
+Siguiendo fielmente el patrón visual estandarizado de la aplicación (image_e8d4ae.png, image_e8525c.png), la pantalla de Pedidos se construye mediante una estructura limpia, vertical y libre de desbordamientos:
+
+2.1. Bloque de Cabecera Superior:
+- Botón Regresar: Icono lineal de flecha de retorno (fa-arrow-left) en la esquina superior izquierda.
+- Título Central de la Vista: "Pedidos" en tipografía de 18px, peso Bold (700) y color Negro Premium (#111827).
+- Botón de Acción Añadir (+): Ubicado estratégicamente debajo de la barra de navegación del sistema, alineado a la derecha. Es un contenedor circular perfecto de 42px de diámetro con fondo Negro Premium (#111827) y el icono lineal de adición (fa-plus) en blanco puro en su centro exacto.
+
+2.2. Barra de Búsqueda y Filtros Rápidos:
+- Input de búsqueda con altura de 42px (h-[42px]) y esquinas redondeadas de 8px, con un icono de lupa (fa-search) en gris tenue (#9CA3AF) insertado en su extremo izquierdo. Texto guía: "Buscar pedido...".
+
+2.3. Estructura de las Filas de la Lista (Cards Homogéneas):
+Cada pedido se renderiza en un contenedor horizontal con fondo blanco puro (#FFFFFF), bordes redondeados suaves de 12px a 16px y un padding interno controlado:
+
+- Sección Izquierda (Identidad e Iconografía):
+  * Un contenedor circular de 40px en color azul o gris suave que aloja un icono lineal representativo del módulo (fa-file-invoice-dollar o fa-box).
+- Sección Central (Metadatos del Pedido):
+  * Nombre o ID del Pedido en 16px Bold (#111827) (Ej. "Pedido #0011").
+  * Texto secundario en 13px gris descriptivo: "Cliente: Juan Pérez — Total: $37.000".
+  * Badge de Estado (Mapeado de la BD en image_d658a6.png): Óvalo pequeño con el estado ("ENTREGADO" en fondo verde suave / "PENDIENTE_DE_PAGO" en fondo amarillo suave). CORRECCIÓN CRÍTICA: Se prohíbe el despliegue del string "Invalid Date"; el sistema debe formatear la marca de tiempo a un formato local legible (Ej. "24/06/2026").
+- Sección Derecha (Botonera Atómica de Acciones CRUD):
+  Alineados horizontalmente en el extremo derecho de la fila, se presentan los botones interactivos en formato circular de 36px de diámetro:
+  1. Botón [Ver Detalles] (Exclusivo de Pedidos): Icono lineal de ojo (fa-eye) en color Negro Premium o Gris Oscuro, contenido en un fondo neutro suave (#F3F4F6). Abre un modal de consulta rápida de ítems.
+  2. Botón [Editar]: Icono lineal de lápiz de edición (fa-pencil-alt) insertado en un fondo blanco con borde gris sutil, idéntico al del CRUD de categorías (image_e8d4ae.png).
+  3. Botón [Eliminar]: Icono lineal de contenedor de basura (fa-trash-alt) pintado en color Blanco Puro sobre un fondo sólido de color Rojo de Alerta (#EF4444) para señalar operaciones destructivas de manera limpia.
+
+----------------------------------------------------------------------------------
+3. INTEGRACIÓN DEL FORMULARIO DE CREACIÓN EN CAPA SUPERPUESTA (OVERLAY)
+----------------------------------------------------------------------------------
+Al presionar el botón (+), la vista no experimenta un cambio de pantalla, sino que despliega el BottomSheet/Overlay que replica de manera fiel los campos de la web (image_e8c6b9.png):
+
+- Estética General: Chasis móvil con fondo blanco, esquinas superiores redondeadas de 16px (`rounded-t-[16px]`) y un scroll vertical interno para evitar desbordamientos provocados por el teclado virtual.
+- Campos del Formulario (Garantizando la simetría exacta de image_e8c6b9.png - Altura 42px):
+  * Buscar Cliente *: Desplegable dinámico con icono lineal de usuario (fa-user).
+  * Dirección de Entrega: Input de texto alfanumérico con icono lineal de pin de ubicación (fa-map-marker-alt).
+  * Notas de Entrega: Área de texto expandida (h-[80px]) con icono lineal de nota (fa-file-alt).
+  * Comprobante de Pago: Recuadro con borde punteado (`border-dashed`) e icono lineal de carga (fa-upload).
+  * Agregar Producto: Selector de inventario con icono de caja (fa-box).
+  * Detalle de Transacción y Cuadro Financiero: Caja con borde gris sutil que desglosa en tiempo real Subtotal, IVA (19%) y el Total final destacado en fuente de peso Bold (700).
+- Botonera Inferior del Formulario (Fijada sobre la barra inferior):
+  * Botón Cancelar: Cápsula blanca con borde gris, texto negro (h-[42px]).
+  * Botón Crear Pedido: Cápsula sólida en color Negro Premium (#111827) con texto blanco Bold (h-[42px]).
+
+==================================================================================
+FIN DEL PLAN DE IMPLEMENTACIÓN DEL CRUD DE PEDIDOS - NEXBIT SYSTEM 2026
+==================================================================================
