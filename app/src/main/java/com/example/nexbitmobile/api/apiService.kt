@@ -168,5 +168,83 @@ interface ApiService {
 
     @PUT("roles/{id}")
     fun updateRol(@Path("id") id: Int, @Body request: RolUpdateRequest): Call<Void>
+
+    // ─── FASE 1: PAGOS ───────────────────────────────────────────────
+
+    @Multipart
+    @POST("pedidos/{id}/subir-comprobante")
+    fun subirComprobante(
+        @Path("id") pedidoId: Int,
+        @Part comprobante: okhttp3.MultipartBody.Part
+    ): Call<Void>
+
+    @PUT("pedidos/{id}/aprobar-pago")
+    fun aprobarPago(@Path("id") pedidoId: Int): Call<Void>
+
+    @PUT("pedidos/{id}/rechazar-pago")
+    fun rechazarPago(@Path("id") pedidoId: Int, @Body request: RechazarPagoRequest): Call<Void>
+
+    @PATCH("admin/pedidos/{id}/gestion")
+    fun gestionarPedido(@Path("id") pedidoId: Int, @Body request: GestionPedidoRequest): Call<Void>
+
+    @GET("pedidos/en-revision")
+    fun getPedidosEnRevision(): Call<List<Pedido>>
+
+    @GET("bancos")
+    fun getBancos(): Call<List<Banco>>
+
+    // ─── FASE 2: CHAT ────────────────────────────────────────────────
+
+    @GET("chat/conversacion/pedido/{pedido_id}")
+    fun getConversacion(@Path("pedido_id") pedidoId: Int): Call<Conversacion>
+
+    @POST("chat/conversacion/{conversacion_id}/mensajes")
+    fun enviarMensaje(@Path("conversacion_id") conversacionId: Int, @Body request: MensajeRequest): Call<Mensaje>
+
+    @PUT("chat/conversacion/{conversacion_id}/leidos")
+    fun marcarLeidos(@Path("conversacion_id") conversacionId: Int): Call<Void>
+
+    @GET("chat/mensajes/no-leidos")
+    fun getMensajesNoLeidos(): Call<MensajeNoLeidosResponse>
+
+    @GET("chat/conversaciones/admin")
+    fun getConversacionesAdmin(): Call<List<Conversacion>>
+
+    // ─── FASE 2: STATS ───────────────────────────────────────────────
+
+    @GET("stats")
+    fun getStats(): Call<StatsResponse>
+
+    // ─── FASE 2: REPORTES ────────────────────────────────────────────
+
+    @GET("reportes/ventas")
+    fun getReporteVentas(): Call<List<VentaKpi>>
+
+    @GET("reportes/ventas/kpis")
+    fun getReporteVentasKpis(): Call<VentaKpi>
+
+    @GET("reportes/inventario")
+    fun getReporteInventario(): Call<List<InventarioKpi>>
+
+    @GET("reportes/inventario/kpis")
+    fun getReporteInventarioKpis(): Call<InventarioKpi>
+
+    @GET("reportes/seguridad")
+    fun getReporteSeguridad(): Call<List<SeguridadKpi>>
+
+    @GET("reportes/seguridad/kpis")
+    fun getReporteSeguridadKpis(): Call<SeguridadKpi>
+
+    @GET("reportes/carritos")
+    fun getReporteCarritos(): Call<List<CarritoKpi>>
+
+    @GET("reportes/carritos/kpis")
+    fun getReporteCarritosKpis(): Call<CarritoKpi>
+
+    @GET("reportes/repartidores")
+    fun getReporteRepartidores(): Call<List<RepartidorKpi>>
+
+    @GET("reportes/repartidores/kpis")
+    fun getReporteRepartidoresKpis(): Call<RepartidorKpi>
 }
 

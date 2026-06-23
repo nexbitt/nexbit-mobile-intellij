@@ -1,5 +1,6 @@
 package com.example.nexbitmobile.ui
 
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +40,13 @@ class PedidoAdminAdapter(
         holder.tvCliente.text = "Cliente: ${pedido.usuario_nombre ?: pedido.usuario_id}"
         holder.tvTotal.text = "Total: $${pedido.total}"
         holder.tvEstado.text = pedido.estado
+
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, OrderDetailActivity::class.java)
+            intent.putExtra("pedido_id", pedido.id_pedido)
+            context.startActivity(intent)
+        }
 
         when (pedido.estado) {
             "PENDIENTE" -> holder.tvEstado.setTextColor(Color.parseColor("#f59f00")) // Naranja
