@@ -85,7 +85,6 @@ class MisPedidosActivity : AppCompatActivity() {
                     else {
                         llEmpty.visibility = View.GONE
                         rvPedidos.visibility = View.VISIBLE
-<<<<<<< HEAD
                         rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter, ::onCancelarClick, ::onDetallleClick, ::abrirChat, ::onTicketClick)
                     }
                 } else {
@@ -362,7 +361,6 @@ class MisPedidosAdapter(
     private val fmt: NumberFormat,
     private val onCancelar: (Pedido) -> Unit,
     private val onDetalle: (Pedido) -> Unit,
-<<<<<<< HEAD
     private val onChat: (Int) -> Unit,
     private val onTicket: (Pedido) -> Unit
 ) : RecyclerView.Adapter<MisPedidosAdapter.VH>() {

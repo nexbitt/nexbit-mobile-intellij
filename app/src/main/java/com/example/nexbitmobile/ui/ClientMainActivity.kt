@@ -659,7 +659,8 @@ class ClientMainActivity : AppCompatActivity() {
                                             putExtra("pedidoId", pedidoId)
                                         }
                                         startActivity(intent)
-                                    }
+                                    },
+                                    onTicket = {}
                                 )
                             }
                         } else {
