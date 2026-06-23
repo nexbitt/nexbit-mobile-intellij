@@ -81,6 +81,14 @@
         <activity android:name=".ui.PruebasActivity" android:exported="false" />
 
         <activity android:name=".ui.RecoveryActivity" android:exported="false" />
+        <activity android:name=".ui.ConfirmacionPagoActivity" android:exported="false" />
+        <activity android:name=".ui.ChatActivity" android:exported="false" />
+        <activity android:name=".ui.RevisionPagosActivity" android:exported="false" />
+        <activity android:name=".ui.CheckoutManualActivity" android:exported="false" />
+        <activity android:name=".ui.TrashOrdersActivity" android:exported="false" />
+        <activity android:name=".ui.ReportesActivity" android:exported="false" />
+        <activity android:name=".ui.HelpActivity" android:exported="false" />
+        <activity android:name=".ui.ContactoActivity" android:exported="false" />
 
         <!-- Orbix UI Activities -->
         <activity android:name=".ui.MainOrbixActivity" android:exported="false" />

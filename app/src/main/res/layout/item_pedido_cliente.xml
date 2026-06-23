@@ -95,6 +95,16 @@
                 android:textSize="13sp"
                 android:backgroundTint="#ef4444"
                 android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/btnChatPedido"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:background="#f3f4f6"
+                android:src="@android:drawable/ic_menu_edit"
+                android:tint="#111827"
+                android:visibility="visible" />
         </LinearLayout>
 
     </LinearLayout>

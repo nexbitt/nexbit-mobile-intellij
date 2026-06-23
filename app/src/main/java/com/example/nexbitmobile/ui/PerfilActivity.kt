@@ -3,10 +3,7 @@ package com.example.nexbitmobile.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -15,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
+import com.example.nexbitmobile.util.LanguageHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -180,6 +178,25 @@ class PerfilActivity : AppCompatActivity() {
             }
         }
 
+        // ─── Idioma / Language Toggle ───────────────────────────────────────
+        val switchLang = findViewById<Switch>(R.id.switchLang)
+        val tvLangLabel = findViewById<TextView>(R.id.tvLangLabel)
+        val tvLangSub = findViewById<TextView>(R.id.tvLangSub)
+
+        val isSpanish = LanguageHelper.isSpanish(this)
+        switchLang.isChecked = !isSpanish
+        tvLangLabel.text = if (isSpanish) "Idioma / Language" else "Language / Idioma"
+        tvLangSub.text = if (isSpanish) "Español" else "English"
+
+        switchLang.setOnCheckedChangeListener { _, isChecked ->
+            val newLocale = if (isChecked) "en" else "es"
+            LanguageHelper.setLocale(this, newLocale)
+            tvLangLabel.text = if (isChecked) "Language / Idioma" else "Idioma / Language"
+            tvLangSub.text = if (isChecked) "English" else "Español"
+            Toast.makeText(this, if (isChecked) "Language changed to English" else "Idioma cambiado a Español", Toast.LENGTH_SHORT).show()
+        }
+
+        // ─── Logout ─────────────────────────────────────────────────────────
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
             prefs.edit().clear().apply()
             val intent = Intent(this, LoginActivity::class.java)

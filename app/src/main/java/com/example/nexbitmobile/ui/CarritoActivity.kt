@@ -268,20 +268,27 @@ class CarritoActivity : AppCompatActivity() {
     }
 
     private fun showSuccessDialog(pedidoId: Int? = null) {
-        val msg = if (pedidoId != null) "Tu pedido #$pedidoId ha sido registrado con éxito.\n¡Estará en camino pronto!"
-                  else "Tu pedido ha sido registrado con éxito en el sistema."
-        AlertDialog.Builder(this)
-            .setTitle("Pedido Realizado!")
-            .setMessage(msg)
-            .setCancelable(false)
-            .setPositiveButton("Ver Mis Pedidos") { _, _ ->
-                startActivity(Intent(this, MisPedidosActivity::class.java))
-                finish()
+        if (pedidoId != null) {
+            val intent = Intent(this, ConfirmacionPagoActivity::class.java).apply {
+                putExtra("pedidoId", pedidoId)
+                putExtra("total", cartTotal)
             }
-            .setNegativeButton("Volver al Catálogo") { _, _ ->
-                startActivity(Intent(this, CatalogoActivity::class.java))
-                finish()
-            }
-            .show()
+            startActivity(intent)
+            finish()
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("Pedido Realizado!")
+                .setMessage("Tu pedido ha sido registrado con éxito en el sistema.")
+                .setCancelable(false)
+                .setPositiveButton("Ver Mis Pedidos") { _, _ ->
+                    startActivity(Intent(this, MisPedidosActivity::class.java))
+                    finish()
+                }
+                .setNegativeButton("Volver al Catálogo") { _, _ ->
+                    startActivity(Intent(this, CatalogoActivity::class.java))
+                    finish()
+                }
+                .show()
+        }
     }
 }

@@ -42,6 +42,7 @@ class SplashActivity : AppCompatActivity() {
                         .putInt("rolId", user?.rol_id ?: 0)
                         .putString("userName", user?.nombre)
                         .putString("userEmail", user?.email)
+                        .putString("userRole", user?.rol_nombre)
                         .apply()
 
                     routeByRole(user?.rol_id ?: 2)

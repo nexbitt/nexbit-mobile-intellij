@@ -12,6 +12,7 @@ import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
+import com.example.nexbitmobile.api.SocketManager
 import com.example.nexbitmobile.model.LoginRequest
 import com.example.nexbitmobile.model.LoginResponse
 import retrofit2.Call
@@ -84,8 +85,10 @@ class LoginActivity : AppCompatActivity() {
                             .putString("userPhone", loginResponse?.user?.telefono)
                             .putString("userAddress", loginResponse?.user?.direccion)
                             .putString("token", loginResponse?.token)
+                            .putString("userRole", loginResponse?.user?.rol_nombre)
                             .apply()
 
+                        SocketManager.connect()
                         routeByRole(loginResponse?.user?.rol_id ?: 2, loginResponse?.user?.nombre ?: "")
                     } else {
                         showFieldError(etEmail, etPassword, tvMessage, "Credenciales incorrectas")

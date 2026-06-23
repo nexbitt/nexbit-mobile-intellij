@@ -56,3 +56,24 @@ data class AsignarPedidoRequest(
     val pedido_id: Int
 )
 
+data class RepartoStats(
+    val disponibles: Int,
+    val activo: Int,
+    val entregados: Int,
+    val cancelados: Int
+)
+
+data class RepartoActivoResponse(
+    val tiene_activo: Boolean,
+    val pedido: PedidoRepartidor?
+)
+
+data class ReporteProblemaRequest(
+    val tipo: String,
+    val notas: String?
+)
+
+data class HistorialRepartoResponse(
+    val historial: List<PedidoRepartidor>?
+)
+

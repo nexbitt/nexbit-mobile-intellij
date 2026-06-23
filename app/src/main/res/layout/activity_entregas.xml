@@ -1,67 +1,246 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:id="@+id/main"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="#f8fafc"> <!-- Gris muy claro de fondo para resaltar las tarjetas -->
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f8fafc"
+    android:orientation="vertical">
 
-    <!-- Encabezado de la Pantalla -->
     <LinearLayout
-            android:layout_width="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0f172a"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:background="#0f172a"> <!-- Fondo oscuro elegante a juego con tu paleta -->
+            android:text="Panel de Entregas"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Panel de Entregas"
-                android:textColor="#ffffff"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pedidos asignados para distribución"
-                android:textColor="#94a3b8"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Pedidos asignados para distribución"
+            android:textColor="#94a3b8"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- Pestañas de Navegación -->
+    <LinearLayout
+        android:id="@+id/layoutStats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:weightSum="4"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/cardDisponibles"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:background="#ffffff"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvDisponiblesCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#111827"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disponibles"
+                android:textColor="#6b7280"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardActivo"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:background="#ffffff"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvActivoCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#f59e0b"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Activo"
+                android:textColor="#6b7280"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardEntregados"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:background="#ffffff"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvEntregadosCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#10b981"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entregados"
+                android:textColor="#6b7280"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardCancelados"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:background="#ffffff"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvCanceladosCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#ef4444"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelados"
+                android:textColor="#6b7280"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutFilterBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/btnFilterToday"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="#e5e7eb"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="Hoy"
+            android:textColor="#374151"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btnFilterWeek"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:background="#e5e7eb"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="Esta semana"
+            android:textColor="#374151"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btnFilterDelivered"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:background="#e5e7eb"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="Entregados"
+            android:textColor="#374151"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btnFilterCancelled"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:background="#e5e7eb"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="Cancelados"
+            android:textColor="#374151"
+            android:textSize="13sp" />
+    </LinearLayout>
+
     <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0f172a"
+        app:tabIndicatorColor="#3b82f6"
+        app:tabSelectedTextColor="#ffffff"
+        app:tabTextColor="#94a3b8">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#0f172a"
-            app:tabTextColor="#94a3b8"
-            app:tabSelectedTextColor="#ffffff"
-            app:tabIndicatorColor="#3b82f6">
+            android:text="Mis Entregas" />
+
         <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mis Entregas" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disponibles" />
+
         <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Disponibles" />
-        <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Historial" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Historial" />
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- Lista de Entregas -->
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvEntregas"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp"
-            android:clipToPadding="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:id="@+id/rvEntregas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </LinearLayout>

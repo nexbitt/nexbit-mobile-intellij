@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
+import com.example.nexbitmobile.api.SocketManager
 import com.example.nexbitmobile.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
@@ -114,6 +115,47 @@ class CatalogoActivity : AppCompatActivity() {
         loadProducts()
         loadCategories()
         if (isLoggedIn) loadCartCount()
+
+        SocketManager.addListener(socketListener)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SocketManager.removeListener(socketListener)
+    }
+
+    private val socketListener = object : SocketManager.SocketEventListener {
+        override fun onEvent(event: String, data: org.json.JSONObject) {
+            runOnUiThread {
+                when (event) {
+                    "pedido-estado" -> {
+                        val pedidoId = data.optInt("pedido_id", 0)
+                        val estado = data.optString("estado", "")
+                        NotificationToastHelper.show(
+                            "Pedido Actualizado",
+                            "Tu pedido #$pedidoId ahora está: $estado",
+                            "🔄"
+                        )
+                    }
+                    "pago-aprobado" -> {
+                        val pedidoId = data.optInt("pedido_id", 0)
+                        NotificationToastHelper.show(
+                            "Pago Aprobado",
+                            "El pago del pedido #$pedidoId fue aprobado. ¡Gracias!",
+                            "✅"
+                        )
+                    }
+                    "pago-rechazado" -> {
+                        val pedidoId = data.optInt("pedido_id", 0)
+                        NotificationToastHelper.show(
+                            "Pago Rechazado",
+                            "El pago del pedido #$pedidoId fue rechazado. Revisa el motivo.",
+                            "❌"
+                        )
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {

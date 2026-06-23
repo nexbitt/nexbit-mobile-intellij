@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
+import com.example.nexbitmobile.api.SocketManager
 import com.example.nexbitmobile.model.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,6 +31,7 @@ class MainOrbixActivity : AppCompatActivity() {
     // ─── Navigation ───
     private lateinit var contentContainer: FrameLayout
     private lateinit var toolbarSub: View
+    private lateinit var toolbarDivider: View
     private lateinit var btnToolbarBack: ImageButton
     private lateinit var tvToolbarTitle: TextView
 
@@ -76,6 +78,7 @@ class MainOrbixActivity : AppCompatActivity() {
 
         contentContainer = findViewById(R.id.contentContainer)
         toolbarSub = findViewById(R.id.toolbarSub)
+        toolbarDivider = findViewById(R.id.toolbarDivider)
         btnToolbarBack = findViewById(R.id.btnToolbarBack)
         tvToolbarTitle = findViewById(R.id.tvToolbarTitle)
         menuOverlay = findViewById(R.id.menuOverlay)
@@ -91,6 +94,47 @@ class MainOrbixActivity : AppCompatActivity() {
 
         showHome()
         updateNavSelection("home")
+
+        SocketManager.addListener(socketListener)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SocketManager.removeListener(socketListener)
+    }
+
+    private val socketListener = object : SocketManager.SocketEventListener {
+        override fun onEvent(event: String, data: org.json.JSONObject) {
+            runOnUiThread {
+                when (event) {
+                    "nuevo-pedido" -> {
+                        val pedidoId = data.optInt("pedido_id", 0)
+                        NotificationToastHelper.show(
+                            "Nuevo Pedido",
+                            "Pedido #$pedidoId registrado. Revisa la lista de pedidos.",
+                            "📦"
+                        )
+                    }
+                    "nuevo-comprobante" -> {
+                        val pedidoId = data.optInt("pedido_id", 0)
+                        NotificationToastHelper.show(
+                            "Comprobante Recibido",
+                            "Pedido #$pedidoId tiene un nuevo comprobante para revisar.",
+                            "📄"
+                        )
+                    }
+                    "pedido-estado" -> {
+                        val pedidoId = data.optInt("pedido_id", 0)
+                        val estado = data.optString("estado", "")
+                        NotificationToastHelper.show(
+                            "Estado Actualizado",
+                            "Pedido #$pedidoId cambió a $estado",
+                            "🔄"
+                        )
+                    }
+                }
+            }
+        }
     }
 
     override fun onBackPressed() {
@@ -124,6 +168,7 @@ class MainOrbixActivity : AppCompatActivity() {
                     closeMenu()
                     navStack.clear()
                     toolbarSub.visibility = View.GONE
+                    toolbarDivider.visibility = View.GONE
                     when (c.key) {
                         "home" -> showHome()
                         "profile" -> showProfile()
@@ -168,13 +213,22 @@ class MainOrbixActivity : AppCompatActivity() {
     )
 
     private val menuItems = listOf(
+        MenuItem("Pedidos", R.drawable.ic_icon_orders, "pedidos_admin"),
+
         MenuItem("Productos", R.drawable.ic_icon_products, "productos_admin"),
         MenuItem("Categorías", R.drawable.ic_filter_orbix, "categorias_admin"),
 
         MenuItem("Usuarios", android.R.drawable.ic_menu_myplaces, "usuarios_admin"),
         MenuItem("Proveedores", android.R.drawable.ic_menu_send, "proveedores_admin"),
         MenuItem("Repartidores", android.R.drawable.ic_menu_directions, "repartidores_admin"),
-        MenuItem("Roles", android.R.drawable.ic_menu_manage, "roles_admin")
+        MenuItem("Roles", android.R.drawable.ic_menu_manage, "roles_admin"),
+
+        MenuItem("Revisión de Pagos", android.R.drawable.ic_menu_compass, "activity:RevisionPagos"),
+        MenuItem("Checkout Manual", android.R.drawable.ic_menu_compass, "activity:CheckoutManual"),
+        MenuItem("Papelera", android.R.drawable.ic_menu_delete, "activity:Papelera"),
+        MenuItem("Reportes", android.R.drawable.ic_menu_compass, "activity:Reportes"),
+        MenuItem("Ayuda", android.R.drawable.ic_menu_compass, "activity:Help"),
+        MenuItem("Contacto", android.R.drawable.ic_menu_compass, "activity:Contacto")
     )
 
     private fun setupMenuPanel() {
@@ -185,7 +239,21 @@ class MainOrbixActivity : AppCompatActivity() {
             row.findViewById<TextView>(R.id.menuRowText).text = item.label
             row.setOnClickListener {
                 closeMenu()
-                showInlineScreen(item.screenKey)
+                if (item.screenKey.startsWith("activity:")) {
+                    val activityName = item.screenKey.removePrefix("activity:")
+                    val intent = when (activityName) {
+                        "RevisionPagos" -> Intent(this@MainOrbixActivity, RevisionPagosActivity::class.java)
+                        "CheckoutManual" -> Intent(this@MainOrbixActivity, CheckoutManualActivity::class.java)
+                        "Papelera" -> Intent(this@MainOrbixActivity, TrashOrdersActivity::class.java)
+                        "Reportes" -> Intent(this@MainOrbixActivity, ReportesActivity::class.java)
+                        "Help" -> Intent(this@MainOrbixActivity, HelpActivity::class.java)
+                        "Contacto" -> Intent(this@MainOrbixActivity, ContactoActivity::class.java)
+                        else -> null
+                    }
+                    if (intent != null) startActivity(intent)
+                } else {
+                    showInlineScreen(item.screenKey)
+                }
             }
             menuItemsContainer.addView(row)
 
@@ -277,6 +345,7 @@ class MainOrbixActivity : AppCompatActivity() {
         navStack.add(currentScreen)
         currentScreen = screenKey
         toolbarSub.visibility = View.VISIBLE
+        toolbarDivider.visibility = View.VISIBLE
         contentContainer.removeAllViews()
 
         when (screenKey) {
@@ -322,6 +391,13 @@ class MainOrbixActivity : AppCompatActivity() {
                 )
                 contentContainer.addView(v); adminScreens.showRoles(v)
             }
+            "pedidos_admin" -> {
+                tvToolbarTitle.text = "Pedidos"
+                val v = LayoutInflater.from(this).inflate(
+                    R.layout.inline_pedidos_admin, contentContainer, false
+                )
+                contentContainer.addView(v); showPedidosInline(v)
+            }
             "reports_admin" -> {
                 tvToolbarTitle.text = "Reportes"
                 showReportsInline()
@@ -335,12 +411,113 @@ class MainOrbixActivity : AppCompatActivity() {
         currentScreen = prev
         if (navStack.isEmpty()) {
             toolbarSub.visibility = View.GONE
+            toolbarDivider.visibility = View.GONE
         }
         when (prev) {
             "home" -> { showHome(); startAutoRotate() }
             "profile" -> showProfile()
             else -> showHome()
         }
+    }
+
+    // ──────────── PEDIDOS INLINE ────────────
+
+    private var currentStatusFilter: String? = null
+
+    private fun showPedidosInline(root: View) {
+        root.findViewById<TextView>(R.id.tvSectionTitle).text = "Pedidos"
+        val rv = root.findViewById<RecyclerView>(R.id.rvPedidosInline)
+        val tvEstado = root.findViewById<TextView>(R.id.tvPedidosEstado)
+        val tvEmpty = root.findViewById<TextView>(R.id.tvPedidosEmpty)
+        val etSearch = root.findViewById<EditText>(R.id.etSearchPedidos)
+
+        root.findViewById<View>(R.id.btnAddHeader).setOnClickListener {
+            startActivity(Intent(this, CheckoutManualActivity::class.java))
+        }
+
+        rv.layoutManager = LinearLayoutManager(this)
+        val adapter = OrderAdapter(emptyList()) { pedido ->
+            val intent = Intent(this, OrderDetailActivity::class.java)
+            intent.putExtra("pedido_id", pedido.id_pedido)
+            startActivity(intent)
+        }
+        rv.adapter = adapter
+
+        // Status filter chips
+        val chipMap = mapOf(
+            R.id.chipTodos to null,
+            R.id.chipPendiente to "pend",
+            R.id.chipRevision to "revision",
+            R.id.chipConfirmado to "confirm",
+            R.id.chipEnviado to "envia",
+            R.id.chipEntregado to "entrega",
+            R.id.chipCancelado to "cancel"
+        )
+
+        for ((chipId, filterValue) in chipMap) {
+            root.findViewById<View>(chipId).setOnClickListener {
+                currentStatusFilter = filterValue
+                // Reset all chips to unselected
+                for ((id, _) in chipMap) {
+                    val chip = root.findViewById<TextView>(id)
+                    chip.setBackgroundResource(R.drawable.bg_chip)
+                    chip.setTextColor(resources.getColor(R.color.chip_text, theme))
+                }
+                // Highlight selected chip
+                val selectedChip = root.findViewById<TextView>(chipId)
+                selectedChip.setBackgroundResource(R.drawable.bg_chip_selected)
+                selectedChip.setTextColor(resources.getColor(R.color.chip_selected_text, theme))
+                // Apply filters
+                aplicarFiltros(adapter, etSearch)
+            }
+        }
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                aplicarFiltros(adapter, etSearch)
+            }
+        })
+
+        loadPedidos(rv, tvEstado, tvEmpty, adapter)
+    }
+
+    private fun aplicarFiltros(adapter: OrderAdapter, etSearch: EditText) {
+        val query = etSearch.text.toString().trim().lowercase()
+        val filtered = allPedidos.filter { p ->
+            val matchesSearch = query.isEmpty() ||
+                p.id_pedido.toString().contains(query) ||
+                (p.usuario_nombre?.lowercase()?.contains(query) == true)
+            val matchesStatus = currentStatusFilter == null ||
+                p.estado.lowercase().contains(currentStatusFilter!!)
+            matchesSearch && matchesStatus
+        }
+        adapter.updateList(filtered)
+    }
+
+    private var allPedidos = listOf<Pedido>()
+
+    private fun loadPedidos(rv: RecyclerView, tvEstado: TextView, tvEmpty: TextView, adapter: OrderAdapter) {
+        ApiClient.instance.getPedidos().enqueue(object : Callback<List<Pedido>> {
+            override fun onResponse(call: Call<List<Pedido>>, response: Response<List<Pedido>>) {
+                if (response.isSuccessful) {
+                    allPedidos = response.body() ?: emptyList()
+                    adapter.updateList(allPedidos)
+                    tvEstado.visibility = View.GONE
+                    if (allPedidos.isEmpty()) {
+                        tvEmpty.visibility = View.VISIBLE
+                        rv.visibility = View.GONE
+                    } else {
+                        tvEmpty.visibility = View.GONE
+                        rv.visibility = View.VISIBLE
+                    }
+                }
+            }
+            override fun onFailure(call: Call<List<Pedido>>, t: Throwable) {
+                tvEstado.text = "Error al cargar pedidos"
+            }
+        })
     }
 
     // ──────────── SCREEN A: PANEL DE REPORTES ────────────
@@ -526,6 +703,7 @@ class MainOrbixActivity : AppCompatActivity() {
         navStack.add(currentScreen)
         currentScreen = "report_list"
         toolbarSub.visibility = View.GONE
+        toolbarDivider.visibility = View.GONE
         showReportsList()
     }
 
@@ -533,6 +711,7 @@ class MainOrbixActivity : AppCompatActivity() {
         navStack.add(currentScreen)
         currentScreen = "report_detail"
         toolbarSub.visibility = View.GONE
+        toolbarDivider.visibility = View.GONE
         showReportDetail(title)
     }
 

@@ -50,9 +50,11 @@ class AdminScreens(private val activity: MainOrbixActivity) {
 
     fun showProductos(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
-        val fab = root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabAdd)
+        val btnAdd = root.findViewById<View>(R.id.btnAddHeader)
         val etSearch = root.findViewById<EditText>(R.id.etSearch)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+
+        root.findViewById<TextView>(R.id.tvSectionTitle).text = "Productos"
 
         rv.layoutManager = LinearLayoutManager(activity)
         val adapter = ProductoAdminAdapter(emptyList(),
@@ -77,7 +79,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
             }
         })
 
-        fab.setOnClickListener { showCreateDialog(rv, tvEmpty) }
+        btnAdd.setOnClickListener { showCreateDialog(rv, tvEmpty) }
 
         loadCategorias()
         loadProveedores()
@@ -285,14 +287,16 @@ class AdminScreens(private val activity: MainOrbixActivity) {
 
     fun showCategorias(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
-        val fab = root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabAdd)
+        val btnAdd = root.findViewById<View>(R.id.btnAddHeader)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+
+        root.findViewById<TextView>(R.id.tvSectionTitle).text = "Categorías"
 
         rv.layoutManager = LinearLayoutManager(activity)
         val adapter = CategoriaAdapter(emptyList(), { c -> editCategoria(c, rv, tvEmpty) }, { c -> deleteCategoria(c, rv, tvEmpty) })
         rv.adapter = adapter
 
-        fab.setOnClickListener { createCategoria(rv, tvEmpty, adapter) }
+        btnAdd.setOnClickListener { createCategoria(rv, tvEmpty, adapter) }
 
         ApiClient.instance.getCategorias().enqueue(object : Callback<List<Categoria>> {
             override fun onResponse(c: Call<List<Categoria>>, res: Response<List<Categoria>>) {
@@ -397,8 +401,61 @@ class AdminScreens(private val activity: MainOrbixActivity) {
     fun showUsuarios(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+        val etSearch = root.findViewById<EditText>(R.id.etSearch)
+        val btnAdd = root.findViewById<View>(R.id.btnAddHeader)
+        val filterContainer = root.findViewById<LinearLayout>(R.id.filterChipsContainer)
 
+        root.findViewById<TextView>(R.id.tvSectionTitle).text = "Usuarios"
         rv.layoutManager = LinearLayoutManager(activity)
+
+        var allUsers = mutableListOf<Usuario>()
+        var activeFilter = ""
+
+        val chips = listOf("Todos", "Admin", "Repartidor", "Cliente", "Activo", "Inactivo")
+        for (chipText in chips) {
+            val chip = TextView(activity).apply {
+                text = chipText
+                textSize = 12f
+                gravity = android.view.Gravity.CENTER
+                setPadding(16, 0, 16, 0)
+                setOnClickListener {
+                    activeFilter = if (chipText == "Todos") "" else chipText
+                    aplicarFiltros(etSearch, activeFilter, allUsers, { filtered ->
+                        val adapter = rv.adapter as? UsuarioAdapter
+                        adapter?.updateData(filtered)
+                        tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                    })
+                    // highlight active chip
+                    for (i in 0 until filterContainer.childCount) {
+                        val c = filterContainer.getChildAt(i) as TextView
+                        if (c.text == chipText) {
+                            c.setBackgroundColor(android.graphics.Color.parseColor("#111827"))
+                            c.setTextColor(android.graphics.Color.parseColor("#ffffff"))
+                        } else {
+                            c.background = null
+                            c.setTextColor(android.graphics.Color.parseColor("#374151"))
+                        }
+                    }
+                }
+            }
+            filterContainer.addView(chip, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                36.dpToPx(activity)
+            ).apply { marginEnd = 8 })
+        }
+
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                aplicarFiltros(etSearch, activeFilter, allUsers) { filtered ->
+                    val adapter = rv.adapter as? UsuarioAdapter
+                    adapter?.updateData(filtered)
+                    tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+        })
+
         lateinit var adapter: UsuarioAdapter
         val deleteHandler: (Usuario) -> Unit = { usuario ->
             AlertDialog.Builder(activity)
@@ -407,7 +464,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
                     ApiClient.instance.deleteUsuario(usuario.id_usuario).enqueue(object : Callback<Void> {
                         override fun onResponse(c: Call<Void>, res: Response<Void>) {
                             Toast.makeText(activity, "Eliminado", Toast.LENGTH_SHORT).show()
-                            reloadUsuarios(rv, tvEmpty, adapter)
+                            cargarUsuarios(rv, tvEmpty, adapter, allUsers)
                         }
                         override fun onFailure(c: Call<Void>, t: Throwable) {}
                     })
@@ -416,20 +473,41 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         }
         adapter = UsuarioAdapter(
             emptyList(),
-            onEdit = { usuario ->
-                AlertDialog.Builder(activity)
-                    .setTitle(usuario.nombre)
-                    .setMessage("Email: ${usuario.email}\nTel: ${usuario.telefono ?: "N/A"}\nRol: ${usuario.rol_id}")
-                    .setPositiveButton("OK", null).show()
-            },
+            onEdit = { usuario -> mostrarDialogoEditarUsuario(usuario, rv, tvEmpty, adapter) },
             onDelete = deleteHandler
         )
         rv.adapter = adapter
 
+        btnAdd.setOnClickListener { mostrarDialogoCrearUsuario(rv, tvEmpty, adapter) }
+
+        cargarUsuarios(rv, tvEmpty, adapter, allUsers)
+    }
+
+    private fun aplicarFiltros(etSearch: EditText, activeFilter: String, allUsers: List<Usuario>, onResult: (List<Usuario>) -> Unit) {
+        val query = etSearch.text.toString().trim().lowercase()
+        var filtered = allUsers
+        if (query.isNotEmpty()) {
+            filtered = filtered.filter { u ->
+                u.nombre.lowercase().contains(query) || u.email.lowercase().contains(query)
+            }
+        }
+        when (activeFilter) {
+            "Admin" -> filtered = filtered.filter { it.rol_id == 1 }
+            "Repartidor" -> filtered = filtered.filter { it.rol_id == 2 }
+            "Cliente" -> filtered = filtered.filter { it.rol_id == 3 }
+            "Activo" -> filtered = filtered.filter { it.activo }
+            "Inactivo" -> filtered = filtered.filter { !it.activo }
+        }
+        onResult(filtered)
+    }
+
+    private fun cargarUsuarios(rv: RecyclerView, tvEmpty: TextView, adapter: UsuarioAdapter, allUsers: MutableList<Usuario>) {
         ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
             override fun onResponse(c: Call<List<Usuario>>, res: Response<List<Usuario>>) {
                 if (res.isSuccessful) {
                     val list = res.body() ?: emptyList()
+                    allUsers.clear()
+                    allUsers.addAll(list)
                     adapter.updateData(list)
                     rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
                     tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
@@ -441,26 +519,127 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         })
     }
 
-    private fun reloadUsuarios(rv: RecyclerView, tvEmpty: TextView, adapter: UsuarioAdapter) {
-        ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
-            override fun onResponse(c: Call<List<Usuario>>, res: Response<List<Usuario>>) {
-                if (res.isSuccessful) {
-                    val list = res.body() ?: emptyList()
-                    adapter.updateData(list)
-                    rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
-                    tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+    private fun mostrarDialogoCrearUsuario(rv: RecyclerView, tvEmpty: TextView, adapter: UsuarioAdapter) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_usuario, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val etEmail = view.findViewById<EditText>(R.id.etEmail)
+        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        val spRol = view.findViewById<Spinner>(R.id.spRol)
+        val etDocType = view.findViewById<EditText>(R.id.etDocType)
+        val etDocNum = view.findViewById<EditText>(R.id.etDocNum)
+        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+        val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+
+        spRol.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Admin", "Repartidor", "Cliente"))
+
+        AlertDialog.Builder(activity)
+            .setTitle("Nuevo Usuario")
+            .setView(view)
+            .setPositiveButton("Crear") { _, _ ->
+                val nombre = etNombre.text.toString().trim()
+                val email = etEmail.text.toString().trim()
+                val password = etPassword.text.toString().trim()
+                if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(activity, "Nombre, email y password obligatorios", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
                 }
+                val rolMap = mapOf(0 to 1, 1 to 2, 2 to 3)
+                ApiClient.instance.createUsuario(UsuarioCreateRequest(
+                    rol_id = rolMap[spRol.selectedItemPosition] ?: 3,
+                    nombre = nombre,
+                    email = email,
+                    password = password,
+                    tipo_documento = etDocType.text.toString().trim().ifEmpty { null },
+                    numero_documento = etDocNum.text.toString().trim().ifEmpty { null },
+                    telefono = etTelefono.text.toString().trim().ifEmpty { null },
+                    direccion = etDireccion.text.toString().trim().ifEmpty { null }
+                )).enqueue(object : Callback<UsuarioCreateResponse> {
+                    override fun onResponse(c: Call<UsuarioCreateResponse>, res: Response<UsuarioCreateResponse>) {
+                        if (res.isSuccessful) {
+                            Toast.makeText(activity, "Usuario creado", Toast.LENGTH_SHORT).show()
+                            val allUsers = mutableListOf<Usuario>()
+                            cargarUsuarios(rv, tvEmpty, adapter, allUsers)
+                        } else {
+                            Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(c: Call<UsuarioCreateResponse>, t: Throwable) {
+                        Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                    }
+                })
             }
-            override fun onFailure(c: Call<List<Usuario>>, t: Throwable) {}
-        })
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogoEditarUsuario(usuario: Usuario, rv: RecyclerView, tvEmpty: TextView, adapter: UsuarioAdapter) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_usuario, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val etEmail = view.findViewById<EditText>(R.id.etEmail)
+        val etPassword = view.findViewById<EditText>(R.id.etPassword)
+        val spRol = view.findViewById<Spinner>(R.id.spRol)
+        val etDocType = view.findViewById<EditText>(R.id.etDocType)
+        val etDocNum = view.findViewById<EditText>(R.id.etDocNum)
+        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+        val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+
+        etNombre.setText(usuario.nombre)
+        etEmail.setText(usuario.email)
+        etPassword.hint = "Dejar vacío para no cambiar"
+        etDocType.setText(usuario.tipo_documento ?: "")
+        etDocNum.setText(usuario.numero_documento ?: "")
+        etTelefono.setText(usuario.telefono ?: "")
+        etDireccion.setText(usuario.direccion ?: "")
+
+        spRol.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Admin", "Repartidor", "Cliente"))
+        spRol.setSelection((usuario.rol_id - 1).coerceIn(0, 2))
+        etPassword.visibility = View.GONE
+
+        AlertDialog.Builder(activity)
+            .setTitle("Editar Usuario")
+            .setView(view)
+            .setPositiveButton("Actualizar") { _, _ ->
+                val nombre = etNombre.text.toString().trim()
+                val email = etEmail.text.toString().trim()
+                if (nombre.isEmpty() || email.isEmpty()) {
+                    Toast.makeText(activity, "Nombre y email obligatorios", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                val rolMap = mapOf(0 to 1, 1 to 2, 2 to 3)
+                ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
+                    nombre = nombre,
+                    email = email,
+                    tipo_documento = etDocType.text.toString().trim().ifEmpty { null },
+                    numero_documento = etDocNum.text.toString().trim().ifEmpty { null },
+                    telefono = etTelefono.text.toString().trim().ifEmpty { null },
+                    direccion = etDireccion.text.toString().trim().ifEmpty { null }
+                )).enqueue(object : Callback<Usuario> {
+                    override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                        if (res.isSuccessful) {
+                            Toast.makeText(activity, "Usuario actualizado", Toast.LENGTH_SHORT).show()
+                            val allUsers = mutableListOf<Usuario>()
+                            cargarUsuarios(rv, tvEmpty, adapter, allUsers)
+                        } else {
+                            Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                        Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     // ──────────── PROVEEDORES ADMIN ────────────
 
     fun showProveedores(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
-        val fab = root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabAdd)
+        val btnAdd = root.findViewById<View>(R.id.btnAddHeader)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+
+        root.findViewById<TextView>(R.id.tvSectionTitle).text = "Proveedores"
 
         rv.layoutManager = LinearLayoutManager(activity)
         lateinit var adapter: ProveedorAdapter
@@ -485,13 +664,27 @@ class AdminScreens(private val activity: MainOrbixActivity) {
             deleteHandler)
         rv.adapter = adapter
 
-        fab.setOnClickListener {
+        btnAdd.setOnClickListener {
             val view = LayoutInflater.from(activity).inflate(R.layout.dialog_proveedor, null)
             val etNombre = view.findViewById<EditText>(R.id.etNombre)
             val etNit = view.findViewById<EditText>(R.id.etNit)
             val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
             val etCorreo = view.findViewById<EditText>(R.id.etCorreo)
             val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+
+            etNit.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            etNit.addTextChangedListener(object : android.text.TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    val digits = s?.filter { it.isDigit() } ?: ""
+                    if (digits != s.toString()) {
+                        etNit.setText(digits)
+                        etNit.setSelection(digits.length)
+                    }
+                }
+            })
+
             AlertDialog.Builder(activity).setTitle("Nuevo Proveedor").setView(view)
                 .setPositiveButton("Guardar") { _, _ ->
                     val n = etNombre.text.toString().trim()
@@ -542,7 +735,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
             onVerMapaClick = { pedido ->
                 Toast.makeText(activity, "Mapa: Pedido #${pedido.id_pedido}", Toast.LENGTH_SHORT).show()
             },
-            onConfirmarClick = { pedido ->
+            onAccionClick = { pedido ->
                 ApiClient.instance.cambiarEstadoPedido(pedido.id_pedido, EstadoPedidoRequest("ENTREGADO", null))
                     .enqueue(object : Callback<Void> {
                         override fun onResponse(c: Call<Void>, res: Response<Void>) {
@@ -582,24 +775,49 @@ class AdminScreens(private val activity: MainOrbixActivity) {
     fun showRoles(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+        val btnNuevo = root.findViewById<TextView>(R.id.btnNuevoRol)
 
         rv.layoutManager = LinearLayoutManager(activity)
         val adapter = RolAdapter(emptyList()) { rol -> editRol(rol, rv, tvEmpty) }
         rv.adapter = adapter
 
-        ApiClient.instance.getRoles().enqueue(object : Callback<List<Rol>> {
-            override fun onResponse(c: Call<List<Rol>>, res: Response<List<Rol>>) {
-                if (res.isSuccessful) {
-                    val list = res.body() ?: emptyList()
-                    adapter.updateData(list)
-                    rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
-                    tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+        btnNuevo.setOnClickListener { mostrarDialogoNuevoRol(rv, tvEmpty) }
+
+        reloadRoles(rv, tvEmpty, adapter)
+    }
+
+    private fun mostrarDialogoNuevoRol(rv: RecyclerView, tvEmpty: TextView) {
+        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_rol, null)
+        val etNombre = view.findViewById<EditText>(R.id.etNombre)
+        val etDesc = view.findViewById<EditText>(R.id.etDescripcion)
+
+        AlertDialog.Builder(activity)
+            .setTitle("Nuevo Rol")
+            .setView(view)
+            .setPositiveButton("Crear") { _, _ ->
+                val nombre = etNombre.text.toString().trim()
+                if (nombre.isEmpty()) {
+                    Toast.makeText(activity, "Nombre obligatorio", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
                 }
+                ApiClient.instance.createRol(RolUpdateRequest(nombre, etDesc.text.toString().trim().ifEmpty { null }))
+                    .enqueue(object : Callback<JsonResponse> {
+                        override fun onResponse(c: Call<JsonResponse>, res: Response<JsonResponse>) {
+                            if (res.isSuccessful) {
+                                Toast.makeText(activity, "Rol creado", Toast.LENGTH_SHORT).show()
+                                val adapter = rv.adapter as? RolAdapter ?: return
+                                reloadRoles(rv, tvEmpty, adapter)
+                            } else {
+                                Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        override fun onFailure(c: Call<JsonResponse>, t: Throwable) {
+                            Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                        }
+                    })
             }
-            override fun onFailure(c: Call<List<Rol>>, t: Throwable) {
-                Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
-            }
-        })
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun editRol(rol: Rol, rv: RecyclerView, tvEmpty: TextView) {
@@ -651,4 +869,8 @@ class AdminScreens(private val activity: MainOrbixActivity) {
             override fun onFailure(c: Call<List<Rol>>, t: Throwable) {}
         })
     }
+}
+
+private fun Int.dpToPx(ctx: android.content.Context): Int {
+    return (this * ctx.resources.displayMetrics.density).toInt()
 }

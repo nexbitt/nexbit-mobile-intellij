@@ -166,7 +166,106 @@ interface ApiService {
     @GET("roles")
     fun getRoles(): Call<List<Rol>>
 
+    @POST("roles")
+    fun createRol(@Body request: RolUpdateRequest): Call<JsonResponse>
+
     @PUT("roles/{id}")
     fun updateRol(@Path("id") id: Int, @Body request: RolUpdateRequest): Call<Void>
+
+    @GET("reparto/stats")
+    fun getRepartoStats(): Call<RepartoStats>
+
+    @GET("reparto/activo")
+    fun getRepartoActivo(): Call<RepartoActivoResponse>
+
+    @GET("reparto/disponibles")
+    fun getRepartoDisponibles(): Call<List<PedidoRepartidor>>
+
+    @GET("reparto/historial")
+    fun getRepartoHistorial(@Query("filtro") filtro: String? = null): Call<List<PedidoRepartidor>>
+
+    @POST("reparto/{id}/tomar")
+    fun tomarPedido(@Path("id") id: Int): Call<Void>
+
+    @PUT("reparto/{id}/en-camino")
+    fun marcarEnCamino(@Path("id") id: Int): Call<Void>
+
+    @POST("reparto/{id}/entregar")
+    fun confirmarEntrega(@Path("id") id: Int): Call<Void>
+
+    @PUT("reparto/{id}/cancelar")
+    fun cancelarEntrega(@Path("id") id: Int): Call<Void>
+
+    @POST("reparto/{id}/problema")
+    fun reportarProblema(@Path("id") id: Int, @Body request: ReporteProblemaRequest): Call<Void>
+
+    @Multipart
+    @PUT("pedidos/{id}/subir-comprobante")
+    fun subirComprobante(
+        @Path("id") id: Int,
+        @Part imagen: okhttp3.MultipartBody.Part
+    ): Call<Void>
+
+    @GET("chat/conversacion/pedido/{pedidoId}")
+    fun getConversacion(@Path("pedidoId") pedidoId: Int): Call<ConversacionResponse>
+
+    @POST("chat/conversacion/{conversacionId}/mensajes")
+    fun enviarMensaje(@Path("conversacionId") conversacionId: Int, @Body request: EnviarMensajeRequest): Call<Mensaje>
+
+    @GET("chat/mensajes/no-leidos")
+    fun getMensajesNoLeidos(): Call<MensajesNoLeidosResponse>
+
+    @GET("pedidos/en-revision")
+    fun getPedidosEnRevision(): Call<List<Pedido>>
+
+    @PUT("pedidos/{id}/aprobar-pago")
+    fun aprobarPago(@Path("id") id: Int): Call<Void>
+
+    @PUT("pedidos/{id}/rechazar-pago")
+    fun rechazarPago(@Path("id") id: Int, @Body request: RechazarPagoRequest): Call<Void>
+
+    @GET("pedidos/usuario/trash")
+    fun getPedidosEliminados(): Call<List<Pedido>>
+
+    @PUT("pedidos/{id}/eliminar")
+    fun eliminarPedido(@Path("id") id: Int): Call<Void>
+
+    @PUT("pedidos/{id}/restaurar")
+    fun restaurarPedido(@Path("id") id: Int): Call<Void>
+
+    @GET("bancos")
+    fun getBancos(): Call<List<Banco>>
+
+    // ─── Reportes / Analítica ──────────────────────────────────────────────────
+
+    @GET("reportes/ventas/kpis")
+    fun getReporteVentasKpis(): Call<VentaKpi>
+
+    @GET("reportes/ventas")
+    fun getReporteVentas(): Call<List<VentaRow>>
+
+    @GET("reportes/inventario/kpis")
+    fun getReporteInventarioKpis(): Call<InventarioKpi>
+
+    @GET("reportes/inventario")
+    fun getReporteInventario(): Call<List<InventarioRow>>
+
+    @GET("reportes/seguridad/kpis")
+    fun getReporteSeguridadKpis(): Call<SeguridadKpi>
+
+    @GET("reportes/seguridad")
+    fun getReporteSeguridad(): Call<List<SeguridadRow>>
+
+    @GET("reportes/carritos/kpis")
+    fun getReporteCarritosKpis(): Call<CarritosKpi>
+
+    @GET("reportes/carritos")
+    fun getReporteCarritos(): Call<List<CarritoRow>>
+
+    @GET("reportes/repartidores/kpis")
+    fun getReporteRepartidoresKpis(): Call<LogisticaKpi>
+
+    @GET("reportes/repartidores")
+    fun getReporteRepartidores(): Call<List<LogisticaRow>>
 }
 

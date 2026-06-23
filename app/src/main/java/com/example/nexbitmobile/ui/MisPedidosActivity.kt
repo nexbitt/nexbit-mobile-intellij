@@ -58,6 +58,13 @@ class MisPedidosActivity : AppCompatActivity() {
         cargarPedidos()
     }
 
+    private fun abrirChat(pedidoId: Int) {
+        val intent = Intent(this, ChatActivity::class.java).apply {
+            putExtra("pedidoId", pedidoId)
+        }
+        startActivity(intent)
+    }
+
     private fun cargarPedidos() {
         if (userId == 0) { showEmpty(); return }
         progressBar.visibility = View.VISIBLE
@@ -72,7 +79,7 @@ class MisPedidosActivity : AppCompatActivity() {
                     else {
                         llEmpty.visibility = View.GONE
                         rvPedidos.visibility = View.VISIBLE
-                        rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter, ::onCancelarClick, ::onDetallleClick)
+                        rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter, ::onCancelarClick, ::onDetallleClick, ::abrirChat)
                     }
                 } else {
                     Toast.makeText(this@MisPedidosActivity, "Error al cargar pedidos (${response.code()})", Toast.LENGTH_SHORT).show()
@@ -155,7 +162,8 @@ class MisPedidosAdapter(
     private val pedidos: List<Pedido>,
     private val fmt: NumberFormat,
     private val onCancelar: (Pedido) -> Unit,
-    private val onDetalle: (Pedido) -> Unit
+    private val onDetalle: (Pedido) -> Unit,
+    private val onChat: (Int) -> Unit
 ) : RecyclerView.Adapter<MisPedidosAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
@@ -165,6 +173,7 @@ class MisPedidosAdapter(
         val tvTotal: TextView   = view.findViewById(R.id.tvPedidoTotal)
         val tvEstado: TextView  = view.findViewById(R.id.tvPedidoEstado)
         val btnCancelar: Button = view.findViewById(R.id.btnCancelarPedido)
+        val btnChat: ImageButton = view.findViewById(R.id.btnChatPedido)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
@@ -191,13 +200,14 @@ class MisPedidosAdapter(
         h.tvEstado.text = label
         h.tvEstado.setTextColor(color)
 
-        // Solo PENDIENTE puede cancelarse
         if (p.estado == "PENDIENTE") {
             h.btnCancelar.visibility = View.VISIBLE
             h.btnCancelar.setOnClickListener { onCancelar(p) }
         } else {
             h.btnCancelar.visibility = View.GONE
         }
+
+        h.btnChat.setOnClickListener { onChat(p.id_pedido) }
 
         h.itemView.setOnClickListener { onDetalle(p) }
     }

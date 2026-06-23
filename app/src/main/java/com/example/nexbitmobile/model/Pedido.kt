@@ -11,6 +11,7 @@ data class Pedido(
     val fecha_pedido: String?,
     val direccion_entrega: String? = null,
     val notas_entrega: String? = null,
+    val comprobante_pago_url: String? = null,
     val detalles: List<PedidoDetalle>? = null
 )
 
@@ -41,4 +42,17 @@ data class CheckoutRequest(
 data class CheckoutResponse(
     val message: String,
     val id_pedido: Int
+)
+
+data class RechazarPagoRequest(
+    val motivo: String
+)
+
+data class Banco(
+    val id_banco: Int,
+    val nombre_banco: String,
+    val titular: String,
+    val numero_cuenta: String,
+    val tipo_cuenta: String,
+    val nit: String? = null
 )
