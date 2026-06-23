@@ -1,9 +1,15 @@
 package com.example.nexbitmobile.ui
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
+import android.util.Log
 import android.view.*
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -79,7 +85,8 @@ class MisPedidosActivity : AppCompatActivity() {
                     else {
                         llEmpty.visibility = View.GONE
                         rvPedidos.visibility = View.VISIBLE
-                        rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter, ::onCancelarClick, ::onDetallleClick, ::abrirChat)
+<<<<<<< HEAD
+                        rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter, ::onCancelarClick, ::onDetallleClick, ::abrirChat, ::onTicketClick)
                     }
                 } else {
                     Toast.makeText(this@MisPedidosActivity, "Error al cargar pedidos (${response.code()})", Toast.LENGTH_SHORT).show()
@@ -123,6 +130,174 @@ class MisPedidosActivity : AppCompatActivity() {
                 Toast.makeText(this@MisPedidosActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private var printWebView: WebView? = null
+
+    private fun onTicketClick(pedido: Pedido) {
+        ApiClient.instance.getPedidoTicket(pedido.id_pedido).enqueue(object : Callback<Pedido> {
+            override fun onResponse(call: Call<Pedido>, response: Response<Pedido>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { pedidoTicket ->
+                        generarHtmlYPdf(pedidoTicket)
+                    } ?: run {
+                        Toast.makeText(this@MisPedidosActivity, "Error al obtener ticket", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@MisPedidosActivity, "Error al obtener ticket", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<Pedido>, t: Throwable) {
+                Log.e("MisPedidos", "Ticket download failed", t)
+                Toast.makeText(this@MisPedidosActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun generarHtmlYPdf(pedido: Pedido) {
+        val detalles = pedido.detalles ?: emptyList()
+        val filasProductos = if (detalles.isNotEmpty()) {
+            detalles.joinToString("") { d ->
+                """
+                <tr>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">${d.producto_nombre}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${d.cantidad}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;">$${d.precio_unitario}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;">$${d.subtotal}</td>
+                </tr>
+                """
+            }
+        } else {
+            "<tr><td colspan='4' style='padding:12px;text-align:center;color:#94a3b8;'>Este pedido no tiene productos detallados</td></tr>"
+        }
+
+        val htmlContent = """
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8"/>
+                <title>Comprobante de Pedido - #${pedido.id_pedido}</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { font-family: 'Inter', sans-serif; background: #e2e8f0; padding: 40px 20px; color: #1e293b; }
+                    .ticket { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; border-top: 6px solid #0f172a; }
+                    .ticket-header { padding: 32px 32px 16px 32px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f5f9; }
+                    .ticket-header .brand { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.5px; }
+                    .ticket-header .doc-type { font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+                    .ticket-header .order-id { text-align: right; }
+                    .ticket-header .order-id-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+                    .ticket-header .order-id-value { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
+                    .ticket-body { padding: 32px; }
+                    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; background: #f8fafc; padding: 20px; border-radius: 6px; border: 1px solid #f1f5f9; }
+                    .info-item label { display: block; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 6px; }
+                    .info-item span { font-size: 0.95rem; font-weight: 500; color: #0f172a; }
+                    .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; border: 1px solid transparent; }
+                    .badge-pendiente { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+                    .badge-pagado { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+                    .badge-entregado { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+                    .badge-cancelado { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+                    thead th { border-bottom: 2px solid #e2e8f0; padding: 12px 12px; font-size: 0.8rem; text-transform: uppercase; color: #64748b; font-weight: 600; text-align: left; }
+                    thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(4) { text-align: center; }
+                    thead th:nth-child(3), thead th:nth-child(4) { text-align: right; }
+                    tbody td { padding: 14px 12px; font-size: 0.95rem; color: #334155; border-bottom: 1px solid #f1f5f9; }
+                    .total-section { display: flex; justify-content: flex-end; }
+                    .total-box { width: 250px; }
+                    .total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+                    .total-row.final { border-top: 2px solid #0f172a; padding-top: 16px; margin-top: 4px; }
+                    .total-row .label { font-size: 0.9rem; font-weight: 600; color: #64748b; }
+                    .total-row.final .label { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+                    .total-row .amount { font-size: 1rem; font-weight: 600; color: #334155; }
+                    .total-row.final .amount { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+                    .ticket-footer { text-align: center; padding: 24px 32px; background: #fff; border-top: 1px solid #f1f5f9; }
+                    .ticket-footer p { font-size: 0.85rem; color: #64748b; line-height: 1.5; }
+                    .ticket-footer .doc-info { font-size: 0.75rem; color: #94a3b8; margin-top: 12px; }
+                    @media print { body { background: #fff; padding: 0; } .ticket { box-shadow: none; border: none; border-top: 6px solid #0f172a; } }
+                </style>
+            </head>
+            <body>
+                <div class="ticket">
+                    <div class="ticket-header">
+                        <div>
+                            <div class="brand">Nexbit</div>
+                            <div class="doc-type">Comprobante de Pedido</div>
+                        </div>
+                        <div class="order-id">
+                            <div class="order-id-label">Nº de Pedido</div>
+                            <div class="order-id-value">${String.format("%06d", pedido.id_pedido)}</div>
+                        </div>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Cliente</label>
+                                <span>${pedido.usuario_nombre ?: "N/A"}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Documento de Identidad</label>
+                                <span>${pedido.numero_documento ?: "N/A"}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Fecha de Emisión</label>
+                                <span>${pedido.fecha}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Estado del Pedido</label>
+                                <div><span class="badge badge-${pedido.estado?.lowercase() ?: "pendiente"}">${pedido.estado ?: "PENDIENTE"}</span></div>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Descripción del Producto</th>
+                                    <th style="text-align:center;">Cantidad</th>
+                                    <th style="text-align:right;">Precio Unitario</th>
+                                    <th style="text-align:right;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                $filasProductos
+                            </tbody>
+                        </table>
+                        <div class="total-section">
+                            <div class="total-box">
+                                <div class="total-row final">
+                                    <span class="label">Total a Pagar</span>
+                                    <span class="amount">$${pedido.total}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticket-footer">
+                        <p>Este documento constituye el comprobante oficial de su pedido en Nexbit.</p>
+                        <p>Para consultas o reclamos, por favor conserve este número de pedido.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        """.trimIndent()
+
+        doWebViewPrint(htmlContent)
+    }
+
+    private fun doWebViewPrint(htmlContent: String) {
+        val webView = WebView(this)
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                createWebPrintJob(view)
+                printWebView = null
+            }
+        }
+        webView.loadDataWithBaseURL(null, htmlContent, "text/HTML", "UTF-8", null)
+        printWebView = webView
+    }
+
+    private fun createWebPrintJob(webView: WebView) {
+        val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
+        val printAdapter = webView.createPrintDocumentAdapter("Pedido_Nexbit")
+        val printJobName = getString(R.string.app_name) + " - Ticket"
+        printManager.print(printJobName, printAdapter, PrintAttributes.Builder().build())
     }
 
     private fun onDetallleClick(pedido: Pedido) {
@@ -187,7 +362,9 @@ class MisPedidosAdapter(
     private val fmt: NumberFormat,
     private val onCancelar: (Pedido) -> Unit,
     private val onDetalle: (Pedido) -> Unit,
-    private val onChat: (Int) -> Unit
+<<<<<<< HEAD
+    private val onChat: (Int) -> Unit,
+    private val onTicket: (Pedido) -> Unit
 ) : RecyclerView.Adapter<MisPedidosAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
@@ -196,8 +373,9 @@ class MisPedidosAdapter(
         val tvDir: TextView     = view.findViewById(R.id.tvPedidoDireccion)
         val tvTotal: TextView   = view.findViewById(R.id.tvPedidoTotal)
         val tvEstado: TextView  = view.findViewById(R.id.tvPedidoEstado)
-        val btnCancelar: Button = view.findViewById(R.id.btnCancelarPedido)
+        val btnCancelar: Button  = view.findViewById(R.id.btnCancelarPedido)
         val btnChat: ImageButton = view.findViewById(R.id.btnChatPedido)
+        val btnTicket: Button    = view.findViewById(R.id.btnTicketPedido)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
@@ -224,6 +402,11 @@ class MisPedidosAdapter(
         h.tvEstado.text = label
         h.tvEstado.setTextColor(color)
 
+        // Botón Ticket siempre visible
+        h.btnTicket.visibility = View.VISIBLE
+        h.btnTicket.setOnClickListener { onTicket(p) }
+
+        // Solo PENDIENTE puede cancelarse
         if (p.estado == "PENDIENTE") {
             h.btnCancelar.visibility = View.VISIBLE
             h.btnCancelar.setOnClickListener { onCancelar(p) }
@@ -231,7 +414,13 @@ class MisPedidosAdapter(
             h.btnCancelar.visibility = View.GONE
         }
 
-        h.btnChat.setOnClickListener { onChat(p.id_pedido) }
+        // Botón Chat siempre visible (excepto cancelados/entregados)
+        if (p.estado != "CANCELADO" && p.estado != "ENTREGADO") {
+            h.btnChat.visibility = View.VISIBLE
+            h.btnChat.setOnClickListener { onChat(p.id_pedido) }
+        } else {
+            h.btnChat.visibility = View.GONE
+        }
 
         h.itemView.setOnClickListener { onDetalle(p) }
     }
