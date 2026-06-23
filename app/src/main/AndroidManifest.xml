@@ -81,6 +81,8 @@
         <activity android:name=".ui.PruebasActivity" android:exported="false" />
 
         <activity android:name=".ui.RecoveryActivity" android:exported="false" />
+        <activity android:name=".ui.ConfirmarPedidoActivity" android:exported="false" />
+        <activity android:name=".ui.ChatActivity" android:exported="false" />
 
         <!-- Orbix UI Activities -->
         <activity android:name=".ui.MainOrbixActivity" android:exported="false" />

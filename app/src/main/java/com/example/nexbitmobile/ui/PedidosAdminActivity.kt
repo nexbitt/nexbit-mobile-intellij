@@ -7,8 +7,10 @@ import android.print.PrintManager
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.graphics.Color
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -33,7 +35,8 @@ class PedidosAdminActivity : AppCompatActivity() {
     private lateinit var fabAdd: FloatingActionButton
 
     private var usuariosList = listOf<Usuario>()
-    private val estados = arrayOf("PENDIENTE", "CONFIRMADO", "ASIGNADO", "EN_CAMINO", "PAGADO", "ENTREGADO", "CANCELADO")
+    private val estados = arrayOf("PENDIENTE", "CONFIRMADO", "EN_REVISION", "APROBADO", "ASIGNADO", "EN_CAMINO", "ENTREGADO", "CANCELADO")
+    private var filterEstado: String? = null
 
     // Referencia al WebView para impresión (debe mantenerse para que no sea recolectada por el GC)
     private var printWebView: WebView? = null
@@ -64,7 +67,17 @@ class PedidosAdminActivity : AppCompatActivity() {
         fabAdd = findViewById(R.id.fabAdd)
 
         if (isClienteView) {
-            fabAdd.hide() // Ocultar añadir pedido para el cliente
+            fabAdd.hide()
+        } else {
+            fabAdd.show()
+            // Add filter button to toolbar for admin view
+            val filterButton = ImageButton(this).apply {
+                setImageResource(android.R.drawable.ic_menu_sort_by_size)
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                setPadding(8, 8, 8, 8)
+                setOnClickListener { showFilterDialog() }
+            }
+            toolbar.addView(filterButton, 600, 600)
         }
 
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -98,13 +111,18 @@ class PedidosAdminActivity : AppCompatActivity() {
         ApiClient.instance.getPedidos().enqueue(object : Callback<List<Pedido>> {
             override fun onResponse(call: Call<List<Pedido>>, response: Response<List<Pedido>>) {
                 if (response.isSuccessful) {
-                    val todos = response.body() ?: emptyList()
-                    val filtrados = if (isClienteView) {
-                        todos.filter { it.usuario_id == userId }
+                    var todos = response.body() ?: emptyList()
+                    if (isClienteView) {
+                        todos = todos.filter { it.usuario_id == userId }
+                    }
+                    val filtrados = if (filterEstado != null) {
+                        todos.filter { it.estado == filterEstado }
                     } else {
                         todos
                     }
                     adapter.updateData(filtrados)
+                    val title = if (filterEstado != null) "Pedidos ($filterEstado)" else "Pedidos (Admin)"
+                    supportActionBar?.title = title
                 } else {
                     Toast.makeText(this@PedidosAdminActivity, "Error al cargar pedidos", Toast.LENGTH_SHORT).show()
                 }
@@ -113,6 +131,24 @@ class PedidosAdminActivity : AppCompatActivity() {
                 Toast.makeText(this@PedidosAdminActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun showFilterDialog() {
+        val opciones = arrayOf("Todos", "PENDIENTE", "CONFIRMADO", "EN_REVISION", "APROBADO", "ASIGNADO", "EN_CAMINO", "ENTREGADO", "CANCELADO")
+        val seleccion = when (filterEstado) {
+            null -> 0
+            else -> opciones.indexOfFirst { it == filterEstado }
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Filtrar por estado")
+            .setSingleChoiceItems(opciones, if (seleccion >= 0) seleccion else 0) { dialog, which ->
+                filterEstado = if (which == 0) null else opciones[which]
+                dialog.dismiss()
+                loadPedidos()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun showCreateDialog() {
