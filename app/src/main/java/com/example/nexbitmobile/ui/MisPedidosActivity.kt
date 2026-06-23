@@ -5,12 +5,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.print.PrintAttributes
 import android.print.PrintManager
-<<<<<<< HEAD
-=======
-import android.util.Log
->>>>>>> origin/main
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -104,17 +101,11 @@ class MisPedidosActivity : AppCompatActivity() {
                     else {
                         llEmpty.visibility = View.GONE
                         rvPedidos.visibility = View.VISIBLE
-<<<<<<< HEAD
                         rvPedidos.adapter = MisPedidosAdapter(
                             pedidos, formatter,
                             ::onCancelarClick, ::onDetallleClick,
                             ::onSubirComprobanteClick, ::onReintentarClick, ::descargarTicket
-                        )
-=======
-<<<<<<< HEAD
-                        rvPedidos.adapter = MisPedidosAdapter(pedidos, formatter, ::onCancelarClick, ::onDetallleClick, ::abrirChat, ::onTicketClick)
->>>>>>> origin/main
-                    }
+                        )                    }
                 } else {
                     Toast.makeText(this@MisPedidosActivity, "Error al cargar pedidos (${response.code()})", Toast.LENGTH_SHORT).show()
                     showEmpty()
@@ -158,8 +149,6 @@ class MisPedidosActivity : AppCompatActivity() {
             }
         })
     }
-
-    private var printWebView: WebView? = null
 
     private fun onTicketClick(pedido: Pedido) {
         ApiClient.instance.getPedidoTicket(pedido.id_pedido).enqueue(object : Callback<Pedido> {
@@ -368,15 +357,9 @@ class MisPedidosActivity : AppCompatActivity() {
             }
         }
 
-<<<<<<< HEAD
-        val builder = AlertDialog.Builder(this)
-=======
-        val dialog = AlertDialog.Builder(this)
->>>>>>> origin/main
-            .setTitle("Detalle del Pedido")
+        val builder = AlertDialog.Builder(this)            .setTitle("Detalle del Pedido")
             .setView(scrollView)
             .setPositiveButton("Cerrar", null)
-<<<<<<< HEAD
 
         if (pedido.estado == "PENDIENTE") {
             builder.setNeutralButton("Cancelar Pedido") { _, _ -> onCancelarClick(pedido) }
@@ -414,136 +397,9 @@ class MisPedidosActivity : AppCompatActivity() {
     }
 
     private fun descargarTicket(pedido: Pedido) {
-        generarHtmlYPdf(pedido)
+        onTicketClick(pedido)
     }
 
-    private fun generarHtmlYPdf(pedido: Pedido) {
-        val detalles = pedido.detalles ?: emptyList()
-        val filasProductos = if (detalles.isNotEmpty()) {
-            detalles.joinToString("") { d ->
-                """
-                <tr>
-                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;">${d.producto_nombre}</td>
-                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${d.cantidad}</td>
-                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;">${"$"}${d.precio_unitario}</td>
-                    <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:right;">${"$"}${d.subtotal}</td>
-                </tr>
-                """
-            }
-        } else {
-            "<tr><td colspan='4' style='padding:12px;text-align:center;color:#94a3b8;'>Este pedido no tiene productos detallados</td></tr>"
-        }
-
-        val htmlContent = """
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8"/>
-                <title>Comprobante de Pedido - #${pedido.id_pedido}</title>
-                <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body { font-family: sans-serif; background: #e2e8f0; padding: 40px 20px; color: #1e293b; }
-                    .ticket { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 4px; overflow: hidden; border-top: 6px solid #0f172a; }
-                    .ticket-header { padding: 32px 32px 16px; display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; }
-                    .ticket-header .brand { font-size: 1.75rem; font-weight: 700; color: #0f172a; }
-                    .ticket-header .doc-type { font-size: 0.85rem; color: #64748b; text-transform: uppercase; }
-                    .ticket-header .order-id { text-align: right; }
-                    .ticket-header .order-id-value { font-size: 1.25rem; font-weight: 700; color: #0f172a; }
-                    .ticket-body { padding: 32px; }
-                    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; background: #f8fafc; padding: 20px; border-radius: 6px; }
-                    .info-item label { display: block; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 6px; }
-                    .info-item span { font-size: 0.95rem; font-weight: 500; color: #0f172a; }
-                    table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
-                    thead th { border-bottom: 2px solid #e2e8f0; padding: 12px; font-size: 0.8rem; text-transform: uppercase; color: #64748b; }
-                    tbody td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; }
-                    .total-row.final { border-top: 2px solid #0f172a; padding-top: 16px; display: flex; justify-content: space-between; }
-                    .total-row.final .label { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
-                    .total-row.final .amount { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
-                </style>
-            </head>
-            <body>
-                <div class="ticket">
-                    <div class="ticket-header">
-                        <div>
-                            <div class="brand">Nexbit</div>
-                            <div class="doc-type">Comprobante de Pedido</div>
-                        </div>
-                        <div class="order-id">
-                            <div class="order-id-value">${String.format("%06d", pedido.id_pedido)}</div>
-                        </div>
-                    </div>
-                    <div class="ticket-body">
-                        <div class="info-grid">
-                            <div class="info-item"><label>Cliente</label><span>${pedido.usuario_nombre ?: "N/A"}</span></div>
-                            <div class="info-item"><label>Estado</label><span>${pedido.estado}</span></div>
-                        </div>
-                        <table>
-                            <thead><tr><th>Producto</th><th>Cant</th><th>P.Unit</th><th>Subtotal</th></tr></thead>
-                            <tbody>$filasProductos</tbody>
-                        </table>
-                        <div class="total-row final">
-                            <span class="label">Total</span>
-                            <span class="amount">${"$"}${pedido.total}</span>
-                        </div>
-                    </div>
-                </div>
-            </body>
-            </html>
-        """.trimIndent()
-
-        doWebViewPrint(htmlContent)
-    }
-
-    private fun doWebViewPrint(htmlContent: String) {
-        val webView = WebView(this)
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                createWebPrintJob(view)
-                printWebView = null
-            }
-        }
-        webView.loadDataWithBaseURL(null, htmlContent, "text/HTML", "UTF-8", null)
-        printWebView = webView
-    }
-
-    private fun createWebPrintJob(webView: WebView) {
-        val printManager = getSystemService(PRINT_SERVICE) as PrintManager
-        val printAdapter = webView.createPrintDocumentAdapter("Pedido_Nexbit")
-        val printJobName = getString(R.string.app_name) + " Document"
-        printManager.print(printJobName, printAdapter, PrintAttributes.Builder().build())
-=======
-            .create()
-
-        dialog.setOnShowListener {
-            val aceptar = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-            if (pedido.estado == "PENDIENTE") {
-                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancelar Pedido") { _, _ ->
-                    onCancelarClick(pedido)
-                }
-            }
-
-            if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
-                dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Subir Comprobante") { _, _ ->
-                    val intent = Intent(this@MisPedidosActivity, ConfirmarPedidoActivity::class.java)
-                    intent.putExtra("pedido_id", pedido.id_pedido)
-                    startActivity(intent)
-                }
-            }
-
-            if (pedido.estado != "CANCELADO" && pedido.estado != "ENTREGADO") {
-                val chatLabel = if (pedido.estado == "PENDIENTE") "Chat" else "Chat"
-                dialog.setButton(android.content.DialogInterface.BUTTON3, chatLabel) { _, _ ->
-                    val intent = Intent(this@MisPedidosActivity, ChatActivity::class.java)
-                    intent.putExtra("pedido_id", pedido.id_pedido)
-                    startActivity(intent)
-                }
-            }
-        }
-
-        dialog.show()
->>>>>>> origin/main
-    }
 }
 
 // ─── Adapter interno ──────────────────────────────────────────────────────────
@@ -553,16 +409,9 @@ class MisPedidosAdapter(
     private val fmt: NumberFormat,
     private val onCancelar: (Pedido) -> Unit,
     private val onDetalle: (Pedido) -> Unit,
-<<<<<<< HEAD
     private val onSubirComprobante: (Pedido) -> Unit,
     private val onReintentar: (Pedido) -> Unit,
-    private val onDescargarTicket: (Pedido) -> Unit
-=======
-<<<<<<< HEAD
-    private val onChat: (Int) -> Unit,
-    private val onTicket: (Pedido) -> Unit
->>>>>>> origin/main
-) : RecyclerView.Adapter<MisPedidosAdapter.VH>() {
+    private val onDescargarTicket: (Pedido) -> Unit) : RecyclerView.Adapter<MisPedidosAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val tvId: TextView      = view.findViewById(R.id.tvPedidoId)
@@ -570,18 +419,11 @@ class MisPedidosAdapter(
         val tvDir: TextView     = view.findViewById(R.id.tvPedidoDireccion)
         val tvTotal: TextView   = view.findViewById(R.id.tvPedidoTotal)
         val tvEstado: TextView  = view.findViewById(R.id.tvPedidoEstado)
-<<<<<<< HEAD
         val btnCancelar: Button = view.findViewById(R.id.btnCancelarPedido)
         val btnSubirComprobante: Button = view.findViewById(R.id.btnSubirComprobante)
         val btnReintentar: Button = view.findViewById(R.id.btnReintentar)
         val btnDescargarTicket: Button = view.findViewById(R.id.btnDescargarTicket)
-        val ivProductoImage: ImageView = view.findViewById(R.id.ivProductoImage)
-=======
-        val btnCancelar: Button  = view.findViewById(R.id.btnCancelarPedido)
-        val btnChat: ImageButton = view.findViewById(R.id.btnChatPedido)
-        val btnTicket: Button    = view.findViewById(R.id.btnTicketPedido)
->>>>>>> origin/main
-    }
+        val ivProductoImage: ImageView = view.findViewById(R.id.ivProductoImage)    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
         VH(LayoutInflater.from(parent.context).inflate(R.layout.item_pedido_cliente, parent, false))
@@ -608,8 +450,7 @@ class MisPedidosAdapter(
         h.tvEstado.setTextColor(color)
 
         // Botón Ticket siempre visible
-        h.btnTicket.visibility = View.VISIBLE
-        h.btnTicket.setOnClickListener { onTicket(p) }
+        h.btnDescargarTicket.visibility = View.VISIBLE
 
         // Solo PENDIENTE puede cancelarse
         if (p.estado == "PENDIENTE") {
@@ -619,7 +460,6 @@ class MisPedidosAdapter(
             h.btnCancelar.visibility = View.GONE
         }
 
-<<<<<<< HEAD
         // Subir comprobante (solo PENDIENTE)
         h.btnSubirComprobante.visibility = if (p.estado == "PENDIENTE") View.VISIBLE else View.GONE
         h.btnSubirComprobante.setOnClickListener { onSubirComprobante(p) }
@@ -641,16 +481,7 @@ class MisPedidosAdapter(
                     .placeholder(R.drawable.ic_placeholder)
                     .centerCrop()
                     .into(h.ivProductoImage)
-            }
-=======
-        // Botón Chat siempre visible (excepto cancelados/entregados)
-        if (p.estado != "CANCELADO" && p.estado != "ENTREGADO") {
-            h.btnChat.visibility = View.VISIBLE
-            h.btnChat.setOnClickListener { onChat(p.id_pedido) }
-        } else {
-            h.btnChat.visibility = View.GONE
->>>>>>> origin/main
-        }
+            }        }
 
         h.itemView.setOnClickListener { onDetalle(p) }
     }

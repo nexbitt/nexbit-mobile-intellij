@@ -6,23 +6,6 @@
     android:orientation="vertical"
     android:background="@color/bg_page">
 
-<<<<<<< HEAD
-    <EditText
-        android:id="@+id/etSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="10dp"
-        android:hint="Buscar repartidores..."
-        android:background="@drawable/bg_search_bar"
-        android:textSize="14sp"
-        android:maxLines="1"
-        android:inputType="text"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:textColorHint="@color/text_light" />
-=======
     <include
         layout="@layout/include_crud_header"
         android:layout_width="match_parent"
@@ -47,7 +30,6 @@
             android:drawablePadding="8dp"
             android:textColorHint="@color/text_light" />
     </LinearLayout>
->>>>>>> origin/main
 
     <TextView
         android:id="@+id/tvEmpty"
@@ -68,7 +50,6 @@
         android:padding="12dp"
         android:clipToPadding="false"
         android:visibility="gone" />
-<<<<<<< HEAD
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
@@ -80,6 +61,4 @@
         android:tint="@color/on_secondary"
         app:backgroundTint="@color/secondary"
         app:fabSize="mini" />
-=======
->>>>>>> origin/main
 </LinearLayout>

@@ -218,11 +218,8 @@ class MainOrbixActivity : AppCompatActivity() {
         MenuItem("Pedidos", R.drawable.ic_icon_orders, "pedidos_admin"),
         MenuItem("Productos", R.drawable.ic_icon_products, "productos_admin"),
         MenuItem("Categorías", R.drawable.ic_filter_orbix, "categorias_admin"),
-<<<<<<< HEAD
 
         MenuItem("Clientes", android.R.drawable.ic_menu_my_calendar, "clientes_admin"),
-=======
->>>>>>> origin/main
         MenuItem("Usuarios", android.R.drawable.ic_menu_myplaces, "usuarios_admin"),
         MenuItem("Proveedores", android.R.drawable.ic_menu_send, "proveedores_admin"),
         MenuItem("Repartidores", android.R.drawable.ic_menu_directions, "repartidores_admin"),
@@ -781,19 +778,19 @@ class MainOrbixActivity : AppCompatActivity() {
     }
 
     private fun loadHomeStats(root: View) {
-        val tvStatsProducts = root.findViewById<TextView>(R.id.tvStatsProducts)
-        val tvStatsOrders = root.findViewById<TextView>(R.id.tvStatsOrders)
-        val tvStatsClients = root.findViewById<TextView>(R.id.tvStatsClients)
-        val tvStatsCategories = root.findViewById<TextView>(R.id.tvStatsCategories)
+        val statValue1 = root.findViewById<TextView>(R.id.statValue1)
+        val statValue2 = root.findViewById<TextView>(R.id.statValue2)
+        val statValue3 = root.findViewById<TextView>(R.id.statValue3)
+        val statValue4 = root.findViewById<TextView>(R.id.statValue4)
 
         ApiClient.instance.getStats().enqueue(object : Callback<StatsResponse> {
             override fun onResponse(call: Call<StatsResponse>, response: Response<StatsResponse>) {
                 if (response.isSuccessful) {
                     val stats = response.body() ?: return
-                    tvStatsProducts?.text = stats.productos.toString()
-                    tvStatsOrders?.text = stats.pedidos.toString()
-                    tvStatsClients?.text = stats.clientes.toString()
-                    tvStatsCategories?.text = stats.categorias.toString()
+                    statValue1?.text = stats.productos.toString()
+                    statValue2?.text = stats.pedidos.toString()
+                    statValue3?.text = stats.clientes.toString()
+                    statValue4?.text = stats.categorias.toString()
                 }
             }
             override fun onFailure(call: Call<StatsResponse>, t: Throwable) {}

@@ -3,10 +3,7 @@ package com.example.nexbitmobile.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-<<<<<<< HEAD
 import android.view.ViewGroup
-=======
->>>>>>> origin/main
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -368,97 +365,6 @@ class PerfilActivity : AppCompatActivity() {
                     Toast.makeText(this@PerfilActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
                 }
             })
-<<<<<<< HEAD
-=======
-        } else {
-            tvLoadingStatus.text = "No se encontró ID de usuario"
-            tvLoadingStatus.setTextColor(resources.getColor(R.color.error_text, theme))
-        }
-
-        findViewById<Button>(R.id.btnSaveProfile).setOnClickListener {
-            val nombre = etNombre.text.toString().trim()
-            val email = etCorreo.text.toString().trim()
-
-            if (nombre.isEmpty() || email.isEmpty()) {
-                Toast.makeText(this, "Nombre y correo son obligatorios", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val req = UsuarioUpdateRequest(
-                nombre = nombre,
-                email = email,
-                tipo_documento = etDocType.text.toString().trim().takeIf { it.isNotEmpty() },
-                numero_documento = etDocNum.text.toString().trim().takeIf { it.isNotEmpty() },
-                telefono = etTelefono.text.toString().trim().takeIf { it.isNotEmpty() },
-                direccion = etDireccion.text.toString().trim().takeIf { it.isNotEmpty() }
-            )
-
-            if (currentUserId != 0) {
-                ApiClient.instance.updateUsuario(currentUserId, req).enqueue(object : Callback<Usuario> {
-                    override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
-                        if (response.isSuccessful) {
-                            val u = response.body()
-                            if (u != null) {
-                                prefs.edit()
-                                    .putString("userName", u.nombre)
-                                    .putString("userEmail", u.email)
-                                    .putString("userDocType", u.tipo_documento)
-                                    .putString("userDocNum", u.numero_documento)
-                                    .putString("userPhone", u.telefono)
-                                    .putString("userAddress", u.direccion)
-                                    .apply()
-
-                                tvHeaderName.text = u.nombre
-                                tvHeaderEmail.text = u.email
-                                if (u.nombre.isNotEmpty()) {
-                                    tvAvatarInitial.text = u.nombre.first().uppercase()
-                                }
-                            }
-                            Toast.makeText(this@PerfilActivity, "Perfil actualizado con éxito!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            val errorMsg = when (response.code()) {
-                                400 -> "Datos inválidos"
-                                409 -> "El correo ya está en uso"
-                                else -> "Error al actualizar (${response.code()})"
-                            }
-                            Toast.makeText(this@PerfilActivity, errorMsg, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    override fun onFailure(call: Call<Usuario>, t: Throwable) {
-                        Toast.makeText(this@PerfilActivity, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            } else {
-                Toast.makeText(this, "No se encontró ID de usuario. Vuelve a iniciar sesión.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // ─── Idioma / Language Toggle ───────────────────────────────────────
-        val switchLang = findViewById<Switch>(R.id.switchLang)
-        val tvLangLabel = findViewById<TextView>(R.id.tvLangLabel)
-        val tvLangSub = findViewById<TextView>(R.id.tvLangSub)
-
-        val isSpanish = LanguageHelper.isSpanish(this)
-        switchLang.isChecked = !isSpanish
-        tvLangLabel.text = if (isSpanish) "Idioma / Language" else "Language / Idioma"
-        tvLangSub.text = if (isSpanish) "Español" else "English"
-
-        switchLang.setOnCheckedChangeListener { _, isChecked ->
-            val newLocale = if (isChecked) "en" else "es"
-            LanguageHelper.setLocale(this, newLocale)
-            tvLangLabel.text = if (isChecked) "Language / Idioma" else "Idioma / Language"
-            tvLangSub.text = if (isChecked) "English" else "Español"
-            Toast.makeText(this, if (isChecked) "Language changed to English" else "Idioma cambiado a Español", Toast.LENGTH_SHORT).show()
-        }
-
-        // ─── Logout ─────────────────────────────────────────────────────────
-        findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            prefs.edit().clear().apply()
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
->>>>>>> origin/main
         }
     }
 }

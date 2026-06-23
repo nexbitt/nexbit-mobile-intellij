@@ -60,10 +60,7 @@ class SplashActivity : AppCompatActivity() {
     private fun routeByRole(rolId: Int) {
         val intent: Intent = when (rolId) {
             1 -> Intent(this, MainOrbixActivity::class.java)
-<<<<<<< HEAD
-=======
             2 -> Intent(this, ClientMainActivity::class.java)
->>>>>>> origin/main
             4 -> Intent(this, EntregasActivity::class.java)
             else -> Intent(this, CatalogoActivity::class.java)
         }

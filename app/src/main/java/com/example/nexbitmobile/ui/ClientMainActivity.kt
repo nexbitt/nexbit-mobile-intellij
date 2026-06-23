@@ -654,11 +654,18 @@ class ClientMainActivity : AppCompatActivity() {
                                         }
                                         dialog.show()
                                     },
-                                    onChat = { pedidoId ->
-                                        val intent = Intent(this@ClientMainActivity, ChatActivity::class.java).apply {
-                                            putExtra("pedidoId", pedidoId)
-                                        }
+                                    onSubirComprobante = { pedido ->
+                                        val intent = Intent(this@ClientMainActivity, ConfirmarPedidoActivity::class.java)
+                                        intent.putExtra("pedido_id", pedido.id_pedido)
                                         startActivity(intent)
+                                    },
+                                    onReintentar = { pedido ->
+                                        val intent = Intent(this@ClientMainActivity, ConfirmarPedidoActivity::class.java)
+                                        intent.putExtra("pedido_id", pedido.id_pedido)
+                                        startActivity(intent)
+                                    },
+                                    onDescargarTicket = { pedido ->
+                                        Toast.makeText(this@ClientMainActivity, "Ticket: #${pedido.id_pedido}", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             }

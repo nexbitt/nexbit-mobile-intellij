@@ -114,14 +114,9 @@ class LoginActivity : AppCompatActivity() {
     private fun routeByRole(rolId: Int, userName: String) {
         val intent = when (rolId) {
             1 -> Intent(this, MainOrbixActivity::class.java)
-<<<<<<< HEAD
-            4 -> Intent(this, EntregasActivity::class.java)
-            else -> Intent(this, CatalogoActivity::class.java)
-=======
             2 -> Intent(this, ClientMainActivity::class.java)
             4 -> Intent(this, EntregasActivity::class.java)
             else -> Intent(this, ClientMainActivity::class.java)
->>>>>>> origin/main
         }
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

@@ -77,326 +77,322 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
+        <LinearLayout
             android:id="@+id/tabContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
-            android:padding="16dp" />
-=======
             android:orientation="vertical">
 
             <!-- HEADER CON GRADIENTE -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_header_gradient"
-            android:padding="24dp"
-            android:paddingTop="40dp"
-            android:paddingBottom="32dp">
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:background="@drawable/bg_header_gradient"
+                android:padding="24dp"
+                android:paddingTop="40dp"
+                android:paddingBottom="32dp">
 
-                <!-- Icono avatar circular -->
-                <FrameLayout
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:layout_marginBottom="12dp">
-                    <View
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <!-- Icono avatar circular -->
+                    <FrameLayout
                         android:layout_width="72dp"
                         android:layout_height="72dp"
-                        android:background="@drawable/bg_status_badge" />
+                        android:layout_marginBottom="12dp">
+                        <View
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:background="@drawable/bg_status_badge" />
+                        <TextView
+                            android:id="@+id/tvAvatarInitial"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="U"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary"/>
+                    </FrameLayout>
+
                     <TextView
-                        android:id="@+id/tvAvatarInitial"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text="U"
-                        android:textSize="28sp"
+                        android:id="@+id/tvHeaderName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cargando..."
+                        android:textSize="22sp"
                         android:textStyle="bold"
-                        android:textColor="@color/primary"/>
-                </FrameLayout>
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="4dp"/>
 
-                <TextView
-                    android:id="@+id/tvHeaderName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cargando..."
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="4dp"/>
+                    <TextView
+                        android:id="@+id/tvHeaderEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="14sp"
+                        android:textColor="#d1d5db"/>
 
-                <TextView
-                    android:id="@+id/tvHeaderEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="14sp"
-                    android:textColor="#d1d5db"/>
+                    <!-- Badge de estado -->
+                    <TextView
+                        android:id="@+id/tvStatusBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_status_badge"
+                        android:text="● Conectado"
+                        android:textSize="12sp"
+                        android:textColor="#16A34A"/>
+                </LinearLayout>
+            </RelativeLayout>
 
-                <!-- Badge de estado -->
-                <TextView
-                    android:id="@+id/tvStatusBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_status_badge"
-                    android:text="● Conectado"
-                    android:textSize="12sp"
-                    android:textColor="#16A34A"/>
-            </LinearLayout>
-        </RelativeLayout>
-
-        <!-- CONTENIDO -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <!-- Loading indicator text -->
-            <TextView
-                android:id="@+id/tvLoadingStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sincronizando con el servidor..."
-                android:textSize="13sp"
-                android:textColor="@color/primary"
-                android:gravity="center"
-                android:layout_marginBottom="12dp"
-                android:visibility="visible"/>
-
-            <!-- CARD: DATOS DEL USUARIO -->
+            <!-- CONTENIDO -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_card_elevated"
-                android:padding="20dp"
-                android:elevation="6dp"
-                android:layout_marginBottom="16dp">
+                android:padding="20dp">
 
+                <!-- Loading indicator text -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvLoadingStatus"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Información Personal"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:text="Sincronizando con el servidor..."
+                    android:textSize="13sp"
                     android:textColor="@color/primary"
-                    android:layout_marginBottom="16dp"/>
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="visible"/>
 
-                <!-- Nombre -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nombre Completo"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="4dp"/>
-                <EditText
-                    android:id="@+id/etProfileName"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_input_focused"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:layout_marginBottom="14dp"
-                    android:textSize="15sp"
-                    android:hint="Ej: Juan Pérez"/>
-
-                <!-- Correo -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Correo Electrónico"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="4dp"/>
-                <EditText
-                    android:id="@+id/etProfileEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_input_focused"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:layout_marginBottom="14dp"
-                    android:inputType="textEmailAddress"
-                    android:textSize="15sp"
-                    android:hint="correo@ejemplo.com"/>
-
-                <!-- Documento: tipo + numero en fila -->
+                <!-- CARD: DATOS DEL USUARIO -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="14dp">
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_card_elevated"
+                    android:padding="20dp"
+                    android:elevation="6dp"
+                    android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginEnd="6dp">
-                        <TextView
-                            android:layout_width="wrap_content"
+                        android:text="Información Personal"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Nombre -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre Completo"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="4dp"/>
+                    <EditText
+                        android:id="@+id/etProfileName"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_input_focused"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:layout_marginBottom="14dp"
+                        android:textSize="15sp"
+                        android:hint="Ej: Juan Pérez"/>
+
+                    <!-- Correo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Correo Electrónico"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="4dp"/>
+                    <EditText
+                        android:id="@+id/etProfileEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_input_focused"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:layout_marginBottom="14dp"
+                        android:inputType="textEmailAddress"
+                        android:textSize="15sp"
+                        android:hint="correo@ejemplo.com"/>
+
+                    <!-- Documento: tipo + numero en fila -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="14dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Tipo Doc."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"
-                            android:layout_marginBottom="4dp"/>
-                        <EditText
-                            android:id="@+id/etProfileDocType"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_input_focused"
-                            android:paddingStart="14dp"
-                            android:paddingEnd="14dp"
-                            android:textSize="15sp"
-                            android:hint="CC, NIT..."/>
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="6dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tipo Doc."
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                android:layout_marginBottom="4dp"/>
+                            <EditText
+                                android:id="@+id/etProfileDocType"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:background="@drawable/bg_input_focused"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="14dp"
+                                android:textSize="15sp"
+                                android:hint="CC, NIT..."/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:orientation="vertical"
+                            android:layout_marginStart="6dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Número Doc."
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                android:layout_marginBottom="4dp"/>
+                            <EditText
+                                android:id="@+id/etProfileDocNum"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:background="@drawable/bg_input_focused"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="14dp"
+                                android:inputType="number"
+                                android:textSize="15sp"
+                                android:hint="12345678"/>
+                        </LinearLayout>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <!-- Teléfono -->
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
-                        android:orientation="vertical"
-                        android:layout_marginStart="6dp">
-                        <TextView
-                            android:layout_width="wrap_content"
+                        android:text="Teléfono"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="4dp"/>
+                    <EditText
+                        android:id="@+id/etProfilePhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_input_focused"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:layout_marginBottom="14dp"
+                        android:inputType="phone"
+                        android:textSize="15sp"
+                        android:hint="Ej: 300 123 4567"/>
+
+                    <!-- Dirección -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dirección"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="4dp"/>
+                    <EditText
+                        android:id="@+id/etProfileAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_input_focused"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:layout_marginBottom="20dp"
+                        android:textSize="15sp"
+                        android:hint="Ej: Calle 123 #45-67"/>
+
+                    <!-- Botón guardar -->
+                    <Button
+                        android:id="@+id/btnSaveProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="Guardar Cambios"
+                        android:background="@drawable/bg_btn_primary"
+                        android:textColor="@color/white"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <!-- CARD: IDIOMA -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_card_elevated"
+                    android:padding="20dp"
+                    android:elevation="6dp"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Número Doc."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp"
-                            android:layout_marginBottom="4dp"/>
-                        <EditText
-                            android:id="@+id/etProfileDocNum"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_input_focused"
-                            android:paddingStart="14dp"
-                            android:paddingEnd="14dp"
-                            android:inputType="number"
-                            android:textSize="15sp"
-                            android:hint="12345678"/>
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvLangLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Idioma / Language"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/primary" />
+                            <TextView
+                                android:id="@+id/tvLangSub"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Español"
+                                android:textSize="13sp"
+                                android:textColor="@color/text_secondary" />
+                        </LinearLayout>
+
+                        <Switch
+                            android:id="@+id/switchLang"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Teléfono -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Teléfono"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="4dp"/>
-                <EditText
-                    android:id="@+id/etProfilePhone"
+                <!-- Botón cerrar sesión -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_input_focused"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:layout_marginBottom="14dp"
-                    android:inputType="phone"
-                    android:textSize="15sp"
-                    android:hint="Ej: 300 123 4567"/>
-
-                <!-- Dirección -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dirección"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="4dp"/>
-                <EditText
-                    android:id="@+id/etProfileAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_input_focused"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:layout_marginBottom="20dp"
-                    android:textSize="15sp"
-                    android:hint="Ej: Calle 123 #45-67"/>
-
-                <!-- Botón guardar -->
-                <Button
-                    android:id="@+id/btnSaveProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text="Guardar Cambios"
-                    android:background="@drawable/bg_btn_primary"
+                    android:text="Cerrar Sesión"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/badge_red"
                     android:textColor="@color/white"
                     android:textAllCaps="false"
-                    android:textSize="15sp"/>
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"/>
+
             </LinearLayout>
-
-            <!-- CARD: IDIOMA -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card_elevated"
-                android:padding="20dp"
-                android:elevation="6dp"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/tvLangLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Idioma / Language"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/primary" />
-                        <TextView
-                            android:id="@+id/tvLangSub"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Español"
-                            android:textSize="13sp"
-                            android:textColor="@color/text_secondary" />
-                    </LinearLayout>
-
-                    <Switch
-                        android:id="@+id/switchLang"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Botón cerrar sesión -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogout"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="Cerrar Sesión"
-                app:cornerRadius="8dp"
-                app:backgroundTint="@color/badge_red"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:textSize="14sp"
-                android:layout_marginTop="8dp"/>
-
         </LinearLayout>
-        </LinearLayout>
->>>>>>> origin/main
     </ScrollView>
 </LinearLayout>
