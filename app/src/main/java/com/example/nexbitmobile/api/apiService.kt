@@ -2,8 +2,8 @@ package com.example.nexbitmobile.api
 
 import retrofit2.Call
 import retrofit2.http.*
-import com.example.nexbitmobile.model.*
 
+import com.example.nexbitmobile.model.*
 interface ApiService {
 
     @POST("usuarios/login")
@@ -120,6 +120,9 @@ interface ApiService {
 
     @PUT("pedidos/{id}")
     fun updatePedido(@Path("id") id: Int, @Body request: PedidoRequest): Call<Void>
+
+    @PUT("pedidos/{id}")
+    fun updatePedidoDireccion(@Path("id") id: Int, @Body request: PedidoDireccionUpdate): Call<Void>
 
     @PUT("pedidos/{id}/cancelar")
     fun cancelarPedido(@Path("id") id: Int): Call<Void>

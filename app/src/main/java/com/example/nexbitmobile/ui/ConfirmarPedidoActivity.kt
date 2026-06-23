@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,6 +16,7 @@ import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.Banco
 import com.example.nexbitmobile.model.Pedido
+import com.example.nexbitmobile.model.PedidoDireccionUpdate
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -39,6 +41,7 @@ class ConfirmarPedidoActivity : AppCompatActivity() {
     private lateinit var tvOrderTotal: TextView
     private lateinit var tvOrderDate: TextView
     private lateinit var tvOrderAddress: TextView
+    private lateinit var btnEditAddress: TextView
     private lateinit var tvReceiptStatus: TextView
     private lateinit var ivReceiptPreview: ImageView
     private lateinit var btnUploadReceipt: Button
@@ -90,6 +93,7 @@ class ConfirmarPedidoActivity : AppCompatActivity() {
         tvOrderTotal = findViewById(R.id.tvOrderTotal)
         tvOrderDate = findViewById(R.id.tvOrderDate)
         tvOrderAddress = findViewById(R.id.tvOrderAddress)
+        btnEditAddress = findViewById(R.id.btnEditAddress)
         tvReceiptStatus = findViewById(R.id.tvReceiptStatus)
         ivReceiptPreview = findViewById(R.id.ivReceiptPreview)
         btnUploadReceipt = findViewById(R.id.btnUploadReceipt)
@@ -107,6 +111,32 @@ class ConfirmarPedidoActivity : AppCompatActivity() {
                 uploadReceipt()
             } else {
                 selectImageLauncher.launch("image/*")
+            }
+        }
+
+        btnEditAddress.setOnClickListener {
+            pedido?.let { p ->
+                val input = EditText(this).apply {
+                    hint = "Ej: Calle 45 #12-34, Bogotá"
+                    inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                    maxLines = 3
+                    setPadding(48, 32, 48, 16)
+                    setText(p.direccion_entrega ?: "")
+                }
+
+                AlertDialog.Builder(this)
+                    .setTitle("Cambiar dirección de entrega")
+                    .setView(input)
+                    .setPositiveButton("Guardar") { _, _ ->
+                        val nuevaDireccion = input.text.toString().trim()
+                        if (nuevaDireccion.isNotEmpty()) {
+                            actualizarDireccionPedido(p.id_pedido, nuevaDireccion)
+                        } else {
+                            Toast.makeText(this, "La dirección no puede estar vacía", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
             }
         }
     }
@@ -139,7 +169,34 @@ class ConfirmarPedidoActivity : AppCompatActivity() {
         tvOrderDate.text = "Fecha: ${pedido.fecha_pedido?.take(16)?.replace("T", " ") ?: pedido.fecha.take(16).replace("T", " ")}"
         tvOrderAddress.text = "Dirección: ${pedido.direccion_entrega ?: "No especificada"}"
 
+        // Mostrar botón editar dirección solo si el pedido puede modificarse
+        btnEditAddress.visibility = if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") View.VISIBLE else View.GONE
+
         updateReceiptStatus(pedido.estado)
+    }
+
+    private fun actualizarDireccionPedido(pedidoId: Int, nuevaDireccion: String) {
+        progressBar.visibility = View.VISIBLE
+
+        val request = PedidoDireccionUpdate(direccion_entrega = nuevaDireccion)
+
+        ApiClient.instance.updatePedidoDireccion(pedidoId, request).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                progressBar.visibility = View.GONE
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ConfirmarPedidoActivity, "Dirección actualizada", Toast.LENGTH_SHORT).show()
+                    loadPedido()
+                } else {
+                    val msg = response.errorBody()?.string() ?: "Error al actualizar dirección"
+                    Toast.makeText(this@ConfirmarPedidoActivity, msg, Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                progressBar.visibility = View.GONE
+                Toast.makeText(this@ConfirmarPedidoActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun updateReceiptStatus(estado: String) {

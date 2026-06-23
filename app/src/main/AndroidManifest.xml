@@ -40,6 +40,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.MisDireccionesActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.PerfilActivity"
             android:exported="false" />
 

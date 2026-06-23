@@ -42,7 +42,7 @@ class ClientProfileActivity : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.rowDirecciones).setOnClickListener {
-            startActivity(Intent(this, PerfilActivity::class.java))
+            startActivity(Intent(this, MisDireccionesActivity::class.java))
         }
 
         findViewById<LinearLayout>(R.id.rowFacturas).setOnClickListener {
