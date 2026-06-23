@@ -11,6 +11,7 @@ data class Pedido(
     val fecha_pedido: String?,
     val direccion_entrega: String? = null,
     val notas_entrega: String? = null,
+    val comprobante_pago_url: String? = null,
     val detalles: List<PedidoDetalle>? = null
 )
 
@@ -42,3 +43,5 @@ data class CheckoutResponse(
     val message: String,
     val id_pedido: Int
 )
+
+

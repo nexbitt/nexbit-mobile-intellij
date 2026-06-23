@@ -22,6 +22,9 @@ class NexbitApplication : Application() {
                     .error(R.drawable.ic_placeholder)
             )
         )
+
+        // Connect Socket.IO for real-time notifications
+        com.example.nexbitmobile.api.SocketManager.connect()
     }
 
     companion object {

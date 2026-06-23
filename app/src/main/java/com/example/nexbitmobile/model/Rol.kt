@@ -10,3 +10,8 @@ data class RolUpdateRequest(
     val nombre: String,
     val descripcion: String?
 )
+
+data class JsonResponse(
+    val message: String?,
+    val id_rol: Int?
+)

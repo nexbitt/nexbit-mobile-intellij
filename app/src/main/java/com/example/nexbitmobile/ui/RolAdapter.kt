@@ -3,7 +3,6 @@ package com.example.nexbitmobile.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -17,7 +16,7 @@ class RolAdapter(
     class RolViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvDescripcion: TextView = view.findViewById(R.id.tvDescripcion)
-        val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
+        val btnEdit: View = view.findViewById(R.id.btnEdit)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RolViewHolder {

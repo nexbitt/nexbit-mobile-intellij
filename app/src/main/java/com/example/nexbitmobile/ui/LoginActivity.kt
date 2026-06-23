@@ -12,6 +12,7 @@ import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
+import com.example.nexbitmobile.api.SocketManager
 import com.example.nexbitmobile.model.LoginRequest
 import com.example.nexbitmobile.model.LoginResponse
 import retrofit2.Call
@@ -84,8 +85,10 @@ class LoginActivity : AppCompatActivity() {
                             .putString("userPhone", loginResponse?.user?.telefono)
                             .putString("userAddress", loginResponse?.user?.direccion)
                             .putString("token", loginResponse?.token)
+                            .putString("userRole", loginResponse?.user?.rol_nombre)
                             .apply()
 
+                        SocketManager.connect()
                         routeByRole(loginResponse?.user?.rol_id ?: 2, loginResponse?.user?.nombre ?: "")
                     } else {
                         showFieldError(etEmail, etPassword, tvMessage, "Credenciales incorrectas")
@@ -111,8 +114,14 @@ class LoginActivity : AppCompatActivity() {
     private fun routeByRole(rolId: Int, userName: String) {
         val intent = when (rolId) {
             1 -> Intent(this, MainOrbixActivity::class.java)
+<<<<<<< HEAD
             4 -> Intent(this, EntregasActivity::class.java)
             else -> Intent(this, CatalogoActivity::class.java)
+=======
+            2 -> Intent(this, ClientMainActivity::class.java)
+            4 -> Intent(this, EntregasActivity::class.java)
+            else -> Intent(this, ClientMainActivity::class.java)
+>>>>>>> origin/main
         }
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

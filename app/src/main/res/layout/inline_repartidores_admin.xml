@@ -6,6 +6,7 @@
     android:orientation="vertical"
     android:background="@color/bg_page">
 
+<<<<<<< HEAD
     <EditText
         android:id="@+id/etSearch"
         android:layout_width="match_parent"
@@ -21,6 +22,32 @@
         android:drawableStart="@android:drawable/ic_menu_search"
         android:drawablePadding="8dp"
         android:textColorHint="@color/text_light" />
+=======
+    <include
+        layout="@layout/include_crud_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="4dp">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_search_bar"
+            android:hint="Buscar por nombre o email..."
+            android:paddingHorizontal="16dp"
+            android:textSize="13sp"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp"
+            android:textColorHint="@color/text_light" />
+    </LinearLayout>
+>>>>>>> origin/main
 
     <TextView
         android:id="@+id/tvEmpty"
@@ -41,6 +68,7 @@
         android:padding="12dp"
         android:clipToPadding="false"
         android:visibility="gone" />
+<<<<<<< HEAD
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"
@@ -52,4 +80,6 @@
         android:tint="@color/on_secondary"
         app:backgroundTint="@color/secondary"
         app:fabSize="mini" />
+=======
+>>>>>>> origin/main
 </LinearLayout>

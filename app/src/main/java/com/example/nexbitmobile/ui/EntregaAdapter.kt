@@ -13,8 +13,9 @@ import com.example.nexbitmobile.model.PedidoRepartidor
 class EntregaAdapter(
     private var entregas: List<PedidoRepartidor>,
     private val onVerMapaClick: (PedidoRepartidor) -> Unit,
-    private val onConfirmarClick: (PedidoRepartidor) -> Unit,
-    private val onItemClick: (PedidoRepartidor) -> Unit
+    private val onAccionClick: (PedidoRepartidor) -> Unit,
+    private val onItemClick: (PedidoRepartidor) -> Unit,
+    private val onReportarProblemaClick: ((PedidoRepartidor) -> Unit)? = null
 ) : RecyclerView.Adapter<EntregaAdapter.EntregaViewHolder>() {
 
     class EntregaViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -24,7 +25,7 @@ class EntregaAdapter(
         val tvTotalEntrega: TextView = view.findViewById(R.id.tvTotalEntrega)
         val tvEstadoEntrega: TextView = view.findViewById(R.id.tvEstadoEntrega)
         val btnVerMapa: ImageButton = view.findViewById(R.id.btnVerMapa)
-        val btnConfirmarEntrega: ImageButton = view.findViewById(R.id.btnConfirmarEntrega)
+        val btnAccion: TextView = view.findViewById(R.id.btnAccion)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntregaViewHolder {
@@ -35,43 +36,53 @@ class EntregaAdapter(
 
     override fun onBindViewHolder(holder: EntregaViewHolder, position: Int) {
         val entrega = entregas[position]
-        
+
         holder.tvIdEntrega.text = "Pedido #${entrega.id_pedido}"
         holder.tvClienteEntrega.text = "Destino: ${entrega.cliente?.nombre ?: "Cliente"}"
         holder.tvDireccionEntrega.text = "Dirección: ${entrega.direccion_entrega ?: "No especificada"}"
         holder.tvTotalEntrega.text = "Total: $${String.format("%,.2f", entrega.total)}"
         holder.tvEstadoEntrega.text = entrega.estado
 
-        // Color según el estado y comportamiento del botón confirmar
         when (entrega.estado) {
-            "CONFIRMADO", "PENDIENTE" -> {
+            "PENDIENTE", "CONFIRMADO", "APROBADO" -> {
                 holder.tvEstadoEntrega.text = "DISPONIBLE"
-                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#8b5cf6")) // Morado
-                holder.btnConfirmarEntrega.visibility = View.VISIBLE
+                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#8b5cf6"))
+                holder.btnAccion.visibility = View.VISIBLE
+                holder.btnAccion.text = "Tomar Pedido"
+                holder.btnAccion.setBackgroundColor(Color.parseColor("#111827"))
             }
             "ASIGNADO" -> {
                 holder.tvEstadoEntrega.text = "ASIGNADO"
-                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#3b82f6")) // Azul
-                holder.btnConfirmarEntrega.visibility = View.VISIBLE
+                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#3b82f6"))
+                holder.btnAccion.visibility = View.VISIBLE
+                holder.btnAccion.text = "Iniciar Ruta"
+                holder.btnAccion.setBackgroundColor(Color.parseColor("#111827"))
             }
             "EN_CAMINO" -> {
                 holder.tvEstadoEntrega.text = "EN CAMINO"
-                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#f59e0b")) // Naranja/Amarillo
-                holder.btnConfirmarEntrega.visibility = View.VISIBLE
+                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#f59e0b"))
+                holder.btnAccion.visibility = View.VISIBLE
+                holder.btnAccion.text = "Finalizar Entrega"
+                holder.btnAccion.setBackgroundColor(Color.parseColor("#10b981"))
             }
             "ENTREGADO" -> {
                 holder.tvEstadoEntrega.text = "ENTREGADO"
-                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#10b981")) // Verde
-                holder.btnConfirmarEntrega.visibility = View.GONE
+                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#10b981"))
+                holder.btnAccion.visibility = View.GONE
+            }
+            "CANCELADO" -> {
+                holder.tvEstadoEntrega.text = "CANCELADO"
+                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#ef4444"))
+                holder.btnAccion.visibility = View.GONE
             }
             else -> {
-                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#64748b")) // Gris
-                holder.btnConfirmarEntrega.visibility = View.GONE
+                holder.tvEstadoEntrega.setTextColor(Color.parseColor("#64748b"))
+                holder.btnAccion.visibility = View.GONE
             }
         }
 
         holder.btnVerMapa.setOnClickListener { onVerMapaClick(entrega) }
-        holder.btnConfirmarEntrega.setOnClickListener { onConfirmarClick(entrega) }
+        holder.btnAccion.setOnClickListener { onAccionClick(entrega) }
         holder.itemView.setOnClickListener { onItemClick(entrega) }
     }
 

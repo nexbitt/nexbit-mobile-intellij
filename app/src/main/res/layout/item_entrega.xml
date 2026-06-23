@@ -1,44 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                   xmlns:app="http://schemas.android.com/apk/res-auto"
-                                   android:layout_width="match_parent"
-                                   android:layout_height="wrap_content"
-                                   android:layout_margin="8dp"
-                                   app:cardCornerRadius="12dp"
-                                   app:cardElevation="3dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-            <TextView
+                <TextView
                     android:id="@+id/tvIdEntrega"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Entrega #1042"
+                    android:text="Pedido #1042"
                     android:textColor="#0f172a"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tvClienteEntrega"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:text="Destino: Carlos Mendoza"
                     android:textColor="#475569"
-                    android:textSize="14sp"
-                    android:layout_marginTop="2dp"/>
+                    android:textSize="14sp" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tvDireccionEntrega"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -46,48 +51,49 @@
                     android:textColor="#64748b"
                     android:textSize="13sp" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tvTotalEntrega"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:text="Total: $0.00"
                     android:textColor="#0f172a"
                     android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="2dp" />
+                    android:textStyle="bold" />
 
-            <TextView
+                <TextView
                     android:id="@+id/tvEstadoEntrega"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
                     android:text="EN RUTA"
                     android:textColor="#3b82f6"
                     android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="6dp" />
+                    android:textStyle="bold" />
 
-        </LinearLayout>
-
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            </LinearLayout>
 
             <ImageButton
-                    android:id="@+id/btnVerMapa"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_compass"
-                    android:tint="#3b82f6" />
-
-            <ImageButton
-                    android:id="@+id/btnConfirmarEntrega"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_input_add"
-                    android:tint="#10b981" />
+                android:id="@+id/btnVerMapa"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_compass"
+                android:tint="#3b82f6" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnAccion"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:background="#111827"
+            android:gravity="center"
+            android:text="Tomar Pedido"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

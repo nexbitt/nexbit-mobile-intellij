@@ -42,6 +42,7 @@ class SplashActivity : AppCompatActivity() {
                         .putInt("rolId", user?.rol_id ?: 0)
                         .putString("userName", user?.nombre)
                         .putString("userEmail", user?.email)
+                        .putString("userRole", user?.rol_nombre)
                         .apply()
 
                     routeByRole(user?.rol_id ?: 2)
@@ -59,6 +60,10 @@ class SplashActivity : AppCompatActivity() {
     private fun routeByRole(rolId: Int) {
         val intent: Intent = when (rolId) {
             1 -> Intent(this, MainOrbixActivity::class.java)
+<<<<<<< HEAD
+=======
+            2 -> Intent(this, ClientMainActivity::class.java)
+>>>>>>> origin/main
             4 -> Intent(this, EntregasActivity::class.java)
             else -> Intent(this, CatalogoActivity::class.java)
         }
@@ -67,7 +72,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun goToCatalog() {
-        startActivity(Intent(this, CatalogoActivity::class.java))
+        startActivity(Intent(this, ClientMainActivity::class.java))
         finish()
     }
 }

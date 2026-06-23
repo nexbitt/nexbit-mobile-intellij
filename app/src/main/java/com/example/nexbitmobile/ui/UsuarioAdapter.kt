@@ -3,7 +3,6 @@ package com.example.nexbitmobile.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -20,8 +19,8 @@ class UsuarioAdapter(
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvEmail: TextView = view.findViewById(R.id.tvEmail)
         val tvRol: TextView = view.findViewById(R.id.tvRol)
-        val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
-        val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
+        val btnEdit: View = view.findViewById(R.id.btnEdit)
+        val btnDelete: View = view.findViewById(R.id.btnDelete)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UsuarioViewHolder {

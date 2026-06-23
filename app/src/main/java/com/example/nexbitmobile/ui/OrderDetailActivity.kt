@@ -1,16 +1,21 @@
 package com.example.nexbitmobile.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
+import com.example.nexbitmobile.model.GestionPedidoRequest
 import com.example.nexbitmobile.model.Pedido
 import retrofit2.Call
 import retrofit2.Callback
@@ -69,13 +74,16 @@ class OrderDetailActivity : AppCompatActivity() {
         val tax = (pedido.total * 0.19).toInt()
         findViewById<TextView>(R.id.tvTax).text = format.format(tax)
 
+        findViewById<View>(R.id.btnViewTicket).setOnClickListener {
+            val intent = Intent(this, TicketActivity::class.java)
+            intent.putExtra("pedido_id", pedidoId)
+            startActivity(intent)
+        }
         findViewById<Button>(R.id.btnAcceptOrder).setOnClickListener {
-            Toast.makeText(this, "Pedido #${pedido.id_pedido} aceptado", Toast.LENGTH_SHORT).show()
-            finish()
+            showAcceptConfirmDialog(pedido)
         }
         findViewById<Button>(R.id.btnRejectOrder).setOnClickListener {
-            Toast.makeText(this, "Pedido #${pedido.id_pedido} rechazado", Toast.LENGTH_SHORT).show()
-            finish()
+            showRejectDialog(pedido)
         }
 
         val container = findViewById<LinearLayout>(R.id.orderItemsContainer)
@@ -97,5 +105,64 @@ class OrderDetailActivity : AppCompatActivity() {
 
             container.addView(itemView)
         }
+    }
+
+    private fun showAcceptConfirmDialog(pedido: Pedido) {
+        AlertDialog.Builder(this)
+            .setTitle("Aceptar Pedido #${pedido.id_pedido}")
+            .setMessage("¿Confirmas la aceptación de este pedido?")
+            .setPositiveButton("Aceptar") { _, _ ->
+                gestionarPedido(pedido.id_pedido, "ACEPTAR", null)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun showRejectDialog(pedido: Pedido) {
+        val input = EditText(this).apply {
+            hint = "Motivo del rechazo"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            maxLines = 3
+            setPadding(48, 32, 48, 16)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Rechazar Pedido #${pedido.id_pedido}")
+            .setMessage("Indica el motivo del rechazo:")
+            .setView(input)
+            .setPositiveButton("Rechazar") { _, _ ->
+                val motivo = input.text.toString().trim()
+                if (motivo.isEmpty()) {
+                    Toast.makeText(this, "Debes indicar un motivo", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                gestionarPedido(pedido.id_pedido, "RECHAZAR", motivo)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun gestionarPedido(pedidoId: Int, accion: String, motivo: String?) {
+        val request = GestionPedidoRequest(accion = accion, motivo = motivo)
+        ApiClient.instance.gestionarPedido(pedidoId, request).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    val msg = when (accion) {
+                        "ACEPTAR" -> "Pedido #$pedidoId aceptado con éxito"
+                        "RECHAZAR" -> "Pedido #$pedidoId rechazado"
+                        else -> "Pedido #$pedidoId gestionado"
+                    }
+                    Toast.makeText(this@OrderDetailActivity, msg, Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    val error = response.errorBody()?.string() ?: "Error al gestionar pedido"
+                    Toast.makeText(this@OrderDetailActivity, error, Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(this@OrderDetailActivity, "Error de conexión: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

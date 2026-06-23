@@ -3,7 +3,6 @@ package com.example.nexbitmobile.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -18,8 +17,8 @@ class ProveedorAdapter(
     class ProveedorViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvProveedorNombre: TextView = view.findViewById(R.id.tvProveedorNombre)
         val tvProveedorNit: TextView = view.findViewById(R.id.tvProveedorNit)
-        val btnEditProveedor: ImageButton = view.findViewById(R.id.btnEditProveedor)
-        val btnDeleteProveedor: ImageButton = view.findViewById(R.id.btnDeleteProveedor)
+        val btnEditProveedor: View = view.findViewById(R.id.btnEditProveedor)
+        val btnDeleteProveedor: View = view.findViewById(R.id.btnDeleteProveedor)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProveedorViewHolder {
