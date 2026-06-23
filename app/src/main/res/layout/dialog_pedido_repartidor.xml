@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvDialogTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Detalle Pedido #X"
+        android:textColor="#111827"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Información General -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="INFORMACIÓN GENERAL"
+        android:textColor="#6B7280"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvDialogGeneral"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F3F4F6"
+        android:padding="12dp"
+        android:textColor="#374151"
+        android:textSize="13sp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Productos -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PRODUCTOS"
+        android:textColor="#6B7280"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvDialogProductos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F3F4F6"
+        android:padding="12dp"
+        android:textColor="#374151"
+        android:textSize="13sp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Cambiar Estado -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CAMBIAR ESTADO"
+        android:textColor="#6B7280"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <Spinner
+            android:id="@+id/spCambiarEstado"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_crud_input"
+            android:paddingHorizontal="12dp" />
+
+        <TextView
+            android:id="@+id/btnActualizarEstado"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:paddingHorizontal="20dp"
+            android:gravity="center"
+            android:text="Actualizar"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_btn_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <!-- Cerrar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/btnCerrarDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:paddingHorizontal="24dp"
+            android:gravity="center"
+            android:text="Cerrar"
+            android:textColor="#111827"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_btn_cancel"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground" />
+    </LinearLayout>
+</LinearLayout>

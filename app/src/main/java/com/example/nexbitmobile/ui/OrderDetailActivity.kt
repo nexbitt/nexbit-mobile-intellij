@@ -1,7 +1,9 @@
 package com.example.nexbitmobile.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -72,6 +74,11 @@ class OrderDetailActivity : AppCompatActivity() {
         val tax = (pedido.total * 0.19).toInt()
         findViewById<TextView>(R.id.tvTax).text = format.format(tax)
 
+        findViewById<View>(R.id.btnViewTicket).setOnClickListener {
+            val intent = Intent(this, TicketActivity::class.java)
+            intent.putExtra("pedido_id", pedidoId)
+            startActivity(intent)
+        }
         findViewById<Button>(R.id.btnAcceptOrder).setOnClickListener {
             showAcceptConfirmDialog(pedido)
         }

@@ -11,21 +11,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <EditText
-        android:id="@+id/etSearch"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="10dp"
-        android:hint="Buscar productos..."
-        android:background="@drawable/bg_search_bar"
-        android:textSize="14sp"
-        android:maxLines="1"
-        android:inputType="text"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:textColorHint="@color/text_light" />
+        android:paddingBottom="4dp">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_search_bar"
+            android:hint="Buscar productos..."
+            android:paddingHorizontal="16dp"
+            android:textSize="13sp"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp"
+            android:textColorHint="@color/text_light" />
+    </LinearLayout>
+
+    <!-- Category filter chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/layoutCategoriaFilters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical" />
+    </HorizontalScrollView>
 
     <TextView
         android:id="@+id/tvEmpty"

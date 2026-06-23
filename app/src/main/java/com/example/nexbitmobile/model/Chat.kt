@@ -10,7 +10,9 @@ data class Conversacion(
     val usuario: UsuarioSimple?,
     val admin: UsuarioSimple?,
     val mensajes: List<Mensaje>? = null,
-    val mensajes_no_leidos: Int? = null
+    val mensajes_no_leidos: Int? = null,
+    val ultimo_mensaje: String? = null,
+    val no_leidos: Int? = null
 )
 
 data class UsuarioSimple(

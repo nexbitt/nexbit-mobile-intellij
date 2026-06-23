@@ -44,15 +44,4 @@ data class CheckoutResponse(
     val id_pedido: Int
 )
 
-data class RechazarPagoRequest(
-    val motivo: String
-)
 
-data class Banco(
-    val id_banco: Int,
-    val nombre_banco: String,
-    val titular: String,
-    val numero_cuenta: String,
-    val tipo_cuenta: String,
-    val nit: String? = null
-)

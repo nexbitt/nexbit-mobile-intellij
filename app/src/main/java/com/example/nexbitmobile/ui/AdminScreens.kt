@@ -1,10 +1,12 @@
 package com.example.nexbitmobile.ui
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -27,6 +29,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
     private var categoriasList = listOf<Categoria>()
     private var proveedoresList = listOf<Proveedor>()
     private var allProductos = listOf<Producto>()
+    private var selectedCategoriaId: Int? = null
     private var currentImageUri: Uri? = null
     private var currentImageView: ImageView? = null
     private var currentFlUpload: View? = null
@@ -53,9 +56,11 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         val btnAdd = root.findViewById<View>(R.id.btnAddHeader)
         val etSearch = root.findViewById<EditText>(R.id.etSearch)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+        val chipLayout = root.findViewById<LinearLayout>(R.id.layoutCategoriaFilters)
 
         root.findViewById<TextView>(R.id.tvSectionTitle).text = "Productos"
 
+        selectedCategoriaId = null
         rv.layoutManager = LinearLayoutManager(activity)
         val adapter = ProductoAdminAdapter(emptyList(),
             { p -> showEditDialog(p, rv, tvEmpty) },
@@ -63,33 +68,93 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         )
         rv.adapter = adapter
 
+        val aplicarFiltros = {
+            val query = etSearch.text.toString().trim().lowercase()
+            val filtered = allProductos.filter { p ->
+                val matchesSearch = query.isEmpty() ||
+                    p.nombre.lowercase().contains(query) ||
+                    (p.categoria_nombre?.lowercase()?.contains(query) == true)
+                val matchesCategoria = selectedCategoriaId == null || p.categoria_id == selectedCategoriaId
+                matchesSearch && matchesCategoria
+            }
+            adapter.updateData(filtered)
+            tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+            rv.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
+        }
+
         etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val query = etSearch.text.toString().trim().lowercase()
-                val filtered = if (query.isEmpty()) allProductos
-                else allProductos.filter { p ->
-                    p.nombre.lowercase().contains(query) ||
-                        (p.categoria_nombre?.lowercase()?.contains(query) == true)
-                }
-                (rv.adapter as ProductoAdminAdapter).updateData(filtered)
-                tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-                rv.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
-            }
+            override fun afterTextChanged(s: android.text.Editable?) { aplicarFiltros() }
         })
 
         btnAdd.setOnClickListener { showCreateDialog(rv, tvEmpty) }
 
-        loadCategorias()
+        loadCategorias(chipLayout, aplicarFiltros)
         loadProveedores()
-        loadProductos(rv, tvEmpty, adapter)
+        loadProductos(rv, tvEmpty, adapter, chipLayout, aplicarFiltros)
     }
 
-    private fun loadCategorias() {
+    private fun buildCategoriaChips(chipLayout: LinearLayout, aplicarFiltros: () -> Unit) {
+        chipLayout.removeAllViews()
+
+        val ctx = chipLayout.context
+
+        val chipTodos = TextView(ctx).apply {
+            text = "Todas"
+            setTextColor(ContextCompat.getColor(ctx, if (selectedCategoriaId == null) R.color.chip_selected_text else R.color.chip_text))
+            setBackgroundResource(if (selectedCategoriaId == null) R.drawable.bg_chip_selected else R.drawable.bg_chip)
+            setPadding(28, 0, 28, 0)
+            height = 32.dpToPx(ctx)
+            gravity = android.view.Gravity.CENTER
+            textSize = 12f
+            setTextAppearance(android.R.style.TextAppearance_Small)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            isClickable = true
+            isFocusable = true
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also { it.setMargins(0, 0, 6.dpToPx(ctx), 0) }
+            setOnClickListener {
+                selectedCategoriaId = null; aplicarFiltros(); buildCategoriaChips(chipLayout, aplicarFiltros)
+            }
+        }
+        chipLayout.addView(chipTodos)
+
+        for (cat in categoriasList) {
+            val isSelected = selectedCategoriaId == cat.id_categoria
+            val chip = TextView(ctx).apply {
+                text = cat.nombre
+                setTextColor(ContextCompat.getColor(ctx, if (isSelected) R.color.chip_selected_text else R.color.chip_text))
+                setBackgroundResource(if (isSelected) R.drawable.bg_chip_selected else R.drawable.bg_chip)
+                setPadding(28, 0, 28, 0)
+                height = 32.dpToPx(ctx)
+                gravity = android.view.Gravity.CENTER
+                textSize = 12f
+                setTextAppearance(android.R.style.TextAppearance_Small)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                isClickable = true
+                isFocusable = true
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.setMargins(0, 0, 6.dpToPx(ctx), 0) }
+                setOnClickListener {
+                    selectedCategoriaId = cat.id_categoria; aplicarFiltros(); buildCategoriaChips(chipLayout, aplicarFiltros)
+                }
+            }
+            chipLayout.addView(chip)
+        }
+    }
+
+    private fun loadCategorias(chipLayout: LinearLayout? = null, aplicarFiltros: (() -> Unit)? = null) {
         ApiClient.instance.getCategorias().enqueue(object : Callback<List<Categoria>> {
             override fun onResponse(call: Call<List<Categoria>>, response: Response<List<Categoria>>) {
-                if (response.isSuccessful) categoriasList = response.body() ?: emptyList()
+                if (response.isSuccessful) {
+                    categoriasList = response.body() ?: emptyList()
+                    chipLayout?.let { cl -> aplicarFiltros?.let { af -> buildCategoriaChips(cl, af) } }
+                }
             }
             override fun onFailure(call: Call<List<Categoria>>, t: Throwable) {}
         })
@@ -104,12 +169,12 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         })
     }
 
-    private fun loadProductos(rv: RecyclerView, tvEmpty: TextView, adapter: ProductoAdminAdapter) {
+    private fun loadProductos(rv: RecyclerView, tvEmpty: TextView, adapter: ProductoAdminAdapter, chipLayout: LinearLayout? = null, aplicarFiltros: (() -> Unit)? = null) {
         ApiClient.instance.getProductos().enqueue(object : Callback<List<Producto>> {
             override fun onResponse(call: Call<List<Producto>>, response: Response<List<Producto>>) {
                 if (response.isSuccessful) {
                     allProductos = response.body() ?: emptyList()
-                    adapter.updateData(allProductos)
+                    aplicarFiltros?.invoke()
                     rv.visibility = if (allProductos.isEmpty()) View.GONE else View.VISIBLE
                     tvEmpty.visibility = if (allProductos.isEmpty()) View.VISIBLE else View.GONE
                 }
@@ -493,8 +558,8 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         }
         when (activeFilter) {
             "Admin" -> filtered = filtered.filter { it.rol_id == 1 }
-            "Repartidor" -> filtered = filtered.filter { it.rol_id == 2 }
-            "Cliente" -> filtered = filtered.filter { it.rol_id == 3 }
+            "Repartidor" -> filtered = filtered.filter { it.rol_id == 4 }
+            "Cliente" -> filtered = filtered.filter { it.rol_id == 2 }
             "Activo" -> filtered = filtered.filter { it.activo }
             "Inactivo" -> filtered = filtered.filter { !it.activo }
         }
@@ -543,9 +608,9 @@ class AdminScreens(private val activity: MainOrbixActivity) {
                     Toast.makeText(activity, "Nombre, email y password obligatorios", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
-                val rolMap = mapOf(0 to 1, 1 to 2, 2 to 3)
+                val rolMap = mapOf(0 to 1, 1 to 4, 2 to 2)
                 ApiClient.instance.createUsuario(UsuarioCreateRequest(
-                    rol_id = rolMap[spRol.selectedItemPosition] ?: 3,
+                    rol_id = rolMap[spRol.selectedItemPosition] ?: 4,
                     nombre = nombre,
                     email = email,
                     password = password,
@@ -592,7 +657,8 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         etDireccion.setText(usuario.direccion ?: "")
 
         spRol.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Admin", "Repartidor", "Cliente"))
-        spRol.setSelection((usuario.rol_id - 1).coerceIn(0, 2))
+        val rolIndex = mapOf(1 to 0, 4 to 1, 2 to 2)[usuario.rol_id] ?: 2
+        spRol.setSelection(rolIndex)
         etPassword.visibility = View.GONE
 
         AlertDialog.Builder(activity)
@@ -605,7 +671,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
                     Toast.makeText(activity, "Nombre y email obligatorios", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
-                val rolMap = mapOf(0 to 1, 1 to 2, 2 to 3)
+                val rolMap = mapOf(0 to 1, 1 to 4, 2 to 2)
                 ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
                     nombre = nombre,
                     email = email,
@@ -727,44 +793,81 @@ class AdminScreens(private val activity: MainOrbixActivity) {
     fun showRepartidores(root: View) {
         val rv = root.findViewById<RecyclerView>(R.id.recyclerView)
         val tvEmpty = root.findViewById<TextView>(R.id.tvEmpty)
+        val etSearch = root.findViewById<EditText>(R.id.etSearch)
+        val btnAdd = root.findViewById<View>(R.id.btnAddHeader)
+
+        root.findViewById<TextView>(R.id.tvSectionTitle).text = "Repartidores"
 
         rv.layoutManager = LinearLayoutManager(activity)
-        lateinit var adapter: EntregaAdapter
-        adapter = EntregaAdapter(
+        lateinit var adapter: RepartidorAdminAdapter
+        adapter = RepartidorAdminAdapter(
             emptyList(),
-            onVerMapaClick = { pedido ->
-                Toast.makeText(activity, "Mapa: Pedido #${pedido.id_pedido}", Toast.LENGTH_SHORT).show()
+            onViewClick = { rep ->
+                val intent = Intent(activity, RepartidorDetailActivity::class.java)
+                intent.putExtra("repartidor_id", rep.id_usuario)
+                intent.putExtra("repartidor_nombre", rep.nombre)
+                intent.putExtra("repartidor_email", rep.email)
+                intent.putExtra("repartidor_telefono", rep.telefono ?: "")
+                intent.putExtra("repartidor_direccion", rep.direccion ?: "")
+                activity.startActivity(intent)
             },
-            onAccionClick = { pedido ->
-                ApiClient.instance.cambiarEstadoPedido(pedido.id_pedido, EstadoPedidoRequest("ENTREGADO", null))
-                    .enqueue(object : Callback<Void> {
-                        override fun onResponse(c: Call<Void>, res: Response<Void>) {
-                            if (res.isSuccessful) {
-                                Toast.makeText(activity, "Pedido #${pedido.id_pedido} entregado", Toast.LENGTH_SHORT).show()
-                                adapter.updateData(emptyList())
-                            }
-                        }
-                        override fun onFailure(c: Call<Void>, t: Throwable) {}
-                    })
-            },
-            onItemClick = { pedido ->
-                AlertDialog.Builder(activity).setTitle("Pedido #${pedido.id_pedido}")
-                    .setMessage("Estado: ${pedido.estado}\nCliente: ${pedido.cliente?.nombre ?: "N/A"}")
-                    .setPositiveButton("OK", null).show()
+            onDeleteClick = { rep ->
+                AlertDialog.Builder(activity)
+                    .setTitle("Eliminar Repartidor")
+                    .setMessage("¿Desactivar a ${rep.nombre}?")
+                    .setPositiveButton("Sí") { _, _ ->
+                        ApiClient.instance.updateUsuario(rep.id_usuario, UsuarioUpdateRequest(activo = false))
+                            .enqueue(object : Callback<Usuario> {
+                                override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                                    if (res.isSuccessful) {
+                                        Toast.makeText(activity, "Repartidor desactivado", Toast.LENGTH_SHORT).show()
+                                        cargarRepartidores(rv, tvEmpty, adapter, etSearch)
+                                    } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                                }
+                                override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                                    Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                    }
+                    .setNegativeButton("No", null).show()
             }
         )
         rv.adapter = adapter
 
-        ApiClient.instance.getPedidosSinAsignar().enqueue(object : Callback<List<PedidoRepartidor>> {
-            override fun onResponse(c: Call<List<PedidoRepartidor>>, res: Response<List<PedidoRepartidor>>) {
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                cargarRepartidores(rv, tvEmpty, adapter, etSearch)
+            }
+        })
+
+        btnAdd.setOnClickListener {
+            Toast.makeText(activity, "Usar menú Usuarios para crear repartidores", Toast.LENGTH_SHORT).show()
+        }
+
+        cargarRepartidores(rv, tvEmpty, adapter, etSearch)
+    }
+
+    private fun cargarRepartidores(rv: RecyclerView, tvEmpty: TextView, adapter: RepartidorAdminAdapter, etSearch: EditText) {
+        val query = etSearch.text.toString().trim().lowercase()
+        ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
+            override fun onResponse(c: Call<List<Usuario>>, res: Response<List<Usuario>>) {
                 if (res.isSuccessful) {
-                    val list = res.body() ?: emptyList()
-                    adapter.updateData(list)
-                    rv.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
-                    tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                    val todos = res.body() ?: emptyList()
+                    var repartidores = todos.filter { it.rol_id == 4 }
+                    if (query.isNotEmpty()) {
+                        repartidores = repartidores.filter {
+                            it.nombre.lowercase().contains(query) ||
+                                it.email.lowercase().contains(query)
+                        }
+                    }
+                    adapter.updateData(repartidores)
+                    rv.visibility = if (repartidores.isEmpty()) View.GONE else View.VISIBLE
+                    tvEmpty.visibility = if (repartidores.isEmpty()) View.VISIBLE else View.GONE
                 }
             }
-            override fun onFailure(c: Call<List<PedidoRepartidor>>, t: Throwable) {
+            override fun onFailure(c: Call<List<Usuario>>, t: Throwable) {
                 Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         })

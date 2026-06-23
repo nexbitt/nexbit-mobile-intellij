@@ -874,7 +874,7 @@ class MainOrbixActivity : AppCompatActivity() {
                             orientation = LinearLayout.VERTICAL
                         }
                         cardContent.addView(TextView(this@MainOrbixActivity).apply {
-                            text = "Pedido #${conv.pedido_id} - ${conv.usuario_nombre ?: "Cliente"}"
+                            text = "Pedido #${conv.pedido_id} - ${conv.usuario?.nombre ?: "Cliente"}"
                             textSize = 14f
                             setTypeface(null, android.graphics.Typeface.BOLD)
                             setTextColor(resources.getColor(R.color.text_main, theme))
@@ -944,9 +944,9 @@ class MainOrbixActivity : AppCompatActivity() {
             override fun onResponse(call: Call<VentaKpi>, response: Response<VentaKpi>) {
                 if (response.isSuccessful) {
                     val kpi = response.body() ?: return
-                    tvVentasIngresos.text = format.format(kpi.ingresos_totales)
-                    tvVentasTickets.text = "${kpi.total_tickets}"
-                    tvVentasPromedio.text = format.format(kpi.ticket_promedio)
+tvVentasIngresos.text = format.format(kpi.total_ingresos)
+tvVentasTickets.text = "${kpi.total_tickets}"
+tvVentasPromedio.text = format.format(kpi.promedio_ticket)
                 }
             }
             override fun onFailure(call: Call<VentaKpi>, t: Throwable) {}
@@ -958,7 +958,7 @@ class MainOrbixActivity : AppCompatActivity() {
                     val kpi = response.body() ?: return
                     tvInvProductos.text = "${kpi.total_productos}"
                     tvInvAgotados.text = "${kpi.agotados}"
-                    tvInvValor.text = format.format(kpi.valor_total_inventario)
+                    tvInvValor.text = format.format(kpi.valor_total_costo)
                 }
             }
             override fun onFailure(call: Call<InventarioKpi>, t: Throwable) {}

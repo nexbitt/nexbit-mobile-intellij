@@ -60,7 +60,8 @@ class SplashActivity : AppCompatActivity() {
     private fun routeByRole(rolId: Int) {
         val intent: Intent = when (rolId) {
             1 -> Intent(this, MainOrbixActivity::class.java)
-            3 -> Intent(this, EntregasActivity::class.java)
+            2 -> Intent(this, ClientMainActivity::class.java)
+            4 -> Intent(this, EntregasActivity::class.java)
             else -> Intent(this, CatalogoActivity::class.java)
         }
         startActivity(intent)
@@ -68,7 +69,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun goToCatalog() {
-        startActivity(Intent(this, CatalogoActivity::class.java))
+        startActivity(Intent(this, ClientMainActivity::class.java))
         finish()
     }
 }
