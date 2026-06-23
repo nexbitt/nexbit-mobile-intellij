@@ -69,7 +69,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun goToCatalog() {
-        startActivity(Intent(this, ClientMainActivity::class.java))
+        startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 }
