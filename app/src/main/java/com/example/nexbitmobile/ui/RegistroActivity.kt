@@ -1,6 +1,7 @@
 package com.example.nexbitmobile.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -21,6 +22,9 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RegistroActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "RegistroActivity"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -72,6 +76,16 @@ class RegistroActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!email.contains("@") || !email.contains(".")) {
+                Toast.makeText(this, "Ingresa un correo electrónico válido", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (password.length < 6) {
+                Toast.makeText(this, "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val request = UsuarioCreateRequest(
                 rol_id = 2,
                 nombre = nombre,
@@ -83,20 +97,26 @@ class RegistroActivity : AppCompatActivity() {
                 direccion = direccion
             )
 
+            Log.d(TAG, "Enviando registro: email=$email, nombre=$nombre")
             ApiClient.instance.registerUsuario(request).enqueue(object : Callback<UsuarioCreateResponse> {
                 override fun onResponse(call: Call<UsuarioCreateResponse>, response: Response<UsuarioCreateResponse>) {
                     if (response.isSuccessful) {
+                        Log.d(TAG, "Registro exitoso: ${response.body()}")
                         Toast.makeText(this@RegistroActivity, "Registro exitoso. Ahora inicia sesión.", Toast.LENGTH_LONG).show()
                         finish()
                     } else {
-                        Toast.makeText(this@RegistroActivity, "Error al registrar: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        val errorBody = response.errorBody()?.string() ?: "sin detalle"
+                        Log.e(TAG, "Error servidor ${response.code()}: $errorBody")
+                        Toast.makeText(this@RegistroActivity, "Error del servidor (${response.code()})", Toast.LENGTH_LONG).show()
                     }
                 }
 
                 override fun onFailure(call: Call<UsuarioCreateResponse>, t: Throwable) {
-                    Toast.makeText(this@RegistroActivity, "Error de red: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Error de red: ${t.message}", t)
+                    Toast.makeText(this@RegistroActivity, "Error de conexión: ${t.message}", Toast.LENGTH_LONG).show()
                 }
             })
         }
+        private const val TAG = "RegistroActivity"
     }
 }
