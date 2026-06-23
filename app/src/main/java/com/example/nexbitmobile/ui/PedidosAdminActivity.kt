@@ -1,19 +1,20 @@
 package com.example.nexbitmobile.ui
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.util.Log
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
@@ -25,15 +26,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PedidosAdminActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: PedidoAdminAdapter
     private lateinit var fabAdd: FloatingActionButton
+    private lateinit var chipToday: TextView
+    private lateinit var chipWeek: TextView
+    private lateinit var chipMonth: TextView
 
     private var usuariosList = listOf<Usuario>()
     private val estados = arrayOf("PENDIENTE", "CONFIRMADO", "ASIGNADO", "EN_CAMINO", "PAGADO", "ENTREGADO", "CANCELADO")
+    private var allPedidos = listOf<Pedido>()
+    private var currentDateFilter = "ALL"
 
     // Referencia al WebView para impresión (debe mantenerse para que no sea recolectada por el GC)
     private var printWebView: WebView? = null
@@ -62,9 +70,17 @@ class PedidosAdminActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerView)
         fabAdd = findViewById(R.id.fabAdd)
+        chipToday = findViewById(R.id.chipToday)
+        chipWeek = findViewById(R.id.chipWeek)
+        chipMonth = findViewById(R.id.chipMonth)
 
         if (isClienteView) {
-            fabAdd.hide() // Ocultar añadir pedido para el cliente
+            fabAdd.hide()
+            chipToday.visibility = View.GONE
+            chipWeek.visibility = View.GONE
+            chipMonth.visibility = View.GONE
+        } else {
+            setupChips()
         }
 
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -77,6 +93,23 @@ class PedidosAdminActivity : AppCompatActivity() {
             loadUsuarios()
         }
         loadPedidos()
+    }
+
+    private fun setupChips() {
+        val active = { chip: TextView ->
+            chip.setBackgroundResource(R.drawable.bg_chip_selected)
+            chip.setTextColor(ContextCompat.getColor(this, R.color.chip_selected_text))
+        }
+        val inactive = { chip: TextView ->
+            chip.setBackgroundResource(R.drawable.bg_chip)
+            chip.setTextColor(ContextCompat.getColor(this, R.color.chip_text))
+        }
+        val reset = { inactive(chipToday); inactive(chipWeek); inactive(chipMonth) }
+        reset(); active(chipToday)
+
+        chipToday.setOnClickListener { reset(); active(chipToday); currentDateFilter = "TODAY"; filterPedidos() }
+        chipWeek.setOnClickListener { reset(); active(chipWeek); currentDateFilter = "WEEK"; filterPedidos() }
+        chipMonth.setOnClickListener { reset(); active(chipMonth); currentDateFilter = "MONTH"; filterPedidos() }
     }
 
     private fun loadUsuarios() {
@@ -99,12 +132,12 @@ class PedidosAdminActivity : AppCompatActivity() {
             override fun onResponse(call: Call<List<Pedido>>, response: Response<List<Pedido>>) {
                 if (response.isSuccessful) {
                     val todos = response.body() ?: emptyList()
-                    val filtrados = if (isClienteView) {
+                    allPedidos = if (isClienteView) {
                         todos.filter { it.usuario_id == userId }
                     } else {
                         todos
                     }
-                    adapter.updateData(filtrados)
+                    filterPedidos()
                 } else {
                     Toast.makeText(this@PedidosAdminActivity, "Error al cargar pedidos", Toast.LENGTH_SHORT).show()
                 }
@@ -113,6 +146,27 @@ class PedidosAdminActivity : AppCompatActivity() {
                 Toast.makeText(this@PedidosAdminActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun filterPedidos() {
+        var filtered = allPedidos
+        if (!isClienteView && currentDateFilter != "ALL") {
+            val cal = Calendar.getInstance()
+            when (currentDateFilter) {
+                "TODAY" -> cal.add(Calendar.DAY_OF_YEAR, -1)
+                "WEEK" -> cal.add(Calendar.DAY_OF_YEAR, -7)
+                "MONTH" -> cal.add(Calendar.MONTH, -1)
+            }
+            val cutoff = cal.time
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            filtered = filtered.filter { p ->
+                try {
+                    val date = sdf.parse(p.fecha.take(10))
+                    date != null && date.after(cutoff)
+                } catch (e: Exception) { true }
+            }
+        }
+        adapter.updateData(filtered)
     }
 
     private fun showCreateDialog() {
@@ -161,56 +215,157 @@ class PedidosAdminActivity : AppCompatActivity() {
     }
 
     private fun showEditDialog(pedido: Pedido) {
-        val view = layoutInflater.inflate(R.layout.dialog_pedido, null)
-        val spUsuario = view.findViewById<Spinner>(R.id.spUsuario)
-        val etTotal = view.findViewById<EditText>(R.id.etTotal)
-        val etDireccionEntrega = view.findViewById<EditText>(R.id.etDireccionEntrega)
-        val etNotasEntrega = view.findViewById<EditText>(R.id.etNotasEntrega)
-        val spEstado = view.findViewById<Spinner>(R.id.spEstado)
-
-        val userNames = usuariosList.map { "${it.nombre} - ${it.numero_documento ?: ""}" }
-        spUsuario.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, userNames)
-        spEstado.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, estados)
-
-        // Set current values
-        val userIndex = usuariosList.indexOfFirst { it.id_usuario == pedido.usuario_id }
-        if (userIndex >= 0) {
-            spUsuario.setSelection(userIndex)
-            spUsuario.isEnabled = false // Disable changing user
+        val scrollView = ScrollView(this)
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(24, 24, 24, 24)
         }
-        
-        etTotal.setText(pedido.total.toString())
-        etDireccionEntrega.setText(pedido.direccion_entrega ?: "")
-        etNotasEntrega.setText(pedido.notas_entrega ?: "")
-        
-        val estadoIndex = estados.indexOf(pedido.estado)
-        if (estadoIndex >= 0) spEstado.setSelection(estadoIndex)
+        scrollView.addView(container)
 
-        AlertDialog.Builder(this)
-            .setTitle("Editar Pedido")
-            .setView(view)
-            .setPositiveButton("Actualizar") { _, _ ->
-                val request = PedidoRequest(
-                    usuario_id = pedido.usuario_id,
-                    total = etTotal.text.toString().toDoubleOrNull() ?: 0.0,
-                    estado = estados[spEstado.selectedItemPosition],
-                    direccion_entrega = etDireccionEntrega.text.toString(),
-                    notas_entrega = etNotasEntrega.text.toString()
-                )
+        // Info section
+        container.addView(TextView(this).apply {
+            text = "Pedido #${pedido.id_pedido}"
+            textSize = 18f; setTypeface(null, android.graphics.Typeface.BOLD)
+        })
+        container.addView(TextView(this).apply {
+            text = "Cliente: ${pedido.usuario_nombre ?: "N/A"}"
+            textSize = 14f; setTextColor(ContextCompat.getColor(this@PedidosAdminActivity, R.color.text_secondary))
+        })
+        container.addView(TextView(this).apply {
+            text = "Total: ${"$"}${String.format("%,.2f", pedido.total)}"
+            textSize = 14f; setTypeface(null, android.graphics.Typeface.BOLD)
+        })
+        container.addView(TextView(this).apply {
+            text = "Estado: ${pedido.estado}"
+            textSize = 14f
+        })
 
-                ApiClient.instance.updatePedido(pedido.id_pedido, request).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        Toast.makeText(this@PedidosAdminActivity, "Pedido actualizado", Toast.LENGTH_SHORT).show()
-                        loadPedidos()
+        // Timeline
+        if (!isClienteView) {
+            container.addView(TextView(this).apply {
+                text = "\nTimeline de cambios"
+                textSize = 16f; setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(0, 16, 0, 8)
+            })
+
+            val estadosTimeline = listOf("PENDIENTE", "CONFIRMADO", "ASIGNADO", "EN_CAMINO", "ENTREGADO")
+            val currentIdx = estadosTimeline.indexOf(pedido.estado)
+            for ((i, est) in estadosTimeline.withIndex()) {
+                val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL }
+                val dotColor = when {
+                    i < currentIdx -> ContextCompat.getColor(this@PedidosAdminActivity, R.color.success)
+                    i == currentIdx -> ContextCompat.getColor(this@PedidosAdminActivity, R.color.warning)
+                    else -> Color.parseColor("#E5E7EB")
+                }
+                val dot = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(12, 12).apply { marginEnd = 12 }
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL; setColor(dotColor)
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e("PedidosAdmin", "Update order failed", t)
-                        Toast.makeText(this@PedidosAdminActivity, "Error al actualizar pedido", Toast.LENGTH_SHORT).show()
+                }
+                row.addView(dot)
+                row.addView(TextView(this).apply {
+                    text = est; textSize = 14f
+                    setTypeface(null, if (i <= currentIdx) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                })
+                container.addView(row)
+            }
+
+            // Action buttons for payment
+            if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
+                val btnRow = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = 16 }
+                }
+
+                btnRow.addView(Button(this).apply {
+                    text = "Aprobar Pago"
+                    setTextColor(Color.WHITE)
+                    setBackgroundColor(ContextCompat.getColor(this@PedidosAdminActivity, R.color.success))
+                    layoutParams = LinearLayout.LayoutParams(0, 48, 1f).apply { marginEnd = 8 }
+                    setOnClickListener {
+                        cambiarEstadoPedido(pedido.id_pedido, "PAGADO")
                     }
                 })
+
+                btnRow.addView(Button(this).apply {
+                    text = "Rechazar Pago"
+                    setTextColor(Color.WHITE)
+                    setBackgroundColor(ContextCompat.getColor(this@PedidosAdminActivity, R.color.error_text))
+                    layoutParams = LinearLayout.LayoutParams(0, 48, 1f)
+                    setOnClickListener {
+                        val input = EditText(this@PedidosAdminActivity).apply { hint = "Motivo del rechazo" }
+                        AlertDialog.Builder(this@PedidosAdminActivity)
+                            .setTitle("Rechazar Pago")
+                            .setView(input)
+                            .setPositiveButton("Rechazar") { _, _ ->
+                                cambiarEstadoPedido(pedido.id_pedido, "CANCELADO")
+                            }
+                            .setNegativeButton("Cancelar", null)
+                            .show()
+                    }
+                })
+                container.addView(btnRow)
             }
-            .setNegativeButton("Cancelar", null)
+
+            container.addView(Button(this).apply {
+                text = "Chatear"
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    48
+                ).apply { topMargin = 8 }
+                setOnClickListener {
+                    Toast.makeText(this@PedidosAdminActivity, "Chat próximamente", Toast.LENGTH_SHORT).show()
+                }
+            })
+
+            container.addView(Button(this).apply {
+                text = "Ver Comprobante"
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    48
+                ).apply { topMargin = 8 }
+                setOnClickListener {
+                    Toast.makeText(this@PedidosAdminActivity, "Comprobante próximamente", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Detalle del Pedido")
+            .setView(scrollView)
+            .setPositiveButton("Cerrar", null)
             .show()
+    }
+
+    private fun cambiarEstadoPedido(pedidoId: Int, nuevoEstado: String) {
+        val request = PedidoRequest(
+            usuario_id = 0,
+            total = 0.0,
+            estado = nuevoEstado,
+            direccion_entrega = null,
+            notas_entrega = null
+        )
+        ApiClient.instance.updatePedido(pedidoId, request).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@PedidosAdminActivity, "Estado actualizado a $nuevoEstado", Toast.LENGTH_SHORT).show()
+                    loadPedidos()
+                } else {
+                    Toast.makeText(this@PedidosAdminActivity, "Error (${response.code()})", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(this@PedidosAdminActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun deletePedido(pedido: Pedido) {

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Timeline 3 pasos -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/dialogStep1"
+                android:layout_width="0dp"
+                android:layout_height="28dp"
+                android:layout_weight="1"
+                android:text="ASIGNADO"
+                android:textSize="9sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:background="@drawable/bg_chip_selected" />
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="2dp"
+                android:background="@color/primary"
+                android:layout_marginHorizontal="2dp" />
+
+            <TextView
+                android:id="@+id/dialogStep2"
+                android:layout_width="0dp"
+                android:layout_height="28dp"
+                android:layout_weight="1"
+                android:text="EN CAMINO"
+                android:textSize="9sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:background="@drawable/bg_chip" />
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="2dp"
+                android:background="@color/primary"
+                android:layout_marginHorizontal="2dp" />
+
+            <TextView
+                android:id="@+id/dialogStep3"
+                android:layout_width="0dp"
+                android:layout_height="28dp"
+                android:layout_weight="1"
+                android:text="ENTREGADO"
+                android:textSize="9sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:background="@drawable/bg_chip" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/dialogPedidoId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pedido #1234"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary" />
+
+        <TextView
+            android:id="@+id/dialogCliente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cliente: Juan Pérez"
+            android:textSize="14sp"
+            android:textColor="@color/text_main"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/dialogDireccion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dirección: Calle 123"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/dialogNotas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notas: Ninguna"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/dialogFecha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Asignado: 2024-01-01"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary" />
+
+        <TextView
+            android:id="@+id/dialogTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total: $0.00"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Productos:"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginTop="12dp" />
+
+        <LinearLayout
+            android:id="@+id/dialogProductosLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Historial:"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginTop="12dp" />
+
+        <LinearLayout
+            android:id="@+id/dialogHistorialLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

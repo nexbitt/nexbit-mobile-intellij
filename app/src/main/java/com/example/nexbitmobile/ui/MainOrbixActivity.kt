@@ -423,8 +423,31 @@ class MainOrbixActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val name = prefs.getString("userName", "Admin") ?: "Admin"
+        val rolId = prefs.getInt("rolId", 1)
         view.findViewById<TextView>(R.id.tvHomeGreeting).text = "Good Morning!"
         view.findViewById<TextView>(R.id.tvHomeUserName).text = name
+
+        // Hero landing
+        val isAdmin = rolId == 1
+        view.findViewById<TextView>(R.id.heroTitle).text = "¡Bienvenido, $name!"
+        view.findViewById<TextView>(R.id.heroSubtitle).text = if (isAdmin) "Panel de Administración Nexbit" else "Panel de Gestión"
+
+        view.findViewById<Button>(R.id.heroBtnCatalogo).setOnClickListener {
+            startActivity(Intent(this, CatalogoActivity::class.java))
+        }
+        view.findViewById<Button>(R.id.heroBtnPedidos).setOnClickListener {
+            navStack.clear()
+            showInlineScreen("reports_admin")
+        }
+        view.findViewById<Button>(R.id.heroBtnPerfil).setOnClickListener {
+            navStack.clear()
+            currentNavTab = "profile"
+            showProfile()
+            updateNavSelection("profile")
+        }
+
+        // Load stats
+        loadHeroStats(view)
 
         // Load avatar
         val avatarUrl = prefs.getString("userAvatar", "") ?: ""
@@ -443,6 +466,33 @@ class MainOrbixActivity : AppCompatActivity() {
         setupPageIndicator()
 
         loadTopProducts(view)
+    }
+
+    private fun loadHeroStats(view: View) {
+        ApiClient.instance.getProductosPublico().enqueue(object : Callback<List<Producto>> {
+            override fun onResponse(c: Call<List<Producto>>, r: Response<List<Producto>>) {
+                if (r.isSuccessful) {
+                    val count = r.body()?.size ?: 0
+                    view.findViewById<TextView>(R.id.statValue1).text = "$count"
+                }
+            }
+            override fun onFailure(c: Call<List<Producto>>, t: Throwable) {}
+        })
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val userId = prefs.getInt("userId", 0)
+        if (userId != 0) {
+            ApiClient.instance.getPedidos().enqueue(object : Callback<List<Pedido>> {
+                override fun onResponse(c: Call<List<Pedido>>, r: Response<List<Pedido>>) {
+                    if (r.isSuccessful) {
+                        val count = r.body()?.size ?: 0
+                        view.findViewById<TextView>(R.id.statValue2).text = "$count"
+                    }
+                }
+                override fun onFailure(c: Call<List<Pedido>>, t: Throwable) {}
+            })
+        }
+        view.findViewById<TextView>(R.id.statValue3).text = "—"
+        view.findViewById<TextView>(R.id.statValue4).text = "—"
     }
 
     // ──────────── CAROUSEL ────────────

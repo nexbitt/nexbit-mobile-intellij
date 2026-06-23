@@ -91,6 +91,18 @@
                 android:textColor="@color/white"
                 android:textSize="13sp"
                 android:textAllCaps="false" />
+
+            <TextView
+                android:id="@+id/btnVerFicha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Ver ficha técnica"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:paddingVertical="4dp"
+                android:background="?attr/selectableItemBackground" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

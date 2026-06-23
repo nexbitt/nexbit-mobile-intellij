@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.app.AlertDialog
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
@@ -76,7 +77,8 @@ class CatalogoActivity : AppCompatActivity() {
                     putExtra("id_producto", producto.id_producto)
                 }
                 startActivity(intent)
-            }
+            },
+            onVerFichaClick = { producto -> mostrarFichaTecnica(producto) }
         )
         rvProductos.layoutManager = GridLayoutManager(this, 2)
         rvProductos.adapter = adapter
@@ -149,6 +151,32 @@ class CatalogoActivity : AppCompatActivity() {
             return
         }
         addToCart(producto)
+    }
+
+    private fun mostrarFichaTecnica(producto: Producto) {
+        val specs = StringBuilder()
+        specs.append("📋 Ficha Técnica\n")
+        specs.append("─────────────────\n")
+        specs.append("Nombre:     ${producto.nombre}\n")
+        specs.append("Categoría:  ${producto.categoria_nombre ?: "General"}\n")
+        specs.append("Proveedor:  ${producto.proveedor_nombre ?: "N/A"}\n")
+        specs.append("Precio:     $${String.format("%,.2f", producto.precio_venta)}\n")
+        specs.append("Stock:      ${producto.stock_actual} / ${producto.stock_minimo} (mín.)\n")
+        specs.append("Estado:     ${if (producto.activo == 1) "Activo" else "Inactivo"}\n")
+        if (!producto.descripcion.isNullOrBlank()) {
+            specs.append("\n📝 Descripción:\n${producto.descripcion}\n")
+        }
+        specs.append("\nID Producto:  ${producto.id_producto}")
+        specs.append("\nID Categoría: ${producto.categoria_id ?: "N/A"}")
+
+        AlertDialog.Builder(this)
+            .setTitle("Ficha Técnica")
+            .setMessage(specs.toString())
+            .setPositiveButton("Cerrar", null)
+            .setNeutralButton("Agregar al carrito") { _, _ ->
+                handleAddToCart(producto)
+            }
+            .show()
     }
 
     private fun showLoginBottomSheet() {

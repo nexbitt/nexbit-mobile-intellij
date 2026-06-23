@@ -19,6 +19,44 @@
             app:titleTextColor="@color/text_on_primary"
             app:elevation="4dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/chipToday"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="Hoy"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                android:gravity="center"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/chipWeek"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="Última semana"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                android:gravity="center"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/chipMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="Este mes"
+                android:textSize="13sp"
+                android:paddingHorizontal="16dp"
+                android:gravity="center" />
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"

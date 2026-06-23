@@ -2,6 +2,7 @@ package com.example.nexbitmobile.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,12 +30,15 @@ class CarritoActivity : AppCompatActivity() {
     private lateinit var llEmpty: LinearLayout
     private lateinit var llSummary: LinearLayout
     private lateinit var tvItemCount: TextView
+    private lateinit var tvSubtotal: TextView
+    private lateinit var tvIva: TextView
     private lateinit var tvTotal: TextView
 
     private val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
     private var userId = 0
     private var token = ""
     private var cartTotal = 0.0
+    private val IVA_RATE = 0.19
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +60,8 @@ class CarritoActivity : AppCompatActivity() {
         llEmpty = findViewById(R.id.llEmpty)
         llSummary = findViewById(R.id.llSummary)
         tvItemCount = findViewById(R.id.tvItemCount)
+        tvSubtotal = findViewById(R.id.tvSubtotal)
+        tvIva = findViewById(R.id.tvIva)
         tvTotal = findViewById(R.id.tvTotal)
 
         adapter = CarritoAdapter(
@@ -124,10 +131,14 @@ class CarritoActivity : AppCompatActivity() {
         adapter.updateList(items)
 
         val totalItems = items.sumOf { it.cantidad }
-        val totalPrice = items.sumOf { it.subtotal }
+        val subtotal = items.sumOf { it.subtotal }
+        val iva = subtotal * IVA_RATE
+        val totalPrice = subtotal + iva
         cartTotal = totalPrice
 
         tvItemCount.text = "$totalItems items"
+        tvSubtotal.text = formatter.format(subtotal)
+        tvIva.text = formatter.format(iva)
         tvTotal.text = formatter.format(totalPrice)
     }
 
@@ -208,6 +219,11 @@ class CarritoActivity : AppCompatActivity() {
     }
 
     private fun confirmCheckout() {
+        if (userId == 0 || token.isEmpty()) {
+            showLoginBottomSheet()
+            return
+        }
+
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userAddress = prefs.getString("userAddress", "")
 
@@ -234,6 +250,21 @@ class CarritoActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancelar", null)
             .show()
+    }
+
+    private fun showLoginBottomSheet() {
+        val dialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_login_prompt, null)
+        view.findViewById<Button>(R.id.btnLoginPrompt).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+        view.findViewById<Button>(R.id.btnRegisterPrompt).setOnClickListener {
+            dialog.dismiss()
+            startActivity(Intent(this, RegistroActivity::class.java))
+        }
+        dialog.setContentView(view)
+        dialog.show()
     }
 
     private fun realizarPedido(direccionEntrega: String) {

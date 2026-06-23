@@ -16,7 +16,8 @@ import java.util.Locale
 class ProductoAdapter(
     private var productos: List<Producto>,
     private val onAddToCart: (Producto) -> Unit,
-    private val onItemClick: (Producto) -> Unit
+    private val onItemClick: (Producto) -> Unit,
+    private val onVerFichaClick: (Producto) -> Unit = {}
 ) : RecyclerView.Adapter<ProductoAdapter.ProductoViewHolder>() {
 
     class ProductoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -26,6 +27,7 @@ class ProductoAdapter(
         val tvProductPrice: TextView = view.findViewById(R.id.tvProductPrice)
         val tvProductStock: TextView = view.findViewById(R.id.tvProductStock)
         val btnAddToCart: Button = view.findViewById(R.id.btnAddToCart)
+        val btnVerFicha: TextView = view.findViewById(R.id.btnVerFicha)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductoViewHolder {
@@ -59,6 +61,7 @@ class ProductoAdapter(
             holder.btnAddToCart.setOnClickListener { onAddToCart(producto) }
         }
 
+        holder.btnVerFicha.setOnClickListener { onVerFichaClick(producto) }
         holder.itemView.setOnClickListener { onItemClick(producto) }
     }
 

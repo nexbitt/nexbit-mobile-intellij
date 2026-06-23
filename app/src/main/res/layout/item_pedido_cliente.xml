@@ -20,6 +20,17 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+            <!-- Product image -->
+            <ImageView
+                android:id="@+id/ivProductoImage"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_placeholder"
+                android:background="@color/chip_bg"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="Producto" />
+
             <TextView
                 android:id="@+id/tvPedidoId"
                 android:layout_width="0dp"
@@ -95,6 +106,56 @@
                 android:textSize="13sp"
                 android:backgroundTint="#ef4444"
                 android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Action buttons row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnSubirComprobante"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:paddingHorizontal="8dp"
+                android:text="Subir Comprobante"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:textSize="11sp"
+                android:backgroundTint="@color/info"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnReintentar"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:paddingHorizontal="8dp"
+                android:text="Reintentar"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:textSize="11sp"
+                android:backgroundTint="@color/warning"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnDescargarTicket"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:text="Descargar Ticket"
+                android:textAllCaps="false"
+                android:textSize="11sp"
+                android:backgroundTint="@color/primary"
+                android:textColor="@color/white"
+                android:visibility="visible" />
         </LinearLayout>
 
     </LinearLayout>

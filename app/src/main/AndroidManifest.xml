@@ -87,6 +87,14 @@
         <activity android:name=".ui.OrdersActivity" android:exported="false" />
         <activity android:name=".ui.OrderDetailActivity" android:exported="false" />
 
+        <!-- Tareas nuevas Activities -->
+        <activity android:name=".ui.RolesAdminActivity" android:exported="false" />
+        <activity android:name=".ui.RepartidoresAdminActivity" android:exported="false" />
+        <activity android:name=".ui.ConfirmacionPedidoActivity" android:exported="false" />
+        <activity android:name=".ui.PerfilRepartidorActivity" android:exported="false" />
+        <activity android:name=".ui.AyudaActivity" android:exported="false" />
+        <activity android:name=".ui.ContactoActivity" android:exported="false" />
+
     </application>
 
 </manifest>

@@ -19,6 +19,11 @@ import com.example.nexbitmobile.ui.CatalogoActivity
 import com.example.nexbitmobile.ui.CarritoActivity
 import com.example.nexbitmobile.ui.MisPedidosActivity
 import com.example.nexbitmobile.ui.PruebasActivity
+import com.example.nexbitmobile.ui.RolesAdminActivity
+import com.example.nexbitmobile.ui.RepartidoresAdminActivity
+import com.example.nexbitmobile.ui.AyudaActivity
+import com.example.nexbitmobile.ui.ContactoActivity
+import com.example.nexbitmobile.ui.PerfilRepartidorActivity
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -97,6 +102,21 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_pruebas -> {
                     startActivity(Intent(this, PruebasActivity::class.java))
+                }
+                R.id.nav_roles -> {
+                    startActivity(Intent(this, RolesAdminActivity::class.java))
+                }
+                R.id.nav_repartidores_admin -> {
+                    startActivity(Intent(this, RepartidoresAdminActivity::class.java))
+                }
+                R.id.nav_ayuda -> {
+                    startActivity(Intent(this, AyudaActivity::class.java))
+                }
+                R.id.nav_contacto -> {
+                    startActivity(Intent(this, ContactoActivity::class.java))
+                }
+                R.id.nav_perfil_repartidor -> {
+                    startActivity(Intent(this, PerfilRepartidorActivity::class.java))
                 }
                 R.id.nav_logout -> {
                     val prefs = getSharedPreferences("app", MODE_PRIVATE)

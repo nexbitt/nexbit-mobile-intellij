@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_page">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarAyuda"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        app:title="Ayuda"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@android:drawable/ic_menu_revert" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Preguntas Frecuentes"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_main" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/chip_bg"
+                        android:layout_marginVertical="10dp" />
+
+                    <TextView
+                        android:id="@+id/faq1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="❓ ¿Cómo realizar un pedido?"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_main"
+                        android:paddingVertical="8dp"
+                        android:background="?attr/selectableItemBackground" />
+
+                    <TextView
+                        android:id="@+id/faq2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="❓ ¿Cómo rastrear mi entrega?"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_main"
+                        android:paddingVertical="8dp"
+                        android:background="?attr/selectableItemBackground" />
+
+                    <TextView
+                        android:id="@+id/faq3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="❓ ¿Cómo cancelar un pedido?"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_main"
+                        android:paddingVertical="8dp"
+                        android:background="?attr/selectableItemBackground" />
+
+                    <TextView
+                        android:id="@+id/faq4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="❓ Política de devoluciones"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_main"
+                        android:paddingVertical="8dp"
+                        android:background="?attr/selectableItemBackground" />
+
+                    <TextView
+                        android:id="@+id/faq5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="❓ Métodos de pago"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_main"
+                        android:paddingVertical="8dp"
+                        android:background="?attr/selectableItemBackground" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Recursos"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_main" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/chip_bg"
+                        android:layout_marginVertical="10dp" />
+
+                    <Button
+                        android:id="@+id/btnContactar"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:text="Contactar Soporte"
+                        android:background="@drawable/bg_btn_primary"
+                        android:textColor="@color/white" />
+
+                    <Button
+                        android:id="@+id/btnVerGuia"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Ver Guía de Usuario"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:textColor="@color/text_main" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
