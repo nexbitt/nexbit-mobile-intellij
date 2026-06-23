@@ -117,6 +117,5 @@ class RegistroActivity : AppCompatActivity() {
                 }
             })
         }
-        private const val TAG = "RegistroActivity"
     }
 }
