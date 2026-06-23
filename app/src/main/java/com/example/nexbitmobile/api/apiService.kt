@@ -200,29 +200,23 @@ interface ApiService {
     fun reportarProblema(@Path("id") id: Int, @Body request: ReporteProblemaRequest): Call<Void>
 
     @Multipart
-    @PUT("pedidos/{id}/subir-comprobante")
+    @POST("pedidos/{id}/subir-comprobante")
     fun subirComprobante(
-        @Path("id") id: Int,
-        @Part imagen: okhttp3.MultipartBody.Part
+        @Path("id") pedidoId: Int,
+        @Part comprobante: okhttp3.MultipartBody.Part
     ): Call<Void>
 
-    @GET("chat/conversacion/pedido/{pedidoId}")
-    fun getConversacion(@Path("pedidoId") pedidoId: Int): Call<ConversacionResponse>
+    @PUT("pedidos/{id}/aprobar-pago")
+    fun aprobarPago(@Path("id") pedidoId: Int): Call<Void>
 
-    @POST("chat/conversacion/{conversacionId}/mensajes")
-    fun enviarMensaje(@Path("conversacionId") conversacionId: Int, @Body request: EnviarMensajeRequest): Call<Mensaje>
+    @PUT("pedidos/{id}/rechazar-pago")
+    fun rechazarPago(@Path("id") pedidoId: Int, @Body request: RechazarPagoRequest): Call<Void>
 
-    @GET("chat/mensajes/no-leidos")
-    fun getMensajesNoLeidos(): Call<MensajesNoLeidosResponse>
+    @PATCH("admin/pedidos/{id}/gestion")
+    fun gestionarPedido(@Path("id") pedidoId: Int, @Body request: GestionPedidoRequest): Call<Void>
 
     @GET("pedidos/en-revision")
     fun getPedidosEnRevision(): Call<List<Pedido>>
-
-    @PUT("pedidos/{id}/aprobar-pago")
-    fun aprobarPago(@Path("id") id: Int): Call<Void>
-
-    @PUT("pedidos/{id}/rechazar-pago")
-    fun rechazarPago(@Path("id") id: Int, @Body request: RechazarPagoRequest): Call<Void>
 
     @GET("pedidos/usuario/trash")
     fun getPedidosEliminados(): Call<List<Pedido>>
@@ -235,6 +229,28 @@ interface ApiService {
 
     @GET("bancos")
     fun getBancos(): Call<List<Banco>>
+
+    // ─── FASE 2: CHAT ────────────────────────────────────────────────
+
+    @GET("chat/conversacion/pedido/{pedido_id}")
+    fun getConversacion(@Path("pedido_id") pedidoId: Int): Call<Conversacion>
+
+    @POST("chat/conversacion/{conversacion_id}/mensajes")
+    fun enviarMensaje(@Path("conversacion_id") conversacionId: Int, @Body request: MensajeRequest): Call<Mensaje>
+
+    @PUT("chat/conversacion/{conversacion_id}/leidos")
+    fun marcarLeidos(@Path("conversacion_id") conversacionId: Int): Call<Void>
+
+    @GET("chat/mensajes/no-leidos")
+    fun getMensajesNoLeidos(): Call<MensajeNoLeidosResponse>
+
+    @GET("chat/conversaciones/admin")
+    fun getConversacionesAdmin(): Call<List<Conversacion>>
+
+    // ─── FASE 2: STATS ───────────────────────────────────────────────
+
+    @GET("stats")
+    fun getStats(): Call<StatsResponse>
 
     // ─── Reportes / Analítica ──────────────────────────────────────────────────
 

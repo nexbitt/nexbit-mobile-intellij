@@ -25,6 +25,8 @@ import com.example.nexbitmobile.model.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.NumberFormat
+import java.util.Locale
 
 class MainOrbixActivity : AppCompatActivity() {
 
@@ -214,15 +216,13 @@ class MainOrbixActivity : AppCompatActivity() {
 
     private val menuItems = listOf(
         MenuItem("Pedidos", R.drawable.ic_icon_orders, "pedidos_admin"),
-
         MenuItem("Productos", R.drawable.ic_icon_products, "productos_admin"),
         MenuItem("Categorías", R.drawable.ic_filter_orbix, "categorias_admin"),
-
         MenuItem("Usuarios", android.R.drawable.ic_menu_myplaces, "usuarios_admin"),
         MenuItem("Proveedores", android.R.drawable.ic_menu_send, "proveedores_admin"),
         MenuItem("Repartidores", android.R.drawable.ic_menu_directions, "repartidores_admin"),
         MenuItem("Roles", android.R.drawable.ic_menu_manage, "roles_admin"),
-
+        MenuItem("Chat", android.R.drawable.ic_menu_share, "chat_admin"),
         MenuItem("Revisión de Pagos", android.R.drawable.ic_menu_compass, "activity:RevisionPagos"),
         MenuItem("Checkout Manual", android.R.drawable.ic_menu_compass, "activity:CheckoutManual"),
         MenuItem("Papelera", android.R.drawable.ic_menu_delete, "activity:Papelera"),
@@ -349,6 +349,15 @@ class MainOrbixActivity : AppCompatActivity() {
         contentContainer.removeAllViews()
 
         when (screenKey) {
+            "pedidos_admin" -> {
+                closeMenu()
+                val intent = Intent(this, PedidosAdminActivity::class.java)
+                intent.putExtra("isClienteView", false)
+                startActivity(intent)
+                toolbarSub.visibility = View.GONE
+                navStack.removeLastOrNull()
+                currentScreen = navStack.lastOrNull() ?: "home"
+            }
             "productos_admin" -> {
                 tvToolbarTitle.text = "Productos"
                 val v = LayoutInflater.from(this).inflate(
@@ -391,16 +400,9 @@ class MainOrbixActivity : AppCompatActivity() {
                 )
                 contentContainer.addView(v); adminScreens.showRoles(v)
             }
-            "pedidos_admin" -> {
-                tvToolbarTitle.text = "Pedidos"
-                val v = LayoutInflater.from(this).inflate(
-                    R.layout.inline_pedidos_admin, contentContainer, false
-                )
-                contentContainer.addView(v); showPedidosInline(v)
-            }
-            "reports_admin" -> {
-                tvToolbarTitle.text = "Reportes"
-                showReportsInline()
+            "chat_admin" -> {
+                tvToolbarTitle.text = "Chat - Conversaciones"
+                showChatAdmin()
             }
         }
     }
@@ -612,6 +614,7 @@ class MainOrbixActivity : AppCompatActivity() {
         setupPageIndicator()
 
         loadTopProducts(view)
+        loadHomeStats(view)
     }
 
     // ──────────── CAROUSEL ────────────
@@ -715,6 +718,26 @@ class MainOrbixActivity : AppCompatActivity() {
         showReportDetail(title)
     }
 
+    private fun loadHomeStats(root: View) {
+        val tvStatsProducts = root.findViewById<TextView>(R.id.tvStatsProducts)
+        val tvStatsOrders = root.findViewById<TextView>(R.id.tvStatsOrders)
+        val tvStatsClients = root.findViewById<TextView>(R.id.tvStatsClients)
+        val tvStatsCategories = root.findViewById<TextView>(R.id.tvStatsCategories)
+
+        ApiClient.instance.getStats().enqueue(object : Callback<StatsResponse> {
+            override fun onResponse(call: Call<StatsResponse>, response: Response<StatsResponse>) {
+                if (response.isSuccessful) {
+                    val stats = response.body() ?: return
+                    tvStatsProducts?.text = stats.productos.toString()
+                    tvStatsOrders?.text = stats.pedidos.toString()
+                    tvStatsClients?.text = stats.clientes.toString()
+                    tvStatsCategories?.text = stats.categorias.toString()
+                }
+            }
+            override fun onFailure(call: Call<StatsResponse>, t: Throwable) {}
+        })
+    }
+
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
     }
@@ -789,6 +812,102 @@ class MainOrbixActivity : AppCompatActivity() {
         }
     }
 
+    // ──────────── CHAT ADMIN ────────────
+
+    private fun showChatAdmin() {
+        contentContainer.removeAllViews()
+        val scrollView = ScrollView(this)
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(16, 16, 16, 16)
+        }
+        scrollView.addView(container)
+        contentContainer.addView(scrollView)
+
+        container.addView(TextView(this).apply {
+            text = "Conversaciones"
+            textSize = 18f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, theme))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = 16 }
+        })
+
+        ApiClient.instance.getConversacionesAdmin().enqueue(object : Callback<List<Conversacion>> {
+            override fun onResponse(call: Call<List<Conversacion>>, response: Response<List<Conversacion>>) {
+                if (response.isSuccessful) {
+                    val conversaciones = response.body() ?: emptyList<Conversacion>()
+                    if (conversaciones.isEmpty()) {
+                        container.addView(TextView(this@MainOrbixActivity).apply {
+                            text = "No hay conversaciones activas"
+                            textSize = 14f
+                            setPadding(0, 32, 0, 0)
+                            setTextColor(resources.getColor(R.color.text_secondary, theme))
+                        })
+                        return
+                    }
+                    for (conv in conversaciones) {
+                        val card = com.google.android.material.card.MaterialCardView(this@MainOrbixActivity).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply { bottomMargin = 8 }
+                            radius = 12f
+                            cardElevation = 2f
+                            setCardBackgroundColor(resources.getColor(R.color.bg_card, theme))
+                            setContentPadding(16, 16, 16, 16)
+                            isClickable = true
+                            isFocusable = true
+                            setOnClickListener {
+                                val intent = Intent(this@MainOrbixActivity, ChatActivity::class.java)
+                                intent.putExtra("pedido_id", conv.pedido_id)
+                                startActivity(intent)
+                            }
+                        }
+                        val cardContent = LinearLayout(this@MainOrbixActivity).apply {
+                            orientation = LinearLayout.VERTICAL
+                        }
+                        cardContent.addView(TextView(this@MainOrbixActivity).apply {
+                            text = "Pedido #${conv.pedido_id} - ${conv.usuario_nombre ?: "Cliente"}"
+                            textSize = 14f
+                            setTypeface(null, android.graphics.Typeface.BOLD)
+                            setTextColor(resources.getColor(R.color.text_main, theme))
+                        })
+                        cardContent.addView(TextView(this@MainOrbixActivity).apply {
+                            text = conv.ultimo_mensaje ?: "Sin mensajes"
+                            textSize = 12f
+                            setTextColor(resources.getColor(R.color.text_secondary, theme))
+                            maxLines = 1
+                        })
+                        if (conv.no_leidos != null && conv.no_leidos > 0) {
+                            cardContent.addView(TextView(this@MainOrbixActivity).apply {
+                                text = "${conv.no_leidos} mensajes no leídos"
+                                textSize = 12f
+                                setTypeface(null, android.graphics.Typeface.BOLD)
+                                setTextColor(resources.getColor(R.color.error_text, theme))
+                            })
+                        }
+                        card.addView(cardContent)
+                        container.addView(card)
+                    }
+                }
+            }
+            override fun onFailure(call: Call<List<Conversacion>>, t: Throwable) {
+                container.addView(TextView(this@MainOrbixActivity).apply {
+                    text = "Error al cargar conversaciones"
+                    setPadding(0, 32, 0, 0)
+                    setTextColor(resources.getColor(R.color.error_text, theme))
+                })
+            }
+        })
+    }
+
     // ──────────── REPORTS (inline sub-screen) ────────────
 
     private fun showReportsInline() {
@@ -803,12 +922,110 @@ class MainOrbixActivity : AppCompatActivity() {
         }
         scroll.addView(container)
 
-        val metrics = listOf(
-            Triple("Ventas totales", "\$0", R.color.success),
-            Triple("Pedidos mes", "0", R.color.info),
-            Triple("Productos", "0", R.color.warning),
-            Triple("Clientes", "0", R.color.tab_active)
+        // Section: Sales KPIs
+        container.addView(createReportSectionHeader("Ventas"))
+        val ventasRow = createKpiRow()
+        container.addView(ventasRow.first)
+        val tvVentasIngresos = ventasRow.second[0]
+        val tvVentasTickets = ventasRow.second[1]
+        val tvVentasPromedio = ventasRow.second[2]
+
+        // Section: Inventory KPIs
+        container.addView(createReportSectionHeader("Inventario"))
+        val invRow = createKpiRow()
+        container.addView(invRow.first)
+        val tvInvProductos = invRow.second[0]
+        val tvInvAgotados = invRow.second[1]
+        val tvInvValor = invRow.second[2]
+
+        // Load real data
+        val format = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+        ApiClient.instance.getReporteVentasKpis().enqueue(object : Callback<VentaKpi> {
+            override fun onResponse(call: Call<VentaKpi>, response: Response<VentaKpi>) {
+                if (response.isSuccessful) {
+                    val kpi = response.body() ?: return
+                    tvVentasIngresos.text = format.format(kpi.ingresos_totales)
+                    tvVentasTickets.text = "${kpi.total_tickets}"
+                    tvVentasPromedio.text = format.format(kpi.ticket_promedio)
+                }
+            }
+            override fun onFailure(call: Call<VentaKpi>, t: Throwable) {}
+        })
+
+        ApiClient.instance.getReporteInventarioKpis().enqueue(object : Callback<InventarioKpi> {
+            override fun onResponse(call: Call<InventarioKpi>, response: Response<InventarioKpi>) {
+                if (response.isSuccessful) {
+                    val kpi = response.body() ?: return
+                    tvInvProductos.text = "${kpi.total_productos}"
+                    tvInvAgotados.text = "${kpi.agotados}"
+                    tvInvValor.text = format.format(kpi.valor_total_inventario)
+                }
+            }
+            override fun onFailure(call: Call<InventarioKpi>, t: Throwable) {}
+        })
+
+        // Navigation to detailed reports
+        val reportTypes = listOf(
+            "Ventas y Comprobantes" to "ventas",
+            "Inventario y Ganancias" to "inventario",
+            "Seguridad y Accesos" to "seguridad",
+            "Carritos Activos" to "carritos",
+            "Repartidores y Logística" to "repartidores"
         )
+
+        for ((title, key) in reportTypes) {
+            val card = com.google.android.material.card.MaterialCardView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = 12 }
+                radius = 12f
+                cardElevation = 2f
+                setCardBackgroundColor(resources.getColor(R.color.bg_card, theme))
+                setContentPadding(16, 16, 16, 16)
+                isClickable = true
+                isFocusable = true
+                setOnClickListener { navigateToReportDetail(title) }
+            }
+            val cardInner = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+            }
+            cardInner.addView(TextView(this).apply {
+                text = title
+                textSize = 14f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(resources.getColor(R.color.text_main, theme))
+            })
+            cardInner.addView(TextView(this).apply {
+                text = "Ver detalle >"
+                textSize = 12f
+                setTextColor(resources.getColor(R.color.text_secondary, theme))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = 4 }
+            })
+            card.addView(cardInner)
+            container.addView(card)
+        }
+
+        contentContainer.addView(scroll)
+    }
+
+    private fun createReportSectionHeader(title: String): TextView {
+        return TextView(this).apply {
+            text = title
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(resources.getColor(R.color.text_main, theme))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 16; bottomMargin = 8 }
+        }
+    }
+
+    private fun createKpiRow(): Pair<LinearLayout, List<TextView>> {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
@@ -816,8 +1033,9 @@ class MainOrbixActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
-        for ((label, value, color) in metrics) {
-            row.addView(LinearLayout(this).apply {
+        val labels = listOf("Total", "Cantidad", "Promedio")
+        val tvs = labels.map { label ->
+            LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = android.view.Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(
@@ -826,29 +1044,18 @@ class MainOrbixActivity : AppCompatActivity() {
                 setPadding(12, 12, 12, 12)
                 setBackgroundResource(R.drawable.bg_card_orbix)
                 addView(TextView(this@MainOrbixActivity).apply {
-                    text = value; textSize = 18f
-                    setTextColor(resources.getColor(color, theme))
+                    id = android.R.id.text1
+                    text = "-"; textSize = 16f
+                    setTextColor(resources.getColor(R.color.text_main, theme))
                     setTypeface(null, android.graphics.Typeface.BOLD)
                 })
                 addView(TextView(this@MainOrbixActivity).apply {
                     text = label; textSize = 10f
                     setTextColor(resources.getColor(R.color.text_secondary, theme))
                 })
-            })
-        }
-        container.addView(row)
+            }.also { row.addView(it) }
+        }.map { it.findViewById<TextView>(android.R.id.text1) }
 
-        container.addView(TextView(this).apply {
-            text = "\nTendencia de ventas (próximamente)"
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_secondary, theme))
-            gravity = android.view.Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 200
-            ).apply { topMargin = 24 }
-            setBackgroundResource(R.drawable.bg_card_orbix)
-        })
-
-        contentContainer.addView(scroll)
+        return Pair(row, tvs)
     }
 }

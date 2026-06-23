@@ -124,7 +124,7 @@ class ConfirmacionPagoActivity : AppCompatActivity() {
         }
 
         val requestBody = file.readBytes().toRequestBody("image/*".toMediaTypeOrNull())
-        val imagePart = MultipartBody.Part.createFormData("imagen", fileName, requestBody)
+        val imagePart = MultipartBody.Part.createFormData("comprobante", fileName, requestBody)
 
         ApiClient.instance.subirComprobante(pedidoId, imagePart)
             .enqueue(object : Callback<Void> {

@@ -82,6 +82,7 @@
 
         <activity android:name=".ui.RecoveryActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmacionPagoActivity" android:exported="false" />
+        <activity android:name=".ui.ConfirmarPedidoActivity" android:exported="false" />
         <activity android:name=".ui.ChatActivity" android:exported="false" />
         <activity android:name=".ui.RevisionPagosActivity" android:exported="false" />
         <activity android:name=".ui.CheckoutManualActivity" android:exported="false" />

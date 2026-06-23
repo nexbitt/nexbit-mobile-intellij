@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_page"
     android:fitsSystemWindows="true"
-    android:background="#f8fafc"
     android:orientation="vertical">
 
+    <!-- ── Toolbar ── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#0f172a"
+        android:background="@color/primary"
+        android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp">
@@ -19,65 +22,65 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Volver"
             android:src="@android:drawable/ic_menu_revert"
-            android:tint="#ffffff" />
+            android:tint="@color/white" />
 
         <TextView
+            android:id="@+id/tvChatTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:text="Chat del Pedido"
-            android:textColor="#ffffff"
+            android:text="Chat"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvPedidoId"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="#0000"
-            android:textColor="#94a3b8"
-            android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- ── Messages List ── -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChat"
+        android:id="@+id/rvMensajes"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingVertical="12dp" />
+        android:padding="12dp" />
 
+    <!-- ── Input Bar ── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:elevation="4dp"
+        android:background="@color/bg_surface"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="8dp">
 
         <EditText
             android:id="@+id/etMensaje"
             android:layout_width="0dp"
-            android:layout_height="42dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="#f3f4f6"
+            android:background="@color/input_bg"
             android:hint="Escribe un mensaje..."
-            android:inputType="text"
+            android:inputType="textMultiLine"
             android:maxLines="3"
             android:paddingHorizontal="16dp"
-            android:textColor="#111827"
             android:textSize="14sp" />
 
         <ImageButton
-            android:id="@+id/btnEnviar"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:id="@+id/btnSend"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginStart="8dp"
-            android:background="#111827"
+            android:background="@drawable/bg_btn_primary"
+            android:contentDescription="Enviar"
+            android:padding="12dp"
             android:src="@android:drawable/ic_menu_send"
-            android:tint="#ffffff" />
+            android:tint="@color/white" />
+
     </LinearLayout>
 
 </LinearLayout>

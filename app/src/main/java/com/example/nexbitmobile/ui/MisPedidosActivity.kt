@@ -143,16 +143,40 @@ class MisPedidosActivity : AppCompatActivity() {
             }
         }
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Detalle del Pedido")
             .setMessage(sb.toString())
             .setPositiveButton("Cerrar", null)
-            .also { builder ->
-                if (pedido.estado == "PENDIENTE") {
-                    builder.setNeutralButton("Cancelar Pedido") { _, _ -> onCancelarClick(pedido) }
+            .create()
+
+        dialog.setOnShowListener {
+            val aceptar = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+            if (pedido.estado == "PENDIENTE") {
+                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Cancelar Pedido") { _, _ ->
+                    onCancelarClick(pedido)
                 }
             }
-            .show()
+
+            if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
+                dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Subir Comprobante") { _, _ ->
+                    val intent = Intent(this@MisPedidosActivity, ConfirmarPedidoActivity::class.java)
+                    intent.putExtra("pedido_id", pedido.id_pedido)
+                    startActivity(intent)
+                }
+            }
+
+            if (pedido.estado != "CANCELADO" && pedido.estado != "ENTREGADO") {
+                val chatLabel = if (pedido.estado == "PENDIENTE") "Chat" else "Chat"
+                dialog.setButton(android.content.DialogInterface.BUTTON3, chatLabel) { _, _ ->
+                    val intent = Intent(this@MisPedidosActivity, ChatActivity::class.java)
+                    intent.putExtra("pedido_id", pedido.id_pedido)
+                    startActivity(intent)
+                }
+            }
+        }
+
+        dialog.show()
     }
 }
 
