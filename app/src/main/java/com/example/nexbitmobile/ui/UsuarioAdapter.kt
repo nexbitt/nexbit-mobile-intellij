@@ -15,10 +15,8 @@ class UsuarioAdapter(
 ) : RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder>() {
 
     class UsuarioViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvId: TextView = view.findViewById(R.id.tvId)
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvEmail: TextView = view.findViewById(R.id.tvEmail)
-        val tvRol: TextView = view.findViewById(R.id.tvRol)
         val btnEdit: View = view.findViewById(R.id.btnEdit)
         val btnDelete: View = view.findViewById(R.id.btnDelete)
     }
@@ -30,11 +28,8 @@ class UsuarioAdapter(
 
     override fun onBindViewHolder(holder: UsuarioViewHolder, position: Int) {
         val usuario = usuarios[position]
-        holder.tvId.text = "#${usuario.id_usuario}"
         holder.tvNombre.text = usuario.nombre
         holder.tvEmail.text = usuario.email
-        holder.tvRol.text = "Rol: ${usuario.rol_nombre ?: usuario.rol_id}"
-
         holder.btnEdit.setOnClickListener { onEdit(usuario) }
         holder.btnDelete.setOnClickListener { onDelete(usuario) }
     }

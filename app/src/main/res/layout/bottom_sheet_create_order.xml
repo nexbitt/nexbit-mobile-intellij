@@ -248,7 +248,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Agregar Producto"
+                android:text="Buscar Producto *"
                 android:textColor="#6B7280"
                 android:textSize="12sp"
                 android:textStyle="bold"
@@ -257,61 +257,80 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="42dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <Spinner
-                        android:id="@+id/spProducto"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_crud_input"
-                        android:paddingStart="38dp"
-                        android:paddingEnd="12dp"
-                        android:drawableEnd="@drawable/ic_chevron_down"
-                        android:drawablePadding="10dp"
-                        android:popupBackground="#FFFFFF"
-                        android:dropDownSelector="@drawable/bg_chip"
-                        android:overlapAnchor="true" />
-
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="start|center_vertical"
-                        android:layout_marginStart="12dp"
-                        android:src="@drawable/ic_box"
-                        android:tint="#9CA3AF" />
-                </FrameLayout>
-
-                <EditText
-                    android:id="@+id/etCantidad"
-                    android:layout_width="56dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_crud_input"
-                    android:gravity="center"
-                    android:hint="1"
-                    android:textColor="#111827"
-                    android:textColorHint="#9CA3AF"
-                    android:textSize="14sp"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:text="1" />
-
-                <ImageButton
-                    android:id="@+id/btnAgregarProducto"
-                    android:layout_width="42dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="42dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_btn_primary"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_plus"
-                    android:tint="#FFFFFF"
-                    android:contentDescription="Agregar producto" />
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/etSearchProducto"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_crud_input"
+                            android:paddingStart="38dp"
+                            android:paddingEnd="12dp"
+                            android:hint="Buscar producto por nombre..."
+                            android:textColor="#111827"
+                            android:textColorHint="#9CA3AF"
+                            android:textSize="14sp"
+                            android:inputType="text"
+                            android:maxLines="1" />
+
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="start|center_vertical"
+                            android:layout_marginStart="12dp"
+                            android:src="@drawable/ic_box"
+                            android:tint="#9CA3AF" />
+                    </FrameLayout>
+
+                    <EditText
+                        android:id="@+id/etCantidad"
+                        android:layout_width="56dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_crud_input"
+                        android:gravity="center"
+                        android:hint="1"
+                        android:textColor="#111827"
+                        android:textColorHint="#9CA3AF"
+                        android:textSize="14sp"
+                        android:inputType="number"
+                        android:maxLines="1"
+                        android:text="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnAgregarProducto"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_btn_primary"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_plus"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Agregar producto" />
+                </LinearLayout>
+
+                <ListView
+                    android:id="@+id/lvProductos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_crud_input"
+                    android:visibility="gone"
+                    android:overScrollMode="never"
+                    android:divider="#E5E7EB"
+                    android:dividerHeight="1dp"
+                    android:maxHeight="160dp" />
             </LinearLayout>
 
             <!-- ─── TABLA DINÁMICA: PRODUCTOS AGREGADOS ─── -->

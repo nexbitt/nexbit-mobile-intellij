@@ -473,8 +473,7 @@ class MainOrbixActivity : AppCompatActivity() {
         val adapter = PedidoAdminAdapter(
             pedidos = emptyList(),
             onDetalle = { pedido -> mostrarDetallePedido(pedido) },
-            onEdit = { pedido -> mostrarBottomSheetEditarPedido(pedido) },
-            onDelete = { pedido -> confirmarEliminarPedido(pedido) }
+            onDownload = { pedido -> descargarTicketPedido(pedido) }
         )
         rv.adapter = adapter
 
@@ -575,7 +574,8 @@ class MainOrbixActivity : AppCompatActivity() {
         val etNotas = view.findViewById<EditText>(R.id.etNotas)
         val frameUpload = view.findViewById<FrameLayout>(R.id.frameUpload)
         val tvFileName = view.findViewById<TextView>(R.id.tvFileName)
-        val spProducto = view.findViewById<Spinner>(R.id.spProducto)
+        val etSearchProducto = view.findViewById<EditText>(R.id.etSearchProducto)
+        val lvProductos = view.findViewById<ListView>(R.id.lvProductos)
         val etCantidad = view.findViewById<EditText>(R.id.etCantidad)
         val btnAgregar = view.findViewById<ImageButton>(R.id.btnAgregarProducto)
         val rvProductos = view.findViewById<RecyclerView>(R.id.rvProductosSheet)
@@ -638,9 +638,6 @@ class MainOrbixActivity : AppCompatActivity() {
         ApiClient.instance.getProductos().enqueue(object : Callback<List<Producto>> {
             override fun onResponse(c: Call<List<Producto>>, res: Response<List<Producto>>) {
                 productos = res.body()?.filter { it.activo == 1 } ?: emptyList()
-                val nombres = productos.map { "${it.nombre} — ${fmt.format(it.precio_venta)}" }.toMutableList()
-                nombres.add(0, "Elegir un producto de la lista...")
-                spProducto.adapter = ArrayAdapter(this@MainOrbixActivity, android.R.layout.simple_spinner_dropdown_item, nombres)
             }
             override fun onFailure(c: Call<List<Producto>>, t: Throwable) {
                 Toast.makeText(this@MainOrbixActivity, "Error al cargar productos", Toast.LENGTH_SHORT).show()
@@ -648,6 +645,18 @@ class MainOrbixActivity : AppCompatActivity() {
         })
 
         // ── Buscador de clientes ──
+        etSearchCliente.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && clientes.isNotEmpty()) {
+                mostrarListaClientes(clientes, etSearchCliente, lvClientes, ivClearCliente) { c ->
+                    selectedCliente = c
+                    etSearchCliente.setText("${c.nombre} (${c.email})")
+                    etSearchCliente.setSelection(etSearchCliente.text.length)
+                    lvClientes.visibility = View.GONE
+                    ivClearCliente.visibility = View.VISIBLE
+                }
+            }
+        }
+
         etSearchCliente.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -658,7 +667,6 @@ class MainOrbixActivity : AppCompatActivity() {
                     ivClearCliente.visibility = View.GONE
                     return
                 }
-                // If user is editing after a client was selected, clear the selection
                 if (selectedCliente != null) {
                     selectedCliente = null
                 }
@@ -668,13 +676,9 @@ class MainOrbixActivity : AppCompatActivity() {
                     it.nombre.lowercase().contains(query) || it.email.lowercase().contains(query)
                 }
                 if (filtered.isNotEmpty()) {
-                    val nombres = filtered.map { "${it.nombre} (${it.email})" }
-                    lvClientes.adapter = ArrayAdapter(this@MainOrbixActivity, android.R.layout.simple_list_item_1, nombres)
-                    lvClientes.visibility = View.VISIBLE
-                    lvClientes.setOnItemClickListener { _, _, pos, _ ->
-                        val cliente = filtered[pos]
-                        selectedCliente = cliente
-                        etSearchCliente.setText("${cliente.nombre} (${cliente.email})")
+                    mostrarListaClientes(filtered, etSearchCliente, lvClientes, ivClearCliente) { c ->
+                        selectedCliente = c
+                        etSearchCliente.setText("${c.nombre} (${c.email})")
                         etSearchCliente.setSelection(etSearchCliente.text.length)
                         lvClientes.visibility = View.GONE
                         ivClearCliente.visibility = View.VISIBLE
@@ -692,13 +696,45 @@ class MainOrbixActivity : AppCompatActivity() {
             ivClearCliente.visibility = View.GONE
         }
 
-        // ── Producto spinner selection ──
-        spProducto.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                selectedProducto = if (pos > 0 && pos - 1 < productos.size) productos[pos - 1] else null
+        // ── Buscador de productos ──
+        etSearchProducto.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && productos.isNotEmpty()) {
+                    mostrarListaProductos(productos, etSearchProducto, lvProductos) { p ->
+                    selectedProducto = p
+                    etSearchProducto.setText("${p.nombre} — ${fmt.format(p.precio_venta)}")
+                    etSearchProducto.setSelection(etSearchProducto.text.length)
+                    lvProductos.visibility = View.GONE
+                }
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+
+        etSearchProducto.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val query = s?.toString()?.trim()?.lowercase() ?: ""
+                if (query.isEmpty() && selectedProducto == null) {
+                    lvProductos.visibility = View.GONE
+                    return
+                }
+                if (selectedProducto != null) {
+                    selectedProducto = null
+                }
+                val filtered = productos.filter {
+                    it.nombre.lowercase().contains(query) || it.descripcion?.lowercase()?.contains(query) == true
+                }
+                if (filtered.isNotEmpty()) {
+                    mostrarListaProductos(filtered, etSearchProducto, lvProductos) { p ->
+                        selectedProducto = p
+                        etSearchProducto.setText("${p.nombre} — ${fmt.format(p.precio_venta)}")
+                        etSearchProducto.setSelection(etSearchProducto.text.length)
+                        lvProductos.visibility = View.GONE
+                    }
+                } else {
+                    lvProductos.visibility = View.GONE
+                }
+            }
+        })
 
         // ── Agregar producto a la lista ──
         btnAgregar.setOnClickListener {
@@ -725,7 +761,7 @@ class MainOrbixActivity : AppCompatActivity() {
             actualizarVisibilidadProductos(tvEmptyProductos, rvProductos, productosAgregados)
             recalcularTotalesSheet(productosAgregados, tvSubtotal, tvIva, tvTotal, fmt)
             etCantidad.setText("1")
-            spProducto.setSelection(0)
+            etSearchProducto.setText("")
             selectedProducto = null
         }
 
@@ -815,6 +851,36 @@ class MainOrbixActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun mostrarListaClientes(
+        lista: List<Usuario>,
+        et: EditText,
+        lv: ListView,
+        ivClear: ImageView,
+        onSeleccion: (Usuario) -> Unit
+    ) {
+        val nombres = lista.map { "${it.nombre} (${it.email})" }
+        lv.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, nombres)
+        lv.visibility = View.VISIBLE
+        lv.setOnItemClickListener { _, _, pos, _ ->
+            onSeleccion(lista[pos])
+        }
+    }
+
+    private fun mostrarListaProductos(
+        lista: List<Producto>,
+        et: EditText,
+        lv: ListView,
+        onSeleccion: (Producto) -> Unit
+    ) {
+        val fmt = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+        val nombres = lista.map { "${it.nombre} — ${fmt.format(it.precio_venta)}" }
+        lv.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, nombres)
+        lv.visibility = View.VISIBLE
+        lv.setOnItemClickListener { _, _, pos, _ ->
+            onSeleccion(lista[pos])
+        }
     }
 
     private fun actualizarVisibilidadProductos(

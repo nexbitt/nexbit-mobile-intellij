@@ -77,8 +77,7 @@ class PedidosAdminActivity : AppCompatActivity() {
         adapter = PedidoAdminAdapter(
             pedidos = emptyList(),
             onDetalle = { pedido -> mostrarDetalle(pedido) },
-            onEdit = null,
-            onDelete = { pedido -> confirmarEliminar(pedido) }
+            onDownload = { pedido -> descargarTicket(pedido) }
         )
         recyclerView.adapter = adapter
 

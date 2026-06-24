@@ -83,7 +83,11 @@ class ProductosAdminActivity : AppCompatActivity() {
         llSkeleton = findViewById(R.id.llSkeleton)
 
         recyclerView.layoutManager = GridLayoutManager(this, 2)
-        adapter = ProductoAdminAdapter(emptyList(), this::showEditDialog, this::deleteProducto)
+        adapter = ProductoAdminAdapter(
+            emptyList(),
+            onEdit = this::showEditDialog,
+            onStock = { p -> Toast.makeText(this, "Stock: ${p.stock_actual} uds.", Toast.LENGTH_SHORT).show() }
+        )
         recyclerView.adapter = adapter
 
         etSearch.addTextChangedListener(object : TextWatcher {

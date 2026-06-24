@@ -10,14 +10,14 @@ import com.example.nexbitmobile.model.Usuario
 
 class RepartidorAdminAdapter(
     private var repartidores: List<Usuario>,
-    private val onViewClick: (Usuario) -> Unit,
-    private val onDeleteClick: (Usuario) -> Unit
+    private val onEdit: (Usuario) -> Unit,
+    private val onDelete: (Usuario) -> Unit
 ) : RecyclerView.Adapter<RepartidorAdminAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvTelefono: TextView = view.findViewById(R.id.tvTelefono)
-        val btnView: View = view.findViewById(R.id.btnView)
+        val btnEdit: View = view.findViewById(R.id.btnEdit)
         val btnDelete: View = view.findViewById(R.id.btnDelete)
     }
 
@@ -31,8 +31,8 @@ class RepartidorAdminAdapter(
         val rep = repartidores[position]
         holder.tvNombre.text = rep.nombre
         holder.tvTelefono.text = rep.telefono ?: "Sin teléfono"
-        holder.btnView.setOnClickListener { onViewClick(rep) }
-        holder.btnDelete.setOnClickListener { onDeleteClick(rep) }
+        holder.btnEdit.setOnClickListener { onEdit(rep) }
+        holder.btnDelete.setOnClickListener { onDelete(rep) }
     }
 
     override fun getItemCount() = repartidores.size

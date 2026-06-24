@@ -64,7 +64,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         rv.layoutManager = LinearLayoutManager(activity)
         val adapter = ProductoAdminAdapter(emptyList(),
             { p -> showEditDialog(p, rv, tvEmpty) },
-            { p -> deleteProducto(p, rv, tvEmpty) }
+            { p -> Toast.makeText(activity, "Stock: ${p.stock_actual}", Toast.LENGTH_SHORT).show() }
         )
         rv.adapter = adapter
 
@@ -802,7 +802,7 @@ class AdminScreens(private val activity: MainOrbixActivity) {
         lateinit var adapter: RepartidorAdminAdapter
         adapter = RepartidorAdminAdapter(
             emptyList(),
-            onViewClick = { rep ->
+            onEdit = { rep ->
                 val intent = Intent(activity, RepartidorDetailActivity::class.java)
                 intent.putExtra("repartidor_id", rep.id_usuario)
                 intent.putExtra("repartidor_nombre", rep.nombre)
@@ -811,16 +811,16 @@ class AdminScreens(private val activity: MainOrbixActivity) {
                 intent.putExtra("repartidor_direccion", rep.direccion ?: "")
                 activity.startActivity(intent)
             },
-            onDeleteClick = { rep ->
+            onDelete = { rep ->
                 AlertDialog.Builder(activity)
-                    .setTitle("Eliminar Repartidor")
-                    .setMessage("¿Desactivar a ${rep.nombre}?")
+                    .setTitle("Suspender Repartidor")
+                    .setMessage("¿Suspender a ${rep.nombre}?")
                     .setPositiveButton("Sí") { _, _ ->
                         ApiClient.instance.updateUsuario(rep.id_usuario, UsuarioUpdateRequest(activo = false))
                             .enqueue(object : Callback<Usuario> {
                                 override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
                                     if (res.isSuccessful) {
-                                        Toast.makeText(activity, "Repartidor desactivado", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(activity, "Repartidor suspendido", Toast.LENGTH_SHORT).show()
                                         cargarRepartidores(rv, tvEmpty, adapter, etSearch)
                                     } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
                                 }

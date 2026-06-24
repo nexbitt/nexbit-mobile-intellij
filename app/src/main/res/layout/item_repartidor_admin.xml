@@ -6,18 +6,19 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="1dp"
-    app:cardBackgroundColor="@color/crud_card_bg"
-    app:strokeColor="#D1D5DB"
-    app:strokeWidth="1dp">
+    app:strokeColor="#E5E7EB"
+    app:strokeWidth="1dp"
+    app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="14dp">
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp">
 
-        <!-- Avatar Circle -->
+        <!-- Módulo: user -->
         <LinearLayout
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -28,10 +29,11 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/ic_icon_user"
-                android:contentDescription="Avatar" />
+                android:tint="#4F46E5"
+                android:contentDescription="Repartidor" />
         </LinearLayout>
 
-        <!-- Text -->
+        <!-- Texto -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -43,49 +45,55 @@
                 android:id="@+id/tvNombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre"
-                android:textColor="@color/crud_text_main"
+                android:text="Nombre Repartidor"
+                android:textColor="#111827"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
-            <TextView
-                android:id="@+id/tvTelefono"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginTop="2dp"
-                android:text="Teléfono"
-                android:textColor="@color/crud_text_secondary"
-                android:textSize="13sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvBadgeActivo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="2dp"
-                android:text="Activo"
-                android:textColor="#FFFFFF"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:background="@drawable/bg_chip_selected"
-                android:maxLines="1" />
+                <TextView
+                    android:id="@+id/tvTelefono"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Teléfono"
+                    android:textColor="#8E8E93"
+                    android:textSize="13sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvBadgeActivo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="10dp"
+                    android:text="Activo"
+                    android:textColor="#34C759"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_badge_ios_delivered" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Actions -->
+        <!-- Botones: ✏️ + 🚫 -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <FrameLayout
-                android:id="@+id/btnView"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:id="@+id/btnEdit"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="@drawable/bg_action_btn"
                 android:clickable="true"
                 android:focusable="true"
@@ -95,14 +103,14 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_eye"
+                    android:src="@drawable/ic_edit"
                     android:tint="#111827" />
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/btnDelete"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_action_btn"
                 android:clickable="true"
@@ -113,8 +121,8 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_trash"
-                    android:tint="#EF4444" />
+                    android:src="@drawable/ic_ban"
+                    android:tint="#FF3B30" />
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
