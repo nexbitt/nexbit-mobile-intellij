@@ -3,7 +3,7 @@ package com.example.nexbitmobile.ui
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -20,12 +20,11 @@ class ProductoAdapter(
 ) : RecyclerView.Adapter<ProductoAdapter.ProductoViewHolder>() {
 
     class ProductoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val ivProductImage: ImageView = view.findViewById(R.id.ivProductImage)
-        val tvProductCategory: TextView = view.findViewById(R.id.tvProductCategory)
-        val tvProductName: TextView = view.findViewById(R.id.tvProductName)
-        val tvProductPrice: TextView = view.findViewById(R.id.tvProductPrice)
-        val tvProductStock: TextView = view.findViewById(R.id.tvProductStock)
-        val btnAddToCart: Button = view.findViewById(R.id.btnAddToCart)
+        val ivProducto: ImageView = view.findViewById(R.id.ivProducto)
+        val tvNombreProducto: TextView = view.findViewById(R.id.tvNombreProducto)
+        val tvCategoriaProducto: TextView = view.findViewById(R.id.tvCategoriaProducto)
+        val tvPrecio: TextView = view.findViewById(R.id.tvPrecio)
+        val btnAgregarCarrito: ImageButton = view.findViewById(R.id.btnAgregarCarrito)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductoViewHolder {
@@ -35,28 +34,27 @@ class ProductoAdapter(
 
     override fun onBindViewHolder(holder: ProductoViewHolder, position: Int) {
         val producto = productos[position]
-        holder.tvProductName.text = producto.nombre
-        holder.tvProductCategory.text = producto.categoria_nombre ?: "General"
-        holder.tvProductStock.text = "Stock: ${producto.stock_actual}"
+        holder.tvNombreProducto.text = producto.nombre
+        holder.tvCategoriaProducto.text = producto.categoria_nombre ?: "General"
 
         val format = NumberFormat.getCurrencyInstance(Locale("es", "CO")).apply {
             minimumFractionDigits = 0
             maximumFractionDigits = 0
         }
-        holder.tvProductPrice.text = format.format(producto.precio_venta)
+        holder.tvPrecio.text = format.format(producto.precio_venta)
 
         Glide.with(holder.itemView.context)
             .load(producto.imagen_url)
             .placeholder(R.drawable.ic_placeholder)
-            .into(holder.ivProductImage)
+            .into(holder.ivProducto)
 
         if (producto.stock_actual <= 0) {
-            holder.btnAddToCart.text = "Sin stock"
-            holder.btnAddToCart.isEnabled = false
+            holder.btnAgregarCarrito.alpha = 0.3f
+            holder.btnAgregarCarrito.isEnabled = false
         } else {
-            holder.btnAddToCart.text = "Agregar"
-            holder.btnAddToCart.isEnabled = true
-            holder.btnAddToCart.setOnClickListener { onAddToCart(producto) }
+            holder.btnAgregarCarrito.alpha = 1f
+            holder.btnAgregarCarrito.isEnabled = true
+            holder.btnAgregarCarrito.setOnClickListener { onAddToCart(producto) }
         }
 
         holder.itemView.setOnClickListener { onItemClick(producto) }

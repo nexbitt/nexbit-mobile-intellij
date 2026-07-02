@@ -43,7 +43,7 @@ class CarritoAdapter(
         val item = items[position]
 
         holder.tvName.text = item.nombre
-        holder.tvPrice.text = "${formatter.format(item.precio)} c/u"
+        holder.tvPrice.text = formatter.format(item.precio)
         holder.tvQty.text = item.cantidad.toString()
         holder.tvSubtotal.text = formatter.format(item.subtotal)
 

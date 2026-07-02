@@ -13,6 +13,9 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
+import android.app.Dialog
+import android.content.res.ColorStateList
+import android.graphics.Color
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -59,6 +62,14 @@ class ClientMainActivity : AppCompatActivity() {
 
         showCatalogo()
         updateNavSelection("catalogo")
+
+        val openScreen = intent.getStringExtra("open_screen")
+        if (openScreen == "mispedidos") {
+            showInlineScreen("mispedidos")
+            currentNavTab = "pedidos"
+            currentScreen = "pedidos"
+            updateNavSelection("pedidos")
+        }
     }
 
     private val backCallback = object : OnBackPressedCallback(true) {
@@ -133,11 +144,26 @@ class ClientMainActivity : AppCompatActivity() {
                 contentContainer.addView(v); showCarritoInline(v)
             }
             "mispedidos" -> {
+                val prefs = getSharedPreferences("app", MODE_PRIVATE)
+                val userId = prefs.getInt("userId", 0)
                 tvToolbarTitle.text = getString(R.string.mis_pedidos)
-                val v = LayoutInflater.from(this).inflate(
-                    R.layout.inline_mispedidos, contentContainer, false
-                )
-                contentContainer.addView(v); showMisPedidosInline(v)
+                if (userId == 0) {
+                    val v = LayoutInflater.from(this).inflate(
+                        R.layout.fragment_pedidos_invitado, contentContainer, false
+                    )
+                    contentContainer.addView(v)
+                    v.findViewById<View>(R.id.btnGuestLoginRedirect).setOnClickListener {
+                        showProfile()
+                        currentNavTab = "perfil"
+                        currentScreen = "perfil"
+                        updateNavSelection("perfil")
+                    }
+                } else {
+                    val v = LayoutInflater.from(this).inflate(
+                        R.layout.inline_mispedidos, contentContainer, false
+                    )
+                    contentContainer.addView(v); showMisPedidosInline(v)
+                }
             }
         }
     }
@@ -162,6 +188,7 @@ class ClientMainActivity : AppCompatActivity() {
     private fun showCatalogo() {
         contentContainer.removeAllViews()
         val scrollView = ScrollView(this)
+        scrollView.setBackgroundColor(0xFFF5F5F7.toInt())
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(
@@ -173,30 +200,24 @@ class ClientMainActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val name = prefs.getString("userName", "Cliente") ?: "Cliente"
-
-        // Welcome header
-        container.addView(TextView(this).apply {
-            text = getString(R.string.hola_name, name)
-            textSize = 22f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(0xFF111827.toInt())
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(16, 20, 16, 4) }
-        })
-        container.addView(TextView(this).apply {
-            text = getString(R.string.explora_productos)
-            textSize = 14f
-            setTextColor(0xFF9CA3AF.toInt())
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(16, 0, 16, 16) }
-        })
-
         val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
         val userId = prefs.getInt("userId", 0)
+
+        // Centered triangle logo header
+        val headerRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(20, 24, 20, 8) }
+        }
+        headerRow.addView(ImageView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(48.dpToPx(), 48.dpToPx())
+            setImageResource(R.drawable.ic_logo_triangle)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+        })
+        container.addView(headerRow)
 
         // Loading
         val progressBar = ProgressBar(this).apply {
@@ -218,7 +239,7 @@ class ClientMainActivity : AppCompatActivity() {
                         container.addView(TextView(this@ClientMainActivity).apply {
                             text = getString(R.string.no_hay_productos)
                             textSize = 14f
-                            setTextColor(0xFF9CA3AF.toInt())
+                            setTextColor(0xFF86868B.toInt())
                             layoutParams = LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -250,104 +271,83 @@ class ClientMainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(16, 0, 16, 12) }
-            radius = 16f
-            cardElevation = 0f
+            radius = 12f
+            cardElevation = 2f
             setCardBackgroundColor(0xFFFFFFFF.toInt())
-            strokeWidth = 1
-            strokeColor = 0xFFD1D5DB.toInt()
+            strokeWidth = 0
             setContentPadding(12, 12, 12, 12)
+            setOnClickListener {
+                val intent = Intent(this@ClientMainActivity, ProductDetailActivity::class.java)
+                intent.putExtra("id_producto", p.id_producto)
+                startActivity(intent)
+            }
         }
 
         val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-
-        // Product name
-        root.addView(TextView(this).apply {
-            text = p.nombre
-            textSize = 16f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(0xFF111827.toInt())
-        })
-
-        // Horizontal content area
-        val contentRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 8 }
         }
 
-        // Image placeholder (70x70)
-        val imageContainer = FrameLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(70.dpToPx(), 70.dpToPx())
-            setBackgroundColor(0xFFF3F4F6.toInt())
-        }
+        // Image 105dp x 105dp
         val ivProduct = ImageView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(70.dpToPx(), 70.dpToPx())
-            scaleType = ImageView.ScaleType.CENTER_CROP
+            layoutParams = LinearLayout.LayoutParams(105.dpToPx(), 105.dpToPx())
+            scaleType = ImageView.ScaleType.FIT_CENTER
         }
         if (!p.imagen_url.isNullOrEmpty()) {
             Glide.with(this).load(p.imagen_url).placeholder(R.drawable.ic_placeholder).into(ivProduct)
         } else {
             ivProduct.setImageResource(R.drawable.ic_placeholder)
         }
-        imageContainer.addView(ivProduct)
-        contentRow.addView(imageContainer)
+        root.addView(ivProduct)
 
-        // Center: description / "Ver ficha técnica"
+        // Center column: name, price, category
         val centerCol = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
-            ).apply { setMargins(12, 0, 12, 0) }
+            ).apply { setMargins(12, 0, 8, 0) }
+            gravity = android.view.Gravity.CENTER_VERTICAL
         }
-        val catName = p.categoria_nombre ?: "General"
         centerCol.addView(TextView(this).apply {
-            text = getString(R.string.sin_descripcion_categoria, catName)
-            textSize = 12f
-            setTextColor(0xFF9CA3AF.toInt())
+            text = p.nombre
+            textSize = 17f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(0xFF1D1D1F.toInt())
         })
         centerCol.addView(TextView(this).apply {
-            text = getString(R.string.ver_ficha_tecnica)
-            textSize = 12f
+            text = fmt.format(p.precio_venta)
+            textSize = 19f
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(0xFF111827.toInt())
+            setTextColor(0xFF1D1D1F.toInt())
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = 4 }
-            setOnClickListener {
-                val intent = Intent(this@ClientMainActivity, ProductDetailActivity::class.java)
-                intent.putExtra("producto_id", p.id_producto)
-                startActivity(intent)
-            }
         })
-        contentRow.addView(centerCol)
+        centerCol.addView(TextView(this).apply {
+            text = p.categoria_nombre ?: "General"
+            textSize = 13f
+            setTextColor(0xFF636366.toInt())
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 4 }
+        })
+        root.addView(centerCol)
 
-        // Right: Price + Add to cart
+        // Right: cart button centered vertically
         val rightCol = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = android.view.Gravity.CENTER_HORIZONTAL
+            gravity = android.view.Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
         }
-        rightCol.addView(TextView(this).apply {
-            text = fmt.format(p.precio_venta)
-            textSize = 18f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(0xFF111827.toInt())
-        })
-        // Add-to-cart button: 36dp circle, black background
         val btnAddCart = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(36.dpToPx(), 36.dpToPx())
-            setImageResource(R.drawable.ic_cart)
+            layoutParams = LinearLayout.LayoutParams(40.dpToPx(), 40.dpToPx())
+            setImageResource(R.drawable.ic_cart_add_premium)
             scaleType = ImageView.ScaleType.CENTER_INSIDE
-            setColorFilter(0xFFFFFFFF.toInt())
-            setBackgroundColor(0xFF111827.toInt())
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
             setOnClickListener {
                 if (userId == 0) {
                     Toast.makeText(this@ClientMainActivity, getString(R.string.inicia_sesion_carrito), Toast.LENGTH_SHORT).show()
@@ -375,9 +375,8 @@ class ClientMainActivity : AppCompatActivity() {
             }
         }
         rightCol.addView(btnAddCart)
+        root.addView(rightCol)
 
-        contentRow.addView(rightCol)
-        root.addView(contentRow)
         card.addView(root)
         return card
     }
@@ -413,6 +412,7 @@ class ClientMainActivity : AppCompatActivity() {
         val llSummary = root.findViewById<LinearLayout>(R.id.llSummary)
         val tvItemCount = root.findViewById<TextView>(R.id.tvItemCount)
         val tvTotal = root.findViewById<TextView>(R.id.tvTotal)
+        val tvTotalAmount = root.findViewById<TextView>(R.id.tvTotalAmount)
         val btnCheckout = root.findViewById<TextView>(R.id.btnCheckout)
 
         val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
@@ -431,9 +431,12 @@ class ClientMainActivity : AppCompatActivity() {
                 llEmpty.visibility = View.GONE
                 rvCarrito.visibility = View.VISIBLE
                 llSummary.visibility = View.VISIBLE
-                tvItemCount.text = getString(R.string.n_articulos, items.sumOf { it.cantidad })
-                tvTotal.text = formatter.format(items.sumOf { it.subtotal })
-                cartTotal = items.sumOf { it.subtotal }
+                val subtotalTotal = items.sumOf { it.subtotal }
+                val totalQty = items.sumOf { it.cantidad }
+                tvItemCount.text = "Productos"
+                tvTotal.text = "$totalQty"
+                tvTotalAmount.text = formatter.format(subtotalTotal)
+                cartTotal = subtotalTotal
                 rvCarrito.adapter?.let { (it as CarritoAdapter).updateList(items) }
             }
         }
@@ -501,62 +504,30 @@ class ClientMainActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.carrito_vacio), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            val userAddress = prefs.getString("userAddress", "")
-            val input = EditText(this).apply {
-                hint = getString(R.string.ej_direccion)
-                inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                maxLines = 3
-                setPadding(48, 32, 48, 16)
-                setText(userAddress)
-            }
-            AlertDialog.Builder(this)
-                .setTitle(getString(R.string.direccion_entrega))
-                .setMessage(getString(R.string.donde_entregamos, formatter.format(cartTotal)))
-                .setView(input)
-                .setPositiveButton(getString(R.string.confirmar_pedido)) { _, _ ->
-                    val direccion = input.text.toString().trim()
-                    if (direccion.isEmpty()) {
-                        Toast.makeText(this, getString(R.string.direccion_obligatoria), Toast.LENGTH_SHORT).show()
+            val direccion = prefs.getString("userAddress", "Sin especificar") ?: "Sin especificar"
+            progressBar.visibility = View.VISIBLE
+            ApiClient.instance.checkout(CheckoutRequest(
+                usuario_id = userId,
+                direccion_entrega = direccion
+            )).enqueue(object : Callback<CheckoutResponse> {
+                override fun onResponse(call: Call<CheckoutResponse>, res: Response<CheckoutResponse>) {
+                    progressBar.visibility = View.GONE
+                    if (res.isSuccessful) {
+                        val pedidoId = res.body()?.id_pedido
+                        val intent = Intent(this@ClientMainActivity, PagoTransferenciaActivity::class.java)
+                        intent.putExtra(PagoTransferenciaActivity.EXTRA_PEDIDO_ID, pedidoId ?: 0)
+                        intent.putExtra(PagoTransferenciaActivity.EXTRA_TOTAL, cartTotal)
+                        startActivity(intent)
                     } else {
-                        prefs.edit { putString("userAddress", direccion) }
-                        progressBar.visibility = View.VISIBLE
-                        ApiClient.instance.checkout(CheckoutRequest(
-                            usuario_id = userId,
-                            direccion_entrega = direccion
-                        )).enqueue(object : Callback<CheckoutResponse> {
-                            override fun onResponse(call: Call<CheckoutResponse>, res: Response<CheckoutResponse>) {
-                                progressBar.visibility = View.GONE
-                                if (res.isSuccessful) {
-                                    val pedidoId = res.body()?.id_pedido
-                                    val msg = if (pedidoId != null) getString(R.string.tu_pedido_registrado, pedidoId)
-                                    else getString(R.string.tu_pedido_registrado_sin_id)
-                                    AlertDialog.Builder(this@ClientMainActivity)
-                                        .setTitle(getString(R.string.pedido_realizado))
-                                        .setMessage(msg)
-                                        .setCancelable(false)
-                                        .setPositiveButton(getString(R.string.subir_comprobante)) { _, _ ->
-                                            val intent = Intent(this@ClientMainActivity, ConfirmarPedidoActivity::class.java)
-                                            intent.putExtra("pedido_id", pedidoId ?: 0)
-                                            startActivity(intent)
-                                        }
-                                        .setNegativeButton(getString(R.string.ver_mis_pedidos)) { _, _ ->
-                                            showInlineScreen("mispedidos")
-                                        }
-                                        .show()
-                                } else {
-                                    val errorMsg = res.errorBody()?.string() ?: getString(R.string.error_desconocido)
-                                    Toast.makeText(this@ClientMainActivity, getString(R.string.error_msg, errorMsg), Toast.LENGTH_LONG).show()
-                                }
-                            }
-                            override fun onFailure(call: Call<CheckoutResponse>, t: Throwable) {
-                                progressBar.visibility = View.GONE
-                                Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion_msg, t.message), Toast.LENGTH_SHORT).show()
-                            }
-                        })
+                        val errorMsg = res.errorBody()?.string() ?: getString(R.string.error_desconocido)
+                        Toast.makeText(this@ClientMainActivity, getString(R.string.error_msg, errorMsg), Toast.LENGTH_LONG).show()
                     }
                 }
-                .setNegativeButton(getString(R.string.cancelar), null)
-                .show()
+                override fun onFailure(call: Call<CheckoutResponse>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion_msg, t.message), Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
         loadCart()
@@ -622,52 +593,188 @@ class ClientMainActivity : AppCompatActivity() {
                                             .show()
                                     },
                                     onDetalle = { pedido ->
-                                        val sb = StringBuilder()
-                                        sb.append("📦 Pedido #${pedido.id_pedido}\n")
-                                        sb.append("────────────────────────\n")
-                                        sb.append("Estado:    ${pedido.estado}\n")
-                                        sb.append("Fecha:     ${(pedido.fecha ?: pedido.fecha_pedido ?: "").take(16).replace("T", " ")}\n")
-                                        sb.append("Dirección: ${pedido.direccion_entrega ?: "No especificada"}\n")
-                                        sb.append("Total:     ${formatter.format(pedido.total)}\n")
+                                        val dialogView = LayoutInflater.from(this@ClientMainActivity)
+                                            .inflate(R.layout.dialog_detalle_pedido, null)
+                                        val dialog = android.app.Dialog(this@ClientMainActivity, android.R.style.ThemeOverlay_Material_Dialog)
+                                        dialog.setContentView(dialogView)
+                                        dialog.window?.setLayout(
+                                            ViewGroup.LayoutParams.MATCH_PARENT,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT
+                                        )
+                                        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+                                        val titleTv = dialogView.findViewById<TextView>(R.id.tvDetalleTitle)
+                                        val cerrarBtn = dialogView.findViewById<ImageButton>(R.id.btnCerrarDetalle)
+                                        val ticketBtn = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDescargarTicket)
+                                        val clienteTv = dialogView.findViewById<TextView>(R.id.tvClienteValue)
+                                        val fechaTv = dialogView.findViewById<TextView>(R.id.tvFechaValue)
+                                        val estadoBadge = dialogView.findViewById<TextView>(R.id.tvEstadoBadge)
+                                        val totalTv = dialogView.findViewById<TextView>(R.id.tvTotalValue)
+                                        val productosContainer = dialogView.findViewById<LinearLayout>(R.id.llProductosDetalle)
+                                        val accionesContainer = dialogView.findViewById<LinearLayout>(R.id.llAccionesDetalle)
+
+                                        titleTv.text = "Pedido #${String.format(Locale.US, "%06d", pedido.id_pedido)}"
+                                        cerrarBtn.setOnClickListener { dialog.dismiss() }
+                                        ticketBtn.setOnClickListener { onTicketClick(pedido); dialog.dismiss() }
+                                        clienteTv.text = pedido.usuario_nombre ?: "Cliente"
+                                        val rawFecha = pedido.fecha ?: pedido.fecha_pedido ?: ""
+                                        fechaTv.text = rawFecha.take(16).replace("T", " ")
+                                        totalTv.text = formatter.format(pedido.total)
+
+                                        val badgeBg = when (pedido.estado) {
+                                            "PENDIENTE" -> R.drawable.bg_badge_info
+                                            "CONFIRMADO" -> R.drawable.bg_badge_confirmed
+                                            "ASIGNADO" -> R.drawable.bg_badge_assigned
+                                            "EN_CAMINO" -> R.drawable.bg_badge_info
+                                            "ENTREGADO" -> R.drawable.bg_badge_success
+                                            "CANCELADO" -> R.drawable.bg_badge_cancelled
+                                            else -> R.drawable.bg_chip
+                                        }
+                                        val badgeColor = when (pedido.estado) {
+                                            "PENDIENTE" -> "#F59E0B"
+                                            "CONFIRMADO" -> "#3B82F6"
+                                            "ASIGNADO" -> "#3F51B5"
+                                            "EN_CAMINO" -> "#F97316"
+                                            "ENTREGADO" -> "#2E7D32"
+                                            "CANCELADO" -> "#EF4444"
+                                            else -> "#64748B"
+                                        }
+                                        estadoBadge.text = pedido.estado.replace("_", " ")
+                                        estadoBadge.setBackgroundResource(badgeBg)
+                                        estadoBadge.setTextColor(android.graphics.Color.parseColor(badgeColor))
+
                                         val detalles = pedido.detalles
                                         if (!detalles.isNullOrEmpty()) {
-                                            sb.append("\n🛍 Productos:\n")
                                             for (d in detalles) {
-                                                val nombre = d.producto_nombre ?: "Producto"
-                                                sb.append("  • ${d.cantidad}x $nombre → ${formatter.format(d.subtotal)}\n")
+                                                val card = LinearLayout(this@ClientMainActivity).apply {
+                                                    orientation = LinearLayout.HORIZONTAL
+                                                    gravity = android.view.Gravity.CENTER_VERTICAL
+                                                    layoutParams = LinearLayout.LayoutParams(
+                                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                                    ).apply { setMargins(0, 0, 0, 8) }
+                                                    setPadding(12, 12, 12, 12)
+                                                    setBackgroundResource(android.R.color.white)
+                                                    elevation = 1f
+                                                    outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
+                                                    clipToOutline = true
+                                                }
+
+                                                val imgContainer = ImageView(this@ClientMainActivity).apply {
+                                                    layoutParams = LinearLayout.LayoutParams(50.dpToPx(), 50.dpToPx())
+                                                    scaleType = ImageView.ScaleType.CENTER_INSIDE
+                                                    setImageResource(R.drawable.ic_package)
+                                                    setColorFilter(0xFF9CA3AF.toInt())
+                                                    setBackgroundColor(0xFFF3F4F6.toInt())
+                                                }
+                                                card.addView(imgContainer)
+
+                                                val centerCol = LinearLayout(this@ClientMainActivity).apply {
+                                                    orientation = LinearLayout.VERTICAL
+                                                    layoutParams = LinearLayout.LayoutParams(
+                                                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
+                                                    ).apply { setMargins(12, 0, 8, 0) }
+                                                }
+                                                centerCol.addView(TextView(this@ClientMainActivity).apply {
+                                                    text = d.producto_nombre ?: "Producto"
+                                                    textSize = 15f
+                                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                                    setTextColor(0xFF1C1C1E.toInt())
+                                                })
+                                                centerCol.addView(TextView(this@ClientMainActivity).apply {
+                                                    text = "Cantidad: ${d.cantidad}  •  Precio unitario: ${formatter.format(d.precio_unitario)}"
+                                                    textSize = 12f
+                                                    setTextColor(0xFF666666.toInt())
+                                                    layoutParams = LinearLayout.LayoutParams(
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                                    ).apply { topMargin = 4 }
+                                                })
+                                                card.addView(centerCol)
+
+                                                card.addView(TextView(this@ClientMainActivity).apply {
+                                                    text = formatter.format(d.subtotal)
+                                                    textSize = 15f
+                                                    setTypeface(null, android.graphics.Typeface.BOLD)
+                                                    setTextColor(0xFF1C1C1E.toInt())
+                                                    layoutParams = LinearLayout.LayoutParams(
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                        LinearLayout.LayoutParams.WRAP_CONTENT
+                                                    )
+                                                })
+
+                                                productosContainer.addView(card)
                                             }
                                         }
-                                        val dialog = AlertDialog.Builder(this@ClientMainActivity)
-                                            .setTitle(getString(R.string.detalle_del_pedido))
-                                            .setMessage(sb.toString())
-                                            .setPositiveButton(getString(R.string.cerrar), null)
-                                            .create()
-                                        dialog.setOnShowListener {
-                                            if (pedido.estado == "PENDIENTE") {
-                                                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.cancelar_pedido)) { _, _ ->
+
+                                        // Action buttons based on estado
+                                        if (pedido.estado == "PENDIENTE") {
+                                            com.google.android.material.button.MaterialButton(this@ClientMainActivity).apply {
+                                                layoutParams = LinearLayout.LayoutParams(0, 36.dpToPx(), 1f).also { it.setMargins(0, 0, 4, 0) }
+                                                text = "Cancelar pedido"
+                                                textSize = 12f
+                                                setTextColor(0xFFEF4444.toInt())
+                                                setAllCaps(false)
+                                                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEE2E2"))
+                                                strokeColor = ColorStateList.valueOf(Color.parseColor("#FECACA"))
+                                                strokeWidth = 1
+                                                cornerRadius = 8.dpToPx()
+                                                stateListAnimator = null
+                                                setOnClickListener {
+                                                    dialog.dismiss()
                                                     AlertDialog.Builder(this@ClientMainActivity)
                                                         .setTitle("${getString(R.string.cancelar_pedido)} #${pedido.id_pedido}")
-                                                        .setMessage("¿Estás seguro?")
+                                                        .setMessage("¿Estás seguro de que deseas cancelar este pedido?\nTotal: ${formatter.format(pedido.total)}")
                                                         .setPositiveButton(getString(R.string.si_cancelar)) { _, _ -> cancelarPedido(pedido.id_pedido) }
-.setNegativeButton(getString(R.string.no), null)
-                                            .show()
-                                    }
-                                }
-                                if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
-                                                dialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.subir_comprobante)) { _, _ ->
+                                                        .setNegativeButton(getString(R.string.no), null)
+                                                        .show()
+                                                }
+                                                accionesContainer.addView(this)
+                                            }
+                                        }
+                                        if (pedido.estado == "PENDIENTE" || pedido.estado == "CONFIRMADO") {
+                                            com.google.android.material.button.MaterialButton(this@ClientMainActivity).apply {
+                                                layoutParams = LinearLayout.LayoutParams(0, 36.dpToPx(), 1f).also { it.setMargins(4, 0, 4, 0) }
+                                                text = "Subir comprobante"
+                                                textSize = 12f
+                                                setTextColor(0xFF3B82F6.toInt())
+                                                setAllCaps(false)
+                                                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#DBEAFE"))
+                                                strokeColor = ColorStateList.valueOf(Color.parseColor("#BFDBFE"))
+                                                strokeWidth = 1
+                                                cornerRadius = 8.dpToPx()
+                                                stateListAnimator = null
+                                                setOnClickListener {
+                                                    dialog.dismiss()
                                                     val intent = Intent(this@ClientMainActivity, ConfirmarPedidoActivity::class.java)
                                                     intent.putExtra("pedido_id", pedido.id_pedido)
                                                     startActivity(intent)
                                                 }
+                                                accionesContainer.addView(this)
                                             }
-                                            if (pedido.estado != "CANCELADO" && pedido.estado != "ENTREGADO") {
-                                                dialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.chat)) { _, _ ->
+                                        }
+                                        if (pedido.estado != "CANCELADO" && pedido.estado != "ENTREGADO") {
+                                            com.google.android.material.button.MaterialButton(this@ClientMainActivity).apply {
+                                                layoutParams = LinearLayout.LayoutParams(0, 36.dpToPx(), 1f).also { it.setMargins(4, 0, 0, 0) }
+                                                text = "Chat"
+                                                textSize = 12f
+                                                setTextColor(0xFF1C1C1E.toInt())
+                                                setAllCaps(false)
+                                                backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F2F2F7"))
+                                                strokeColor = ColorStateList.valueOf(Color.parseColor("#D1D5DB"))
+                                                strokeWidth = 1
+                                                cornerRadius = 8.dpToPx()
+                                                stateListAnimator = null
+                                                setOnClickListener {
+                                                    dialog.dismiss()
                                                     val intent = Intent(this@ClientMainActivity, ChatActivity::class.java)
                                                     intent.putExtra("pedido_id", pedido.id_pedido)
                                                     startActivity(intent)
                                                 }
+                                                accionesContainer.addView(this)
                                             }
                                         }
+
                                         dialog.show()
                                     },
                                     onChat = { pedidoId ->
@@ -953,10 +1060,13 @@ class ClientMainActivity : AppCompatActivity() {
             // Logout
             btnLogout.setOnClickListener {
                 prefs.edit().clear().apply()
-                startActivity(Intent(this@ClientMainActivity, LoginActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                })
-                finish()
+                navStack.clear()
+                toolbarSub.visibility = View.GONE
+                toolbarDivider.visibility = View.GONE
+                showCatalogo()
+                currentNavTab = "catalogo"
+                currentScreen = "catalogo"
+                updateNavSelection("catalogo")
             }
 
         } else {

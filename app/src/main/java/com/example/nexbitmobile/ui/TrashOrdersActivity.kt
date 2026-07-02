@@ -92,15 +92,15 @@ class TrashAdapter(
 ) : RecyclerView.Adapter<TrashAdapter.VH>() {
 
     class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val tvId: TextView = view.findViewById(R.id.tvPedidoId)
-        val tvCliente: TextView = view.findViewById(R.id.tvPedidoDireccion)
-        val tvTotal: TextView = view.findViewById(R.id.tvPedidoTotal)
-        val btnRestaurar: Button = view.findViewById(R.id.btnCancelarPedido)
+        val tvId: TextView = view.findViewById(R.id.tvIdPedido)
+        val tvCliente: TextView = view.findViewById(R.id.tvDireccionPedido)
+        val tvTotal: TextView = view.findViewById(R.id.tvTotalPedido)
+        val btnRestaurar: Button = view.findViewById(R.id.btnBorrar)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_pedido_cliente, parent, false)
+            .inflate(R.layout.item_pedido, parent, false)
         return VH(view)
     }
 

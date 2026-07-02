@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
@@ -33,11 +34,15 @@ class CatalogoActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var tvEmpty: TextView
     private lateinit var tvCartBadge: TextView
+    private lateinit var tvGreeting: TextView
+    private lateinit var tvSubtitle: TextView
     private lateinit var llCategoryChips: LinearLayout
     private lateinit var etSearch: EditText
+    private lateinit var btnClearSearch: ImageView
     private lateinit var btnRetry: Button
     private lateinit var btnEntrar: Button
     private lateinit var ivProfileAvatar: ImageView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var allProductos: List<Producto> = emptyList()
     private var categorias: List<Categoria> = emptyList()
@@ -63,10 +68,14 @@ class CatalogoActivity : AppCompatActivity() {
         tvEmpty = findViewById(R.id.tvEmpty)
         btnRetry = findViewById(R.id.btnRetry)
         tvCartBadge = findViewById(R.id.tvCartBadge)
+        tvGreeting = findViewById(R.id.tvGreeting)
+        tvSubtitle = findViewById(R.id.tvSubtitle)
         llCategoryChips = findViewById(R.id.llCategoryChips)
         etSearch = findViewById(R.id.etSearch)
+        btnClearSearch = findViewById(R.id.btnClearSearch)
         btnEntrar = findViewById(R.id.btnEntrar)
         ivProfileAvatar = findViewById(R.id.ivProfileAvatar)
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
 
         checkAuthState()
 
@@ -82,6 +91,12 @@ class CatalogoActivity : AppCompatActivity() {
         )
         rvProductos.layoutManager = GridLayoutManager(this, 2)
         rvProductos.adapter = adapter
+
+        swipeRefreshLayout.setOnRefreshListener {
+            loadProducts()
+            loadCategories()
+        }
+        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_dark)
 
         btnEntrar.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
@@ -107,9 +122,15 @@ class CatalogoActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                btnClearSearch.visibility = if (s?.isNotEmpty() == true) View.VISIBLE else View.GONE
                 filterProducts()
             }
         })
+
+        btnClearSearch.setOnClickListener {
+            etSearch.text.clear()
+            btnClearSearch.visibility = View.GONE
+        }
 
         btnRetry.setOnClickListener { loadProducts() }
 
@@ -168,6 +189,7 @@ class CatalogoActivity : AppCompatActivity() {
     private fun checkAuthState() {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val token = SecurePrefs.getToken(this)
+        val userName = prefs.getString("userName", "") ?: ""
         val rolNombre = prefs.getString("userRole", "") ?: ""
         val avatarUrl = prefs.getString("userAvatar", "") ?: ""
 
@@ -175,12 +197,16 @@ class CatalogoActivity : AppCompatActivity() {
         isAdmin = rolNombre == "Administrador"
 
         if (isLoggedIn) {
+            tvGreeting.text = if (userName.isNotEmpty()) "Hola, $userName" else "Hola, Cliente"
+            tvSubtitle.text = "Explora nuestros productos"
             btnEntrar.visibility = View.GONE
             ivProfileAvatar.visibility = View.VISIBLE
             if (avatarUrl.isNotEmpty()) {
                 Glide.with(this).load(avatarUrl).circleCrop().into(ivProfileAvatar)
             }
         } else {
+            tvGreeting.text = "Hola, Cliente"
+            tvSubtitle.text = "Descubre lo nuevo"
             btnEntrar.visibility = View.VISIBLE
             ivProfileAvatar.visibility = View.GONE
         }
@@ -210,13 +236,17 @@ class CatalogoActivity : AppCompatActivity() {
     }
 
     private fun loadProducts() {
-        progressBar.visibility = View.VISIBLE
+        val isRefreshing = swipeRefreshLayout.isRefreshing
+        if (!isRefreshing) {
+            progressBar.visibility = View.VISIBLE
+        }
         findViewById<LinearLayout>(R.id.llEmptyState).visibility = View.GONE
         rvProductos.visibility = View.GONE
 
         ApiClient.instance.getProductosPublico().enqueue(object : Callback<List<Producto>> {
             override fun onResponse(call: Call<List<Producto>>, response: Response<List<Producto>>) {
                 progressBar.visibility = View.GONE
+                swipeRefreshLayout.isRefreshing = false
                 if (response.isSuccessful) {
                     allProductos = response.body() ?: emptyList()
                     filterProducts()
@@ -227,6 +257,7 @@ class CatalogoActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<List<Producto>>, t: Throwable) {
                 progressBar.visibility = View.GONE
+                swipeRefreshLayout.isRefreshing = false
                 showError("Sin conexión al servidor")
             }
         })
@@ -237,6 +268,7 @@ class CatalogoActivity : AppCompatActivity() {
         btnRetry.visibility = View.VISIBLE
         findViewById<LinearLayout>(R.id.llEmptyState).visibility = View.VISIBLE
         rvProductos.visibility = View.GONE
+        swipeRefreshLayout.isRefreshing = false
     }
 
     private fun loadCategories() {
@@ -265,13 +297,14 @@ class CatalogoActivity : AppCompatActivity() {
         val chip = TextView(this).apply {
             text = label
             textSize = 13f
+            setPadding(16, 6, 16, 6)
             setTextColor(
-                if (isSelected) resources.getColor(R.color.chip_selected_text, theme)
-                else resources.getColor(R.color.chip_text, theme)
+                if (isSelected) android.graphics.Color.WHITE
+                else android.graphics.Color.parseColor("#1D1D1F")
             )
             setBackgroundResource(
-                if (isSelected) R.drawable.bg_chip_selected
-                else R.drawable.bg_chip
+                if (isSelected) R.drawable.bg_btn_rounded
+                else R.drawable.bg_button_secondary
             )
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -301,7 +334,7 @@ class CatalogoActivity : AppCompatActivity() {
             }
         }
         adapter.updateList(filtered)
-        val isEmpty = filtered.isEmpty() && progressBar.visibility != View.VISIBLE
+        val isEmpty = filtered.isEmpty() && progressBar.visibility != View.VISIBLE && !swipeRefreshLayout.isRefreshing
         findViewById<LinearLayout>(R.id.llEmptyState).visibility = if (isEmpty) View.VISIBLE else View.GONE
         btnRetry.visibility = View.GONE
         tvEmpty.text = "No hay productos disponibles"

@@ -84,6 +84,7 @@
         <activity android:name=".ui.TicketActivity" android:exported="false" />
         <activity android:name=".ui.RepartidorDetailActivity" android:exported="false" />
         <activity android:name=".ui.ClientMainActivity" android:exported="false" />
+        <activity android:name=".ui.PagoTransferenciaActivity" android:exported="false" />
 
         <!-- Orbix UI Activities -->
         <activity android:name=".ui.MainOrbixActivity" android:exported="false" />

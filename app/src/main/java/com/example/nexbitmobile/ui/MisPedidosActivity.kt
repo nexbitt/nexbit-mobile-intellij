@@ -366,58 +366,67 @@ class MisPedidosAdapter(
 ) : RecyclerView.Adapter<MisPedidosAdapter.VH>() {
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val tvId: TextView      = view.findViewById(R.id.tvPedidoId)
-        val tvFecha: TextView   = view.findViewById(R.id.tvPedidoFecha)
-        val tvDir: TextView     = view.findViewById(R.id.tvPedidoDireccion)
-        val tvTotal: TextView   = view.findViewById(R.id.tvPedidoTotal)
-        val tvEstado: TextView  = view.findViewById(R.id.tvPedidoEstado)
-        val btnCancelar: Button  = view.findViewById(R.id.btnCancelarPedido)
-        val btnChat: ImageButton = view.findViewById(R.id.btnChatPedido)
-        val btnTicket: Button    = view.findViewById(R.id.btnTicketPedido)
+        val tvId: TextView      = view.findViewById(R.id.tvIdPedido)
+        val tvFecha: TextView   = view.findViewById(R.id.tvFechaPedido)
+        val tvDir: TextView     = view.findViewById(R.id.tvDireccionPedido)
+        val tvTotal: TextView   = view.findViewById(R.id.tvTotalPedido)
+        val tvEstadoBadge: TextView = view.findViewById(R.id.tvEstadoBadge)
+        val viewEstadoColor: View   = view.findViewById(R.id.viewEstadoColor)
+        val btnVerDetalles: Button  = view.findViewById(R.id.btnVerDetalles)
+        val btnTicket: Button       = view.findViewById(R.id.btnTicket)
+        val btnBorrar: Button       = view.findViewById(R.id.btnBorrar)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
-        VH(LayoutInflater.from(parent.context).inflate(R.layout.item_pedido_cliente, parent, false))
+        VH(LayoutInflater.from(parent.context).inflate(R.layout.item_pedido, parent, false))
 
     override fun getItemCount() = pedidos.size
 
     override fun onBindViewHolder(h: VH, pos: Int) {
         val p = pedidos[pos]
         h.tvId.text     = "Pedido #${p.id_pedido}"
-        h.tvFecha.text  = p.fecha_pedido?.take(16)?.replace("T", " ") ?: p.fecha?.take(16)?.replace("T", " ") ?: "N/A"
-        h.tvDir.text    = "📍 ${p.direccion_entrega ?: "Sin dirección"}"
+        h.tvFecha.text  = "Fecha: ${p.fecha_pedido?.take(16)?.replace("T", " ") ?: p.fecha?.take(16)?.replace("T", " ") ?: "N/A"}"
+        h.tvDir.text    = "Dirección: ${p.direccion_entrega ?: "Sin dirección"}"
         h.tvTotal.text  = fmt.format(p.total)
 
-        val (label, color) = when (p.estado) {
-            "PENDIENTE"  -> "⏳ Pendiente"  to Color.parseColor("#f59e0b")
-            "CONFIRMADO" -> "✅ Confirmado" to Color.parseColor("#3b82f6")
-            "ASIGNADO"   -> "🚴 Asignado"   to Color.parseColor("#8b5cf6")
-            "EN_CAMINO"  -> "🚚 En camino"  to Color.parseColor("#f97316")
-            "ENTREGADO"  -> "✅ Entregado"  to Color.parseColor("#10b981")
-            "CANCELADO"  -> "❌ Cancelado"  to Color.parseColor("#ef4444")
-            else         -> p.estado        to Color.parseColor("#64748b")
+        val badgeBg = when (p.estado) {
+            "PENDIENTE" -> R.drawable.bg_badge_info
+            "CONFIRMADO" -> R.drawable.bg_badge_confirmed
+            "ASIGNADO" -> R.drawable.bg_badge_assigned
+            "EN_CAMINO" -> R.drawable.bg_badge_info
+            "ENTREGADO" -> R.drawable.bg_badge_success
+            "CANCELADO" -> R.drawable.bg_badge_cancelled
+            else -> R.drawable.bg_chip
         }
-        h.tvEstado.text = label
-        h.tvEstado.setTextColor(color)
+        val colorStr = when (p.estado) {
+            "PENDIENTE" -> "#F59E0B"
+            "CONFIRMADO" -> "#3B82F6"
+            "ASIGNADO" -> "#3F51B5"
+            "EN_CAMINO" -> "#F97316"
+            "ENTREGADO" -> "#2E7D32"
+            "CANCELADO" -> "#EF4444"
+            else -> "#64748B"
+        }
+        h.tvEstadoBadge.text = when (p.estado) {
+            "EN_CAMINO" -> "EN CAMINO"
+            else -> p.estado
+        }
+        h.tvEstadoBadge.setBackgroundResource(badgeBg)
+        h.tvEstadoBadge.setTextColor(Color.parseColor(colorStr))
+        h.viewEstadoColor.setBackgroundColor(Color.parseColor(colorStr))
 
-        // Botón Ticket siempre visible
         h.btnTicket.visibility = View.VISIBLE
         h.btnTicket.setOnClickListener { onTicket(p) }
 
-        // Solo PENDIENTE puede cancelarse
-        if (p.estado == "PENDIENTE") {
-            h.btnCancelar.visibility = View.VISIBLE
-            h.btnCancelar.setOnClickListener { onCancelar(p) }
-        } else {
-            h.btnCancelar.visibility = View.GONE
-        }
+        h.btnVerDetalles.visibility = View.VISIBLE
+        h.btnVerDetalles.setOnClickListener { onDetalle(p) }
 
-        // Botón Chat siempre visible (excepto cancelados/entregados)
-        if (p.estado != "CANCELADO" && p.estado != "ENTREGADO") {
-            h.btnChat.visibility = View.VISIBLE
-            h.btnChat.setOnClickListener { onChat(p.id_pedido) }
+        if (p.estado == "PENDIENTE") {
+            h.btnBorrar.visibility = View.VISIBLE
+            h.btnBorrar.text = "Cancelar"
+            h.btnBorrar.setOnClickListener { onCancelar(p) }
         } else {
-            h.btnChat.visibility = View.GONE
+            h.btnBorrar.visibility = View.GONE
         }
 
         h.itemView.setOnClickListener { onDetalle(p) }

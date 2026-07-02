@@ -93,4 +93,13 @@
     <color name="recovery_disabled_bg">#E2E8F0</color>
     <color name="recovery_disabled_text">#94A3B8</color>
     <color name="recovery_icon_muted">#64748B</color>
+
+    <!-- Redesign Catalog / Orders -->
+    <color name="redesign_bg">#F5F5F7</color>
+    <color name="redesign_text_main">#1D1D1F</color>
+    <color name="redesign_text_sub">#86868B</color>
+    <color name="redesign_badge_green_bg">#22C55E</color>
+    <color name="redesign_badge_green_text">#15803D</color>
+    <color name="redesign_divider">#E5E5EA</color>
+    <color name="redesign_danger">#FF3B30</color>
 </resources>
