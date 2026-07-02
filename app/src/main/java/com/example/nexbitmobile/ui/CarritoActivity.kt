@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
+import com.example.nexbitmobile.util.SecurePrefs
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -48,7 +49,7 @@ class CarritoActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         userId = prefs.getInt("userId", 0)
-        token = prefs.getString("token", "") ?: ""
+        token = SecurePrefs.getToken(this) ?: ""
 
         rvCarrito = findViewById(R.id.rvCarrito)
         progressBar = findViewById(R.id.progressBar)

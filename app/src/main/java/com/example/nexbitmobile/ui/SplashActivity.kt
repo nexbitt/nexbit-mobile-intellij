@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.example.nexbitmobile.api.ApiClient
+import com.example.nexbitmobile.util.SecurePrefs
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,8 +17,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(com.example.nexbitmobile.R.layout.activity_splash)
 
-        val prefs = getSharedPreferences("app", MODE_PRIVATE)
-        val token = prefs.getString("token", null)
+        val token = SecurePrefs.getToken(this)
 
         Handler(Looper.getMainLooper()).postDelayed({
             if (!token.isNullOrEmpty()) {
@@ -45,7 +45,7 @@ class SplashActivity : AppCompatActivity() {
                         .putString("userRole", user?.rol_nombre)
                         .apply()
 
-                    routeByRole(user?.rol_id ?: 2)
+                    routeByRole(user?.rol_nombre ?: "")
                 } else {
                     goToCatalog()
                 }
@@ -57,12 +57,11 @@ class SplashActivity : AppCompatActivity() {
         })
     }
 
-    private fun routeByRole(rolId: Int) {
-        val intent: Intent = when (rolId) {
-            1 -> Intent(this, MainOrbixActivity::class.java)
-            2 -> Intent(this, ClientMainActivity::class.java)
-            4 -> Intent(this, EntregasActivity::class.java)
-            else -> Intent(this, CatalogoActivity::class.java)
+    private fun routeByRole(rolNombre: String) {
+        val intent: Intent = when (rolNombre) {
+            "Administrador" -> Intent(this, MainOrbixActivity::class.java)
+            "Repartidor" -> Intent(this, EntregasActivity::class.java)
+            else -> Intent(this, ClientMainActivity::class.java)
         }
         startActivity(intent)
         finish()

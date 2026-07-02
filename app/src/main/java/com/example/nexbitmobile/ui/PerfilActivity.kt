@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.bumptech.glide.Glide
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.nexbitmobile.R
@@ -203,6 +204,23 @@ class PerfilActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
+        }
+
+        // ─── Avatar con Glide ───────────────────────────────────────────────
+        val avatarUrl = prefs.getString("userAvatar", "") ?: ""
+        val ivAvatar = findViewById<ImageView>(R.id.ivProfileAvatar)
+        if (avatarUrl.isNotEmpty()) {
+            Glide.with(this).load(avatarUrl).circleCrop().into(ivAvatar)
+            ivAvatar.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.tvAvatarInitial).visibility = View.GONE
+        }
+
+        // ─── Navegación rápida ──────────────────────────────────────────────
+        findViewById<LinearLayout>(R.id.rowMisPedidos).setOnClickListener {
+            startActivity(Intent(this, MisPedidosActivity::class.java))
+        }
+        findViewById<LinearLayout>(R.id.rowFacturas).setOnClickListener {
+            startActivity(Intent(this, MisPedidosActivity::class.java))
         }
     }
 }

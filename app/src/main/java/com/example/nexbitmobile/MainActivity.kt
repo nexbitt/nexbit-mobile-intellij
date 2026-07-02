@@ -7,6 +7,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.nexbitmobile.ui.LoginActivity
 import com.example.nexbitmobile.ui.PerfilActivity
 import com.example.nexbitmobile.ui.ProductosAdminActivity
@@ -18,12 +25,13 @@ import com.example.nexbitmobile.ui.ClientesActivity
 import com.example.nexbitmobile.ui.CatalogoActivity
 import com.example.nexbitmobile.ui.CarritoActivity
 import com.example.nexbitmobile.ui.MisPedidosActivity
-import com.example.nexbitmobile.ui.PruebasActivity
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,23 +42,25 @@ class MainActivity : AppCompatActivity() {
         val navView = findViewById<NavigationView>(R.id.nav_view)
 
         setSupportActionBar(toolbar)
-        supportActionBar?.setHomeAsUpIndicator(android.R.drawable.ic_menu_more)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
+
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
+        appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.adminDashboardFragment, R.id.catalogoFragment, R.id.carritoFragment),
+            drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
-        val rolId = prefs.getInt("rolId", ROL_CLIENTE)
+        val rolNombre = prefs.getString("userRole", "") ?: ""
         val userName = prefs.getString("userName", "Usuario") ?: "Usuario"
-        val isAdmin = rolId == ROL_ADMIN
-        val isCliente = rolId == ROL_CLIENTE
-        val isRepartidor = rolId == ROL_REPARTIDOR
-
-        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
-        val tvRoleLabel = findViewById<TextView>(R.id.tvRoleLabel)
-        tvWelcome.text = "¡Bienvenido, $userName!"
-        tvRoleLabel.text = if (isAdmin) "Panel de Administración" else "Tienda Nexbit"
+        val isAdmin = rolNombre == "Administrador"
+        val isCliente = rolNombre == "Cliente"
+        val isRepartidor = rolNombre == "Repartidor"
 
         val menu = navView.menu
         menu.findItem(R.id.nav_group_admin).isVisible = isAdmin
@@ -60,6 +70,15 @@ class MainActivity : AppCompatActivity() {
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_inicio -> {
+                    navController.navigate(R.id.adminDashboardFragment)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_catalogo -> {
+                    navController.navigate(R.id.catalogoFragment)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_carrito -> {
+                    navController.navigate(R.id.carritoFragment)
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_entregas -> {
@@ -83,20 +102,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_perfil -> {
                     startActivity(Intent(this, PerfilActivity::class.java))
                 }
-                R.id.nav_catalogo -> {
-                    startActivity(Intent(this, CatalogoActivity::class.java))
-                }
-                R.id.nav_carrito -> {
-                    startActivity(Intent(this, CarritoActivity::class.java))
-                }
                 R.id.nav_mis_pedidos -> {
                     startActivity(Intent(this, MisPedidosActivity::class.java))
                 }
                 R.id.nav_proveedor -> {
                     startActivity(Intent(this, ProveedorActivity::class.java))
-                }
-                R.id.nav_pruebas -> {
-                    startActivity(Intent(this, PruebasActivity::class.java))
                 }
                 R.id.nav_logout -> {
                     val prefs = getSharedPreferences("app", MODE_PRIVATE)
@@ -111,9 +121,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
-        const val ROL_ADMIN = 1
-        const val ROL_CLIENTE = 2
-        const val ROL_REPARTIDOR = 4
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

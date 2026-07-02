@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
@@ -36,17 +36,9 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.ClientProfileActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".ui.PerfilActivity"
             android:exported="false" />
 
-        <activity
-            android:name=".ui.PerfilPruebaActivity"
-            android:exported="false" />
-        
         <activity
             android:name=".ui.ClientesActivity"
             android:exported="false" />
@@ -78,7 +70,6 @@
         <activity android:name=".ui.PedidosAdminActivity" android:exported="false" />
         <activity android:name=".ui.EntregasActivity" android:exported="false" />
         <activity android:name=".ui.MisPedidosActivity" android:exported="false" />
-        <activity android:name=".ui.PruebasActivity" android:exported="false" />
 
         <activity android:name=".ui.RecoveryActivity" android:exported="false" />
         <activity android:name=".ui.ConfirmacionPagoActivity" android:exported="false" />

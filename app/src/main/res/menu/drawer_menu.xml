@@ -50,17 +50,13 @@
                 android:icon="@android:drawable/ic_menu_share"
                 android:title="Clientes" />
             <item
-                android:id="@+id/nav_pedidos"
-                android:icon="@android:drawable/ic_menu_recent_history"
-                android:title="Pedidos" />
-            <item
                 android:id="@+id/nav_proveedor"
                 android:icon="@android:drawable/ic_menu_send"
                 android:title="Gestión Proveedores" />
             <item
-                android:id="@+id/nav_pruebas"
+                android:id="@+id/nav_pedidos"
                 android:icon="@android:drawable/ic_menu_edit"
-                android:title="Pruebas" />
+                android:title="Pedidos" />
         </menu>
     </item>
 

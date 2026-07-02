@@ -23,8 +23,7 @@ class NexbitApplication : Application() {
             )
         )
 
-        // Connect Socket.IO for real-time notifications
-        com.example.nexbitmobile.api.SocketManager.connect()
+        // Socket se conecta bajo demanda tras login exitoso (ver LoginActivity)
     }
 
     companion object {

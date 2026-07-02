@@ -18,6 +18,7 @@ import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.CarritoAddRequest
 import com.example.nexbitmobile.model.CarritoItem
 import com.example.nexbitmobile.model.Producto
+import com.example.nexbitmobile.util.SecurePrefs
 import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
 import retrofit2.Callback
@@ -136,7 +137,7 @@ class ProductDetailActivity : AppCompatActivity() {
     private fun addToCart(producto: Producto) {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userId = prefs.getInt("userId", 0)
-        val token = prefs.getString("token", "") ?: ""
+        val token = SecurePrefs.getToken(this) ?: ""
 
         if (userId == 0 || token.isEmpty()) {
             Toast.makeText(this, "Inicia sesión para agregar al carrito", Toast.LENGTH_SHORT).show()

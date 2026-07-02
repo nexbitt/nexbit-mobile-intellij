@@ -6,14 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintManager
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -24,7 +21,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -33,6 +29,8 @@ import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.api.SocketManager
 import com.example.nexbitmobile.model.*
+import com.example.nexbitmobile.ui.components.ComprobanteUploadHandler
+import com.example.nexbitmobile.ui.components.MainCarouselComponent
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -70,37 +68,11 @@ class MainOrbixActivity : AppCompatActivity() {
     // ─── Data ───
     private var topProducts: List<Producto> = emptyList()
 
-    // ─── Carousel ───
-    private lateinit var carouselPager: ViewPager2
-    private lateinit var pageIndicator: LinearLayout
-    private lateinit var expandedContainer: FrameLayout
-    private lateinit var carouselCard: MaterialCardView
-    private var carouselHandler = Handler(Looper.getMainLooper())
-    private var isExpanded = false
-    private var pageIndicatorDots = mutableListOf<View>()
-    private val carouselLayouts = listOf(
-        R.layout.expanded_sales,
-        R.layout.expanded_inventory,
-        R.layout.expanded_security,
-        R.layout.expanded_carts,
-        R.layout.expanded_logistics
-    )
+    // ─── Carousel component ───
+    private lateinit var carouselComponent: MainCarouselComponent
 
-    // ─── Comprobante upload ───
-    private var currentSheetUri: android.net.Uri? = null
-    private var currentSheetFileNameView: TextView? = null
-
-    private val comprobanteLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.GetContent()
-    ) { uri: android.net.Uri? ->
-        if (uri != null) {
-            currentSheetUri = uri
-            currentSheetFileNameView?.let {
-                it.text = uri.lastPathSegment ?: "Comprobante seleccionado"
-                it.visibility = View.VISIBLE
-            }
-        }
-    }
+    // ─── Comprobante upload component ───
+    private lateinit var comprobanteUpload: ComprobanteUploadHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +88,8 @@ class MainOrbixActivity : AppCompatActivity() {
         menuItemsContainer = findViewById(R.id.menuItemsContainer)
 
         adminScreens = AdminScreens(this)
+        carouselComponent = MainCarouselComponent(this)
+        comprobanteUpload = ComprobanteUploadHandler(this)
 
         setupNavItems()
         setupMenuPanel()
@@ -131,6 +105,7 @@ class MainOrbixActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         SocketManager.removeListener(socketListener)
+        if (::carouselComponent.isInitialized) carouselComponent.cleanup()
     }
 
     private val socketListener = object : SocketManager.SocketEventListener {
@@ -193,8 +168,8 @@ class MainOrbixActivity : AppCompatActivity() {
                 if (c.key == "menu") {
                     toggleMenu()
                 } else {
-                    stopAutoRotate()
-                    isExpanded = false
+                    carouselComponent.stopAutoRotate()
+                    carouselComponent.isExpanded = false
                     closeMenu()
                     navStack.clear()
                     toolbarSub.visibility = View.GONE
@@ -442,7 +417,7 @@ class MainOrbixActivity : AppCompatActivity() {
             toolbarDivider.visibility = View.GONE
         }
         when (prev) {
-            "home" -> { showHome(); startAutoRotate() }
+            "home" -> { showHome(); carouselComponent.startAutoRotate() }
             "profile" -> showProfile()
             else -> showHome()
         }
@@ -766,15 +741,11 @@ class MainOrbixActivity : AppCompatActivity() {
         }
 
         // ── Subir comprobante ──
-        currentSheetFileNameView = tvFileName
-        currentSheetUri = null
+        comprobanteUpload.reset()
+        comprobanteUpload.currentSheetFileNameView = tvFileName
         tvFileName.visibility = View.GONE
         frameUpload.setOnClickListener {
-            try {
-                comprobanteLauncher.launch("image/*")
-            } catch (_: Exception) {
-                Toast.makeText(this, "No hay una app para seleccionar archivos", Toast.LENGTH_SHORT).show()
-            }
+            comprobanteUpload.launchPicker()
         }
 
         // ── Pre-fill en modo edición ──
@@ -1290,7 +1261,7 @@ class MainOrbixActivity : AppCompatActivity() {
     // ──────────── HOME ────────────
 
     private fun showHome() {
-        isExpanded = false
+        carouselComponent.isExpanded = false
         contentContainer.removeAllViews()
         val view = LayoutInflater.from(this)
             .inflate(R.layout.fragment_home, contentContainer, false)
@@ -1308,103 +1279,18 @@ class MainOrbixActivity : AppCompatActivity() {
             Glide.with(this).load(avatarUrl).circleCrop().into(ivAvatar)
         }
 
-        // Carousel setup
-        carouselPager = view.findViewById(R.id.carouselPager)
-        pageIndicator = view.findViewById(R.id.pageIndicator)
-        expandedContainer = view.findViewById(R.id.expandedContainer)
-        carouselCard = view.findViewById(R.id.carouselCard)
-
-        setupCarousel()
-        setupPageIndicator()
+        // Carousel setup via component
+        carouselComponent.setup(view)
+        carouselComponent.setOnPageClick {
+            carouselComponent.stopAutoRotate()
+            navigateToReportList()
+        }
 
         loadTopProducts(view)
         loadHomeStats(view)
     }
 
-    // ──────────── CAROUSEL ────────────
-
-    private fun setupCarousel() {
-        carouselPager.adapter = CarouselAdapter { position -> onCarouselPageClick(position) }
-        carouselPager.offscreenPageLimit = 5
-        carouselPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                updatePageIndicator(position)
-                stopAutoRotate()
-                startAutoRotate()
-            }
-        })
-
-        // Pause auto-rotation on touch
-        carouselPager.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) stopAutoRotate()
-            if (event.action == MotionEvent.ACTION_UP) startAutoRotate()
-            false
-        }
-
-        startAutoRotate()
-    }
-
-    private fun setupPageIndicator() {
-        pageIndicator.removeAllViews()
-        pageIndicatorDots.clear()
-        for (i in 0 until 5) {
-            val dot = View(this)
-            val size = if (i == 0) 12 else 6
-            val lp = LinearLayout.LayoutParams(dp(size), 6)
-            lp.marginEnd = 4
-            dot.layoutParams = lp
-            dot.background = android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                cornerRadius = 3f
-                setColor(
-                    if (i == 0) resources.getColor(R.color.nav_active, theme)
-                    else resources.getColor(R.color.tab_inactive, theme)
-                )
-            }
-            pageIndicator.addView(dot)
-            pageIndicatorDots.add(dot)
-        }
-    }
-
-    private fun updatePageIndicator(active: Int) {
-        for ((i, dot) in pageIndicatorDots.withIndex()) {
-            val isActive = i == active
-            val size = if (isActive) 12 else 6
-            val lp = dot.layoutParams
-            lp.width = dp(size)
-            lp.height = 6
-            dot.layoutParams = lp
-            val bg = dot.background as android.graphics.drawable.GradientDrawable
-            bg.setColor(
-                if (isActive) resources.getColor(R.color.nav_active, theme)
-                else resources.getColor(R.color.tab_inactive, theme)
-            )
-        }
-    }
-
-    private var autoRotateRunnable: Runnable? = null
-
-    private fun startAutoRotate() {
-        stopAutoRotate()
-        if (isExpanded) return
-        autoRotateRunnable = Runnable {
-            val next = (carouselPager.currentItem + 1) % 5
-            carouselPager.setCurrentItem(next, true)
-        }
-        carouselHandler.postDelayed(autoRotateRunnable!!, 5000)
-    }
-
-    private fun stopAutoRotate() {
-        autoRotateRunnable?.let { carouselHandler.removeCallbacks(it) }
-        autoRotateRunnable = null
-    }
-
     // ──────────── TAP TO NAVIGATE TO REPORT LIST ────────────
-
-    private fun onCarouselPageClick(position: Int) {
-        stopAutoRotate()
-        navigateToReportList()
-    }
 
     private fun navigateToReportList() {
         navStack.add(currentScreen)
@@ -1440,10 +1326,6 @@ class MainOrbixActivity : AppCompatActivity() {
             }
             override fun onFailure(call: Call<StatsResponse>, t: Throwable) {}
         })
-    }
-
-    private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
     }
 
     private fun loadTopProducts(root: View) {

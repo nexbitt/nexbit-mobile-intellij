@@ -57,4 +57,13 @@
     <string name="direccion">Dirección</string>
     <string name="ciudad">Ciudad</string>
     <string name="ej_direccion">Ej: Calle 45 #12-34, Bogotá</string>
+    <string name="idioma">Idioma / Language</string>
+    <string name="espanol">Español</string>
+    <string name="notificaciones">Notificaciones</string>
+    <string name="recibe_alertas">Recibe alertas de tus pedidos por correo</string>
+    <string name="historial_tickets">Historial de Tickets</string>
+    <string name="ayuda">Ayuda</string>
+    <string name="contacto">Contacto</string>
+    <string name="iniciar_sesion">Iniciar Sesión</string>
+    <string name="no_tienes_cuenta">¿No tienes cuenta? Regístrate</string>
 </resources>

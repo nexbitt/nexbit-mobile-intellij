@@ -19,6 +19,7 @@ import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.api.SocketManager
 import com.example.nexbitmobile.model.*
+import com.example.nexbitmobile.util.SecurePrefs
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import retrofit2.Call
@@ -90,7 +91,7 @@ class CatalogoActivity : AppCompatActivity() {
             if (isAdmin) {
                 startActivity(Intent(this, MainOrbixActivity::class.java))
             } else {
-                startActivity(Intent(this, ClientProfileActivity::class.java))
+                startActivity(Intent(this, PerfilActivity::class.java))
             }
         }
 
@@ -166,12 +167,12 @@ class CatalogoActivity : AppCompatActivity() {
 
     private fun checkAuthState() {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
-        val token = prefs.getString("token", null)
-        val rolId = prefs.getInt("rolId", 0)
+        val token = SecurePrefs.getToken(this)
+        val rolNombre = prefs.getString("userRole", "") ?: ""
         val avatarUrl = prefs.getString("userAvatar", "") ?: ""
 
         isLoggedIn = !token.isNullOrEmpty()
-        isAdmin = rolId == 1
+        isAdmin = rolNombre == "Administrador"
 
         if (isLoggedIn) {
             btnEntrar.visibility = View.GONE

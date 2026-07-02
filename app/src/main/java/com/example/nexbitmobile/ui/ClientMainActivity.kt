@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide
 import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.*
+import com.example.nexbitmobile.util.SecurePrefs
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -417,7 +418,7 @@ class ClientMainActivity : AppCompatActivity() {
         val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userId = prefs.getInt("userId", 0)
-        val token = prefs.getString("token", "") ?: ""
+        val token = SecurePrefs.getToken(this) ?: ""
         var cartTotal = 0.0
 
         val cargarCarrito: (List<CarritoItem>) -> Unit = { items ->
@@ -795,242 +796,201 @@ class ClientMainActivity : AppCompatActivity() {
 
     private fun showProfile() {
         contentContainer.removeAllViews()
-        val scrollView = ScrollView(this)
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
-        scrollView.addView(container)
+        val root = layoutInflater.inflate(R.layout.fragment_profile_client, contentContainer, false)
+        contentContainer.addView(root)
 
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val userId = prefs.getInt("userId", 0)
+        val isLoggedIn = userId != 0
+        val userName = prefs.getString("userName", "") ?: ""
+        val userEmail = prefs.getString("userEmail", "") ?: ""
 
-        // Avatar
-        val avatarFrame = FrameLayout(this).apply {
-            layoutParams = LinearLayout.LayoutParams(64.dpToPx(), 64.dpToPx())
-            setBackgroundColor(0xFFF3F4F6.toInt())
-        }
-        container.addView(avatarFrame.apply {
-            layoutParams = (layoutParams as LinearLayout.LayoutParams).apply { gravity = android.view.Gravity.CENTER; topMargin = 24 }
-        })
+        // ── Views ──
+        val ivAvatar = root.findViewById<ImageView>(R.id.ivProfileAvatar)
+        val tvAvatarInitial = root.findViewById<TextView>(R.id.tvAvatarInitial)
+        val tvName = root.findViewById<TextView>(R.id.tvProfileName)
+        val tvEmail = root.findViewById<TextView>(R.id.tvProfileEmail)
+        val tvStatusBadge = root.findViewById<TextView>(R.id.tvStatusBadge)
 
-        val tvName = TextView(this).apply {
-            id = R.id.tvProfileName
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { gravity = android.view.Gravity.CENTER; topMargin = 12 }
-            text = prefs.getString("userName", "Cliente") ?: "Cliente"
-            textSize = 18f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setTextColor(0xFF111827.toInt())
-        }
-        container.addView(tvName)
+        val etPhone = root.findViewById<EditText>(R.id.etProfilePhone)
+        val etAddress = root.findViewById<EditText>(R.id.etProfileAddress)
 
-        val tvEmail = TextView(this).apply {
-            id = R.id.tvProfileEmail
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { gravity = android.view.Gravity.CENTER; topMargin = 2 }
-            text = prefs.getString("userEmail", "Sin correo") ?: "Sin correo"
-            textSize = 14f
-            setTextColor(0xFF9CA3AF.toInt())
-        }
-        container.addView(tvEmail)
+        val btnSave = root.findViewById<Button>(R.id.btnSaveProfile)
 
-        // Form fields card
-        val formCard = com.google.android.material.card.MaterialCardView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(16, 24, 16, 0) }
-            radius = 12f
-            cardElevation = 0f
-            setCardBackgroundColor(0xFFFFFFFF.toInt())
-            strokeWidth = 0
-            setContentPadding(4, 4, 4, 4)
-        }
-        val formFields = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        formFields.addView(createFormField(getString(R.string.telefono), R.id.etProfilePhone))
-        formFields.addView(createFormField(getString(R.string.direccion), R.id.etProfileAddress))
-        formFields.addView(createFormField(getString(R.string.ciudad), R.id.etProfileCity))
-        formCard.addView(formFields)
-        container.addView(formCard)
+        val rowMisPedidos = root.findViewById<View>(R.id.rowMisPedidos)
+        val rowFacturas = root.findViewById<View>(R.id.rowFacturas)
+        val rowAyuda = root.findViewById<View>(R.id.rowAyuda)
+        val rowContacto = root.findViewById<View>(R.id.rowContacto)
 
-        // Load user data from API
-        if (userId != 0) {
+        val switchLang = root.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchLang)
+        val switchNotif = root.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchNotifications)
+        val tvLangLabel = root.findViewById<TextView>(R.id.tvLangLabel)
+        val tvLangSub = root.findViewById<TextView>(R.id.tvLangSub)
+
+        val guestCta = root.findViewById<View>(R.id.guestCtaContainer)
+        val btnGuestLogin = root.findViewById<Button>(R.id.btnGuestLogin)
+        val tvGuestRegister = root.findViewById<TextView>(R.id.tvGuestRegister)
+        val btnLogout = root.findViewById<Button>(R.id.btnLogout)
+
+        if (isLoggedIn) {
+            // ── Logged-in client state ──
+            tvName.text = userName.ifEmpty { "Cliente" }
+            tvEmail.text = userEmail
+            tvStatusBadge.text = "● Conectado"
+            tvStatusBadge.visibility = View.VISIBLE
+
+            if (userName.isNotEmpty()) {
+                tvAvatarInitial.text = userName.first().uppercase()
+                tvAvatarInitial.visibility = View.VISIBLE
+            }
+
+            val avatarUrl = prefs.getString("userAvatar", "") ?: ""
+            if (avatarUrl.isNotEmpty()) {
+                Glide.with(this).load(avatarUrl).circleCrop().into(ivAvatar)
+                tvAvatarInitial.visibility = View.GONE
+            }
+
+            etPhone.setText(prefs.getString("userPhone", ""))
+            etAddress.setText(prefs.getString("userAddress", ""))
+
+            guestCta.visibility = View.GONE
+            btnLogout.visibility = View.VISIBLE
+
+            // Load remote data
             ApiClient.instance.getUsuario(userId).enqueue(object : Callback<Usuario> {
                 override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
                     if (res.isSuccessful) {
-                        val u = res.body()!!
+                        val u = res.body() ?: return
                         tvName.text = u.nombre
                         tvEmail.text = u.email
-                        findViewById<EditText>(R.id.etProfilePhone).setText(u.telefono ?: "No registrado")
-                        findViewById<EditText>(R.id.etProfileAddress).setText(u.direccion ?: "No registrada")
+                        etPhone.setText(u.telefono ?: "")
+                        etAddress.setText(u.direccion ?: "")
+                        prefs.edit()
+                            .putString("userName", u.nombre)
+                            .putString("userEmail", u.email)
+                            .putString("userPhone", u.telefono)
+                            .putString("userAddress", u.direccion)
+                            .apply()
                     }
                 }
                 override fun onFailure(c: Call<Usuario>, t: Throwable) {}
             })
-        }
 
-        // Edit / Save button
-        val btnEdit = TextView(this).apply {
-            id = R.id.btnProfileEdit
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                42.dpToPx()
-            ).apply { setMargins(16, 20, 16, 0) }
-            gravity = android.view.Gravity.CENTER
-            text = getString(R.string.editar_datos)
-            setTextColor(0xFF111827.toInt())
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setBackgroundResource(R.drawable.bg_btn_outline)
-            setOnClickListener {
-                val etPhone = findViewById<EditText>(R.id.etProfilePhone)
-                val etAddress = findViewById<EditText>(R.id.etProfileAddress)
-                val etCity = findViewById<EditText>(R.id.etProfileCity)
+            // Edit / Save toggle
+            btnSave.visibility = View.VISIBLE
+            btnSave.text = getString(R.string.editar_datos)
+            btnSave.setOnClickListener {
                 if (!isProfileEditing) {
                     isProfileEditing = true
-                    text = getString(R.string.guardar)
+                    btnSave.text = getString(R.string.guardar)
                     etPhone.isEnabled = true
+                    etPhone.isClickable = true
+                    etPhone.isFocusable = true
+                    etPhone.isFocusableInTouchMode = true
                     etAddress.isEnabled = true
-                    etCity.isEnabled = true
+                    etAddress.isClickable = true
+                    etAddress.isFocusable = true
+                    etAddress.isFocusableInTouchMode = true
                 } else {
                     val newPhone = etPhone.text.toString().trim()
                     val newAddress = etAddress.text.toString().trim()
-                    if (userId != 0) {
-                        ApiClient.instance.updateUsuario(userId, UsuarioUpdateRequest(
-                            telefono = newPhone.ifEmpty { null },
-                            direccion = newAddress.ifEmpty { null }
-                        )).enqueue(object : Callback<Usuario> {
-                            override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
-                                if (res.isSuccessful) {
-                                    Toast.makeText(this@ClientMainActivity, getString(R.string.perfil_actualizado), Toast.LENGTH_SHORT).show()
-                                } else Toast.makeText(this@ClientMainActivity, getString(R.string.error_perfil, res.code()), Toast.LENGTH_SHORT).show()
+                    ApiClient.instance.updateUsuario(userId, UsuarioUpdateRequest(
+                        telefono = newPhone.ifEmpty { null },
+                        direccion = newAddress.ifEmpty { null }
+                    )).enqueue(object : Callback<Usuario> {
+                        override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                            if (res.isSuccessful) {
+                                Toast.makeText(this@ClientMainActivity, getString(R.string.perfil_actualizado), Toast.LENGTH_SHORT).show()
+                                prefs.edit()
+                                    .putString("userPhone", newPhone)
+                                    .putString("userAddress", newAddress)
+                                    .apply()
+                            } else {
+                                Toast.makeText(this@ClientMainActivity, getString(R.string.error_perfil, res.code()), Toast.LENGTH_SHORT).show()
                             }
-                            override fun onFailure(c: Call<Usuario>, t: Throwable) {
-                                Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
-                            }
-                        })
-                    }
+                        }
+                        override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                            Toast.makeText(this@ClientMainActivity, getString(R.string.error_conexion), Toast.LENGTH_SHORT).show()
+                        }
+                    })
                     isProfileEditing = false
-                    text = getString(R.string.editar_datos)
+                    btnSave.text = getString(R.string.editar_datos)
                     etPhone.isEnabled = false
+                    etPhone.isFocusable = false
+                    etPhone.isFocusableInTouchMode = false
                     etAddress.isEnabled = false
-                    etCity.isEnabled = false
+                    etAddress.isFocusable = false
+                    etAddress.isFocusableInTouchMode = false
                 }
             }
-        }
-        container.addView(btnEdit)
 
-        // Config options
-        val configItems = listOf(
-            "Ayuda" to { startActivity(Intent(this, HelpActivity::class.java)) },
-            "Contacto" to { startActivity(Intent(this, ContactoActivity::class.java)) }
-        )
-
-        val configCard = com.google.android.material.card.MaterialCardView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(16, 12, 16, 0) }
-            radius = 12f
-            cardElevation = 0f
-            setCardBackgroundColor(0xFFFFFFFF.toInt())
-            strokeWidth = 0
-            setContentPadding(0, 0, 0, 0)
-        }
-        val configList = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        configItems.forEachIndexed { idx, item ->
-            val lab = item.first
-            val act = item.second
-            val row = TextView(this).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    48.dpToPx()
-                )
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                text = lab
-                textSize = 14f
-                setTextColor(0xFF111827.toInt())
-                setPadding(16, 0, 16, 0)
-                setOnClickListener { act() }
+            // Quick Access
+            rowMisPedidos.setOnClickListener {
+                startActivity(Intent(this, MisPedidosActivity::class.java))
             }
-            configList.addView(row)
-            if (idx < configItems.size - 1) {
-                configList.addView(View(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, 1
-                    ).apply { setMargins(16, 0, 16, 0) }
-                    setBackgroundColor(0xFFD1D5DB.toInt())
-                })
+            rowFacturas.setOnClickListener {
+                startActivity(Intent(this, MisPedidosActivity::class.java))
             }
-        }
-        configCard.addView(configList)
-        container.addView(configCard)
+            rowAyuda.setOnClickListener {
+                startActivity(Intent(this, HelpActivity::class.java))
+            }
+            rowContacto.setOnClickListener {
+                startActivity(Intent(this, ContactoActivity::class.java))
+            }
 
-        // Logout button
-        val btnLogout = TextView(this).apply {
-            id = R.id.btnProfileLogout
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                42.dpToPx()
-            ).apply { setMargins(16, 20, 16, 32) }
-            gravity = android.view.Gravity.CENTER
-            text = getString(R.string.cerrar_sesion)
-            setTextColor(0xFFFFFFFF.toInt())
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setBackgroundColor(0xFFEF4444.toInt())
-            setOnClickListener {
-                prefs.edit { clear() }
+            // Language
+            val isSpanish = com.example.nexbitmobile.util.LanguageHelper.isSpanish(this)
+            switchLang.isChecked = !isSpanish
+            tvLangLabel.text = if (isSpanish) "Idioma / Language" else "Language / Idioma"
+            tvLangSub.text = if (isSpanish) "Español" else "English"
+            switchLang.setOnCheckedChangeListener { _, isChecked ->
+                val newLocale = if (isChecked) "en" else "es"
+                com.example.nexbitmobile.util.LanguageHelper.setLocale(this, newLocale)
+                tvLangLabel.text = if (isChecked) "Language / Idioma" else "Idioma / Language"
+                tvLangSub.text = if (isChecked) "English" else "Español"
+            }
+
+            // Logout
+            btnLogout.setOnClickListener {
+                prefs.edit().clear().apply()
                 startActivity(Intent(this@ClientMainActivity, LoginActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 })
                 finish()
             }
-        }
-        container.addView(btnLogout)
 
-        contentContainer.addView(scrollView)
-    }
+        } else {
+            // ── Guest / Pre-login state ──
+            tvName.text = "Invitado"
+            tvEmail.text = "Inicia sesión para acceder"
+            tvStatusBadge.visibility = View.GONE
 
-    private fun createFormField(hint: String, viewId: Int): View {
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(8, 8, 8, 8)
+            etPhone.setText("---")
+            etAddress.setText("---")
+
+            btnSave.visibility = View.GONE
+            btnLogout.visibility = View.GONE
+
+            guestCta.visibility = View.VISIBLE
+            btnGuestLogin.setOnClickListener {
+                startActivity(Intent(this, LoginActivity::class.java))
+            }
+            tvGuestRegister.setOnClickListener {
+                startActivity(Intent(this, RegistroActivity::class.java))
+            }
+
+            // Quick Access shows toast "Inicia sesión para acceder" on tap
+            val loginToast = {
+                Toast.makeText(this@ClientMainActivity, "Inicia sesión para acceder", Toast.LENGTH_SHORT).show()
+            }
+            listOf(rowMisPedidos, rowFacturas, rowAyuda, rowContacto).forEach { row ->
+                row.setOnClickListener { loginToast() }
+            }
+
+            // Preferences disabled for guest
+            switchLang.isEnabled = false
+            switchNotif.isEnabled = false
         }
-        container.addView(TextView(this).apply {
-            text = hint
-            textSize = 12f
-            setTextColor(0xFF6B7280.toInt())
-        })
-        val et = EditText(this).apply {
-            id = viewId
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                42.dpToPx()
-            )
-            background = ResourcesCompat.getDrawable(resources, R.drawable.bg_crud_input, theme)
-            setPadding(12, 0, 12, 0)
-            textSize = 14f
-            setTextColor(0xFF111827.toInt())
-        }
-        container.addView(et)
-        return container
     }
 
     private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
