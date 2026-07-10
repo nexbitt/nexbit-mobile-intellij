@@ -964,7 +964,7 @@ class ClientMainActivity : AppCompatActivity() {
             btnLogout.visibility = View.VISIBLE
 
             // Load remote data
-            ApiClient.instance.getUsuario(userId).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getMe().enqueue(object : Callback<Usuario> {
                 override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
                     if (res.isSuccessful) {
                         val u = res.body() ?: return

@@ -71,7 +71,7 @@ class PerfilActivity : AppCompatActivity() {
             tvLoadingStatus.visibility = View.VISIBLE
             tvLoadingStatus.text = "Sincronizando con el servidor..."
 
-            ApiClient.instance.getUsuario(currentUserId).enqueue(object : Callback<Usuario> {
+            ApiClient.instance.getMe().enqueue(object : Callback<Usuario> {
                 override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
                     if (response.isSuccessful) {
                         val user = response.body()
