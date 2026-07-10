@@ -127,6 +127,7 @@ class ProductDetailActivity : AppCompatActivity() {
         Glide.with(this)
             .load(producto.imagen_url)
             .placeholder(R.drawable.ic_placeholder)
+            .error(R.drawable.ic_placeholder)
             .into(findViewById<ImageView>(R.id.ivProductImage))
 
         btnAddToCart.setOnClickListener {

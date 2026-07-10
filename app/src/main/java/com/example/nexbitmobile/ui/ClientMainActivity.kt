@@ -293,7 +293,7 @@ class ClientMainActivity : AppCompatActivity() {
             scaleType = ImageView.ScaleType.FIT_CENTER
         }
         if (!p.imagen_url.isNullOrEmpty()) {
-            Glide.with(this).load(p.imagen_url).placeholder(R.drawable.ic_placeholder).into(ivProduct)
+            Glide.with(this).load(p.imagen_url).placeholder(R.drawable.ic_placeholder).error(R.drawable.ic_placeholder).into(ivProduct)
         } else {
             ivProduct.setImageResource(R.drawable.ic_placeholder)
         }
@@ -953,7 +953,7 @@ class ClientMainActivity : AppCompatActivity() {
 
             val avatarUrl = prefs.getString("userAvatar", "") ?: ""
             if (avatarUrl.isNotEmpty()) {
-                Glide.with(this).load(avatarUrl).circleCrop().into(ivAvatar)
+                Glide.with(this).load(avatarUrl).circleCrop().placeholder(R.drawable.ic_placeholder).error(R.drawable.ic_placeholder).into(ivAvatar)
                 tvAvatarInitial.visibility = View.GONE
             }
 

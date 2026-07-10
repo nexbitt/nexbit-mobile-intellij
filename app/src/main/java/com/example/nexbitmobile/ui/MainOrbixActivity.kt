@@ -1349,9 +1349,10 @@ class MainOrbixActivity : AppCompatActivity() {
                         v.findViewById<TextView>(R.id.tvGrowthPercent).text =
                             "+${(20 + i * 5) % 50}%"
                         com.bumptech.glide.Glide.with(this@MainOrbixActivity)
-                            .load(p.imagen_url)
-                            .placeholder(R.drawable.ic_placeholder)
-                            .into(v.findViewById(R.id.ivProductThumb))
+      .load(p.imagen_url)
+      .placeholder(R.drawable.ic_placeholder)
+      .error(R.drawable.ic_placeholder)
+      .into(v.findViewById(R.id.ivProductThumb))
                         container.addView(v)
                     }
                 }

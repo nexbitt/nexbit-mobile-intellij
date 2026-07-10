@@ -27,7 +27,7 @@ class PagoTransferenciaActivity : AppCompatActivity() {
         val total = intent.getDoubleExtra(EXTRA_TOTAL, 0.0)
         val fmt = NumberFormat.getNumberInstance(Locale.US)
 
-        tvTotalPagar = findViewById(R.id.tvTotalPagar)
+        tvTotalPagar = findViewById(R.id.tvTotalPagar )
         tvPedidoId = findViewById(R.id.tvPedidoId)
         btnSubirComprobante = findViewById(R.id.btnSubirComprobante)
 

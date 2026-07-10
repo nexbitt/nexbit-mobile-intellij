@@ -103,7 +103,7 @@ class CatalogoFragment : Fragment() {
             val avatarUrl = context.getSharedPreferences("app", android.content.Context.MODE_PRIVATE)
                 .getString("userAvatar", "") ?: ""
             if (avatarUrl.isNotEmpty()) {
-                Glide.with(this).load(avatarUrl).circleCrop().into(ivProfileAvatar)
+                Glide.with(this).load(avatarUrl).circleCrop().placeholder(R.drawable.ic_placeholder).error(R.drawable.ic_placeholder).into(ivProfileAvatar)
             }
             ivProfileAvatar.setOnClickListener {
                 if (isAdmin) {

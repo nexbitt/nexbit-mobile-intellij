@@ -202,7 +202,7 @@ class CatalogoActivity : AppCompatActivity() {
             btnEntrar.visibility = View.GONE
             ivProfileAvatar.visibility = View.VISIBLE
             if (avatarUrl.isNotEmpty()) {
-                Glide.with(this).load(avatarUrl).circleCrop().into(ivProfileAvatar)
+                Glide.with(this).load(avatarUrl).circleCrop().placeholder(R.drawable.ic_placeholder).error(R.drawable.ic_placeholder).into(ivProfileAvatar)
             }
         } else {
             tvGreeting.text = "Hola, Cliente"
