@@ -1,0 +1,9 @@
+## Local path to Android SDK.
+## On Windows, the default Android Studio location is:
+sdk.dir=C\:\\Users\\YourUser\\AppData\\Local\\Android\\Sdk
+
+## On macOS:
+# sdk.dir=/Users/YourUser/Library/Android/sdk
+
+## On Linux:
+# sdk.dir=/home/YourUser/Android/Sdk

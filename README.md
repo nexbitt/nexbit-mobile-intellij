@@ -121,6 +121,7 @@ Endpoints principales usados:
 | `Unsupported class file major version` | JDK incorrecto | Configurar JDK 21 en Android Studio |
 | `Connection refused` en API | Backend no iniciado | Ejecutar `npm run dev` en el backend |
 | `EADDRINUSE :::3000` | Puerto ocupado | Matar proceso anterior en puerto 3000 |
+| `Cannot access field connected: Boolean` | Socket.IO API change | Usar `socket?.connected()` (método) en vez de `socket?.connected` (campo privado) |
 | `Cannot resolve symbol R` | Build corrompido | `Build > Clean Project` luego `Rebuild` |
 | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | App ya instalada con otra firma | Desinstalar la app del dispositivo/emulador |
 
