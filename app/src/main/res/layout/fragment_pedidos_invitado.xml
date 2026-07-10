@@ -2,57 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
-    android:padding="40dp"
-    android:background="#F5F5F7">
-
-    <FrameLayout
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="@drawable/bg_circle_dark">
 
         <ImageView
-            android:id="@+id/ivGuestLock"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_lock"
-            android:tint="#FFFFFF"
-            android:contentDescription="Bloqueado" />
-    </FrameLayout>
 
     <TextView
-        android:id="@+id/tvGuestTitle"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Inicia sesion para ver tus pedidos"
-        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#1C1C1E"
-        android:gravity="center" />
 
     <TextView
-        android:id="@+id/tvGuestSubtitle"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Podras hacer seguimiento en tiempo real, ver tus tickets de compra y gestionar tus transferencias de pago."
-        android:textSize="14sp"
-        android:textColor="#636366"
         android:gravity="center"
-        android:lineSpacingExtra="4dp" />
 
     <Button
         android:id="@+id/btnGuestLoginRedirect"
-        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="28dp"
-        android:text="Iniciar Sesion / Registrarse"
-        android:textSize="15sp"
-        android:textColor="#FFFFFF"
-        android:textAllCaps="false"
-        android:background="@drawable/bg_btn_primary" />
 
 </LinearLayout>
