@@ -26,9 +26,10 @@ import com.example.nexbitmobile.R
 import com.example.nexbitmobile.api.ApiClient
 import com.example.nexbitmobile.model.Pedido
 import com.example.nexbitmobile.model.PedidoRequest
-import com.example.nexbitmobile.model.Producto
 import com.example.nexbitmobile.model.Usuario
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -77,7 +78,8 @@ class PedidosAdminActivity : AppCompatActivity() {
         adapter = PedidoAdminAdapter(
             pedidos = emptyList(),
             onDetalle = { pedido -> mostrarDetalle(pedido) },
-            onDownload = { pedido -> descargarTicket(pedido) }
+            onDownload = { pedido -> descargarTicket(pedido) },
+            onEdit = { pedido -> mostrarDialogoEditar(pedido) }
         )
         recyclerView.adapter = adapter
 
@@ -247,5 +249,124 @@ class PedidosAdminActivity : AppCompatActivity() {
         }
         wv.loadDataWithBaseURL(null, html, "text/HTML", "UTF-8", null)
         ticketWebView = wv
+    }
+
+    // ──────────── EDITAR PEDIDO ────────────
+    private fun mostrarDialogoEditar(pedido: Pedido) {
+        val view = layoutInflater.inflate(R.layout.dialog_editar_pedido, null)
+        val fmt = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+
+        // Título
+        view.findViewById<TextView>(R.id.tvDialogTitulo).text = "Editar Pedido #${pedido.id_pedido}"
+
+        // Total actual
+        view.findViewById<TextView>(R.id.tvTotalActual).text = "Total actual: ${fmt.format(pedido.total)}"
+
+        // Cargar estados válidos según FSM del backend
+        val estadosDisponibles = obtenerEstadosPermitidos(pedido.estado)
+        val spinnerEstado = view.findViewById<Spinner>(R.id.spinnerEstado)
+        val adapterEstado = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, estadosDisponibles)
+        spinnerEstado.adapter = adapterEstado
+        // Seleccionar estado actual
+        val currentIndex = estadosDisponibles.indexOf(pedido.estado)
+        if (currentIndex >= 0) spinnerEstado.setSelection(currentIndex)
+
+        // Dirección actual
+        val etDireccion = view.findViewById<TextInputEditText>(R.id.etDireccionEntrega)
+        etDireccion.setText(pedido.direccion_entrega ?: "")
+
+        // Notas actuales
+        val etNotas = view.findViewById<TextInputEditText>(R.id.etNotasEntrega)
+        etNotas.setText(pedido.notas_entrega ?: "")
+
+        // Total editable
+        val etTotal = view.findViewById<TextInputEditText>(R.id.etTotal)
+        etTotal.setText(pedido.total.toInt().toString())
+
+        // Spinner Repartidores - cargar desde API
+        val spinnerRepartidor = view.findViewById<Spinner>(R.id.spinnerRepartidor)
+        val tvRepartidorHint = view.findViewById<TextView>(R.id.tvRepartidorHint)
+        cargarRepartidores(spinnerRepartidor, tvRepartidorHint)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .show()
+
+        // Botón Cancelar
+        view.findViewById<TextView>(R.id.btnCancelar).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Botón Guardar
+        view.findViewById<TextView>(R.id.btnGuardar).setOnClickListener {
+            val nuevoEstado = spinnerEstado.selectedItem.toString()
+            val direccion = etDireccion.text.toString().trim().ifEmpty { null }
+            val notas = etNotas.text.toString().trim().ifEmpty { null }
+            val totalStr = etTotal.text.toString().trim()
+            val total = if (totalStr.isNotEmpty()) totalStr.toDoubleOrNull() else null
+
+            // Obtener repartidor_id seleccionado
+            val repartidorId: Int? = (spinnerRepartidor.tag as? List<Usuario>)?.getOrNull(spinnerRepartidor.selectedItemPosition)?.id_usuario
+
+            val request = PedidoRequest(
+                usuario_id = pedido.usuario_id,
+                total = total ?: pedido.total,
+                estado = nuevoEstado,
+                direccion_entrega = direccion,
+                notas_entrega = notas,
+                repartidor_id = repartidorId
+            )
+
+            ApiClient.instance.updatePedido(pedido.id_pedido, request).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@PedidosAdminActivity, "Pedido actualizado", Toast.LENGTH_SHORT).show()
+                        loadPedidos()
+                        dialog.dismiss()
+                    } else {
+                        Toast.makeText(this@PedidosAdminActivity, "Error al actualizar (${response.code()})", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Toast.makeText(this@PedidosAdminActivity, "Fallo de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    private fun obtenerEstadosPermitidos(estadoActual: String): List<String> {
+        return when (estadoActual) {
+            "PENDIENTE" -> listOf("PENDIENTE", "CONFIRMADO")
+            "EN_REVISION" -> listOf("EN_REVISION", "APROBADO", "RECHAZADO")
+            "APROBADO" -> listOf("APROBADO", "ASIGNADO")
+            "ASIGNADO" -> listOf("ASIGNADO", "EN_CAMINO")
+            "EN_CAMINO" -> listOf("EN_CAMINO", "ENTREGADO", "CANCELADO")
+            "RECHAZADO" -> listOf("RECHAZADO", "PENDIENTE") // Puede volver a pendiente para re-subir comprobante
+            else -> listOf(estadoActual) // ENTREGADO, CANCELADO no permiten cambios
+        }
+    }
+
+    private fun cargarRepartidores(spinner: Spinner, hintView: TextView) {
+        ApiClient.instance.getUsuarios().enqueue(object : Callback<List<Usuario>> {
+            override fun onResponse(call: Call<List<Usuario>>, response: Response<List<Usuario>>) {
+                if (response.isSuccessful) {
+                    val usuarios = response.body() ?: emptyList()
+                    val repartidores = usuarios.filter { it.rol_id == 4 } // rol_id 4 = Repartidor
+                    if (repartidores.isNotEmpty()) {
+                        val nombres = repartidores.map { "${it.nombre} (${it.email})" }
+                        val adapter = ArrayAdapter(this@PedidosAdminActivity, android.R.layout.simple_spinner_dropdown_item, nombres)
+                        spinner.adapter = adapter
+                        hintView.visibility = View.GONE
+                        // Guardamos los IDs en el tag para recuperarlos después
+                        spinner.tag = repartidores
+                    } else {
+                        hintView.text = "No hay repartidores disponibles"
+                    }
+                }
+            }
+            override fun onFailure(call: Call<List<Usuario>>, t: Throwable) {
+                hintView.text = "Error al cargar repartidores"
+            }
+        })
     }
 }

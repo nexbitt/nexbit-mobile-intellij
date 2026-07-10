@@ -225,15 +225,17 @@ class UsuariosAdminHelper(private val activity: MainOrbixActivity) {
                     return@setPositiveButton
                 }
                 val rolMap = mapOf(0 to 1, 1 to 4, 2 to 2)
-                ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
+                val selectedRolId = rolMap[spRol.selectedItemPosition] ?: 2
+                ApiClient.instance.updateUsuarioByAdmin(usuario.id_usuario, UsuarioUpdateRequest(
+                    rol_id = selectedRolId,
                     nombre = nombre,
                     email = email,
                     tipo_documento = etDocType.text.toString().trim().ifEmpty { null },
                     numero_documento = etDocNum.text.toString().trim().ifEmpty { null },
                     telefono = etTelefono.text.toString().trim().ifEmpty { null },
                     direccion = etDireccion.text.toString().trim().ifEmpty { null }
-                )).enqueue(object : Callback<Usuario> {
-                    override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                )).enqueue(object : Callback<Void> {
+                    override fun onResponse(c: Call<Void>, res: Response<Void>) {
                         if (res.isSuccessful) {
                             Toast.makeText(activity, "Usuario actualizado", Toast.LENGTH_SHORT).show()
                             val allUsers = mutableListOf<Usuario>()
@@ -242,7 +244,7 @@ class UsuariosAdminHelper(private val activity: MainOrbixActivity) {
                             Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                    override fun onFailure(c: Call<Void>, t: Throwable) {
                         Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
                     }
                 })

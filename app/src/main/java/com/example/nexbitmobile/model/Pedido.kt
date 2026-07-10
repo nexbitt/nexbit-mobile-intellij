@@ -12,7 +12,8 @@ data class Pedido(
     val direccion_entrega: String? = null,
     val notas_entrega: String? = null,
     val comprobante_pago_url: String? = null,
-    val detalles: List<PedidoDetalle>? = null
+    val detalles: List<PedidoDetalle>? = null,
+    val repartidor_id: Int? = null
 )
 
 data class PedidoDetalle(
@@ -30,7 +31,8 @@ data class PedidoRequest(
     val total: Double,
     val estado: String,
     val direccion_entrega: String? = null,
-    val notas_entrega: String? = null
+    val notas_entrega: String? = null,
+    val repartidor_id: Int? = null
 )
 
 data class CheckoutRequest(
@@ -42,6 +44,14 @@ data class CheckoutRequest(
 data class CheckoutResponse(
     val message: String,
     val id_pedido: Int
+)
+
+data class PedidoEditRequest(
+    val estado: String? = null,
+    val direccion_entrega: String? = null,
+    val notas_entrega: String? = null,
+    val repartidor_id: Int? = null,
+    val total: Double? = null
 )
 
 

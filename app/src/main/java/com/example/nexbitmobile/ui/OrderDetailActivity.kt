@@ -143,7 +143,7 @@ class OrderDetailActivity : AppCompatActivity() {
     }
 
     private fun gestionarPedido(pedidoId: Int, accion: String, motivo: String?) {
-        val request = GestionPedidoRequest(accion = accion, motivo = motivo)
+        val request = GestionPedidoRequest(accion = accion, nota = motivo)
         ApiClient.instance.gestionarPedido(pedidoId, request).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {

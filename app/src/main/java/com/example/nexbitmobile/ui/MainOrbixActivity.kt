@@ -448,7 +448,8 @@ class MainOrbixActivity : AppCompatActivity() {
         val adapter = PedidoAdminAdapter(
             pedidos = emptyList(),
             onDetalle = { pedido -> mostrarDetallePedido(pedido) },
-            onDownload = { pedido -> descargarTicketPedido(pedido) }
+            onDownload = { pedido -> descargarTicketPedido(pedido) },
+            onEdit = { pedido -> }
         )
         rv.adapter = adapter
 

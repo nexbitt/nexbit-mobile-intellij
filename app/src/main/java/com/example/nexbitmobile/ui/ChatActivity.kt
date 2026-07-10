@@ -63,7 +63,7 @@ class ChatActivity : AppCompatActivity() {
         }
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         currentUserId = prefs.getInt("userId", 0)
-        currentUserRole = prefs.getString("rol", "") ?: ""
+        currentUserRole = prefs.getString("userRole", "") ?: ""
 
         if (pedidoId == -1 || currentUserId == 0) {
             Toast.makeText(this, "Error al abrir chat", Toast.LENGTH_SHORT).show()

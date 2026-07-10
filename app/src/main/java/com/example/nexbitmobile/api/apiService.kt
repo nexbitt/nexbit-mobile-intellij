@@ -27,6 +27,9 @@ interface ApiService {
     @PUT("usuarios/{id}")
     fun updateUsuario(@Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Usuario>
 
+    @PUT("admin/usuarios/{id}")
+    fun updateUsuarioByAdmin(@Path("id") id: Int, @Body request: UsuarioUpdateRequest): Call<Void>
+
     @DELETE("usuarios/{id}")
     fun deleteUsuario(@Path("id") id: Int): Call<Void>
 

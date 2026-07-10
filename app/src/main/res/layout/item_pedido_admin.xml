@@ -88,7 +88,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Botones: 👁 + ⬇ -->
+        <!-- Botones: 👁 + ⬇ + ✏ -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -127,6 +127,24 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_download"
                     android:tint="#111827" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/btnEdit"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_action_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_edit"
+                    android:tint="#4F46E5" />
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>

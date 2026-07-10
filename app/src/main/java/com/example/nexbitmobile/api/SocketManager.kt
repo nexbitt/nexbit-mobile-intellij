@@ -13,7 +13,7 @@ object SocketManager {
     }
 
     fun connectToServer(userId: String, userRole: String) {
-        if (socket?.connected() == true) return
+        if (socket?.connected == true) return
 
         val options = IO.Options().apply {
             forceNew = true

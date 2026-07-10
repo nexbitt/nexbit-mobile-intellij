@@ -60,15 +60,15 @@ class AdminScreens(private val activity: MainOrbixActivity) {
                     .setTitle("Suspender Repartidor")
                     .setMessage("¿Suspender a ${rep.nombre}?")
                     .setPositiveButton("Sí") { _, _ ->
-                        ApiClient.instance.updateUsuario(rep.id_usuario, UsuarioUpdateRequest(activo = false))
-                            .enqueue(object : Callback<Usuario> {
-                                override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                        ApiClient.instance.updateUsuarioByAdmin(rep.id_usuario, UsuarioUpdateRequest(activo = false))
+                            .enqueue(object : Callback<Void> {
+                                override fun onResponse(c: Call<Void>, res: Response<Void>) {
                                     if (res.isSuccessful) {
                                         Toast.makeText(activity, "Repartidor suspendido", Toast.LENGTH_SHORT).show()
                                         cargarRepartidores(rv, tvEmpty, adapter, etSearch)
                                     } else Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
                                 }
-                                override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                                override fun onFailure(c: Call<Void>, t: Throwable) {
                                     Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
                                 }
                             })

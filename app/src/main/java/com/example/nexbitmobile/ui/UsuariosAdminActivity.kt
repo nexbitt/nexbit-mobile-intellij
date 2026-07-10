@@ -133,14 +133,23 @@ class UsuariosAdminActivity : AppCompatActivity() {
                     email = etEmail.text.toString(),
                     password = if (password.isNotEmpty()) password else null
                 )
-                ApiClient.instance.updateUsuario(usuario.id_usuario, request).enqueue(object : Callback<Usuario> {
-                    override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
+                ApiClient.instance.updateUsuarioByAdmin(usuario.id_usuario, request).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
                         if (response.isSuccessful) {
                             Toast.makeText(this@UsuariosAdminActivity, "Usuario actualizado", Toast.LENGTH_SHORT).show()
                             loadUsuarios()
+                        } else {
+                            try {
+                                val errorBody = response.errorBody()?.string()
+                                Toast.makeText(this@UsuariosAdminActivity, errorBody ?: "Error (${response.code()})", Toast.LENGTH_SHORT).show()
+                            } catch (_: Exception) {
+                                Toast.makeText(this@UsuariosAdminActivity, "Error (${response.code()})", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
-                    override fun onFailure(call: Call<Usuario>, t: Throwable) {}
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Toast.makeText(this@UsuariosAdminActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }
             .setNegativeButton("Cancelar", null)

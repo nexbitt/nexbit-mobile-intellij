@@ -24,8 +24,8 @@ class AuthInterceptor : Interceptor {
         if (response.code == 401) {
             val bodyString = response.peekBody(2048).string()
             // Solo se destruye la sesi√≥n si el backend ratifica token vencido/corrupto
-            if (bodyString.contains("TOKEN_EXPIRED") || bodyString.contains("INVALID_TOKEN")) {
-                context.getSharedPreferences("app", Context.MODE_PRIVATE).edit().clear().apply()
+            // Check if the response body contains backend auth error messages
+            if (bodyString.contains("Token expirado") || bodyString.contains("Token inv·lido") || bodyString.contains("Acceso denegado")) {
                 SecurePrefs.clearAll(context)
 
                 val intent = Intent(context, LoginActivity::class.java).apply {

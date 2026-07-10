@@ -16,7 +16,8 @@ import java.util.Locale
 class PedidoAdminAdapter(
     private var pedidos: List<Pedido>,
     private val onDetalle: (Pedido) -> Unit,
-    private val onDownload: (Pedido) -> Unit
+    private val onDownload: (Pedido) -> Unit,
+    private val onEdit: (Pedido) -> Unit
 ) : RecyclerView.Adapter<PedidoAdminAdapter.ViewHolder>() {
 
     private val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
@@ -27,6 +28,7 @@ class PedidoAdminAdapter(
         val tvEstado: TextView = view.findViewById(R.id.tvEstado)
         val btnDetalle: View = view.findViewById(R.id.btnDetalle)
         val btnDownload: View = view.findViewById(R.id.btnDownload)
+        val btnEdit: View = view.findViewById(R.id.btnEdit)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -68,6 +70,7 @@ class PedidoAdminAdapter(
         h.itemView.setOnClickListener { onDetalle(p) }
         h.btnDetalle.setOnClickListener { onDetalle(p) }
         h.btnDownload.setOnClickListener { onDownload(p) }
+        h.btnEdit.setOnClickListener { onEdit(p) }
     }
 
     fun updateData(newPedidos: List<Pedido>) {

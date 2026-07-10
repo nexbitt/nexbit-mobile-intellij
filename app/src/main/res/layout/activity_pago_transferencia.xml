@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F7"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:visibility="gone" />
+
+            <!-- ── A. Success Header ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <FrameLayout
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:background="@drawable/bg_circle_green">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_accept_circle"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Exito" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvSuccessTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Pedido #11 creado"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1C1C1E" />
+
+                <TextView
+                    android:id="@+id/tvSuccessSubtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Tu pedido está pendiente de pago. Realiza la transferencia y sube el comprobante."
+                    android:textSize="14sp"
+                    android:textColor="#636366"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp" />
+            </LinearLayout>
+
+            <!-- ── B. Bank Data Block ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:background="#FFF8E1"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Datos Bancarios"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1C1C1E" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Realiza tu pago a una de estas cuentas:"
+                    android:textSize="13sp"
+                    android:textColor="#636366" />
+
+                <LinearLayout
+                    android:id="@+id/containerBancos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="12dp" />
+
+                <TextView
+                    android:id="@+id/tvBancosLoading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Cargando cuentas bancarias..."
+                    android:textColor="#636366"
+                    android:textSize="13sp"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E8D5B5"
+                    android:layout_marginVertical="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Monto a pagar:"
+                        android:textSize="16sp"
+                        android:textColor="#5D4037" />
+
+                    <TextView
+                        android:id="@+id/tvMontoPagar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$0.00"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#3E2723" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ── C. Upload Receipt Module ── -->
+            <LinearLayout
+                android:id="@+id/llUploadArea"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_dashed_border"
+                android:padding="32dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:id="@+id/ivUploadIcon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_download"
+                    android:tint="#9CA3AF"
+                    android:contentDescription="Subir" />
+
+                <TextView
+                    android:id="@+id/tvUploadText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Haz clic para seleccionar la imagen del comprobante"
+                    android:textSize="14sp"
+                    android:textColor="#1C1C1E"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="JPG o PNG  •  Maximo 3MB"
+                    android:textSize="12sp"
+                    android:textColor="#9CA3AF" />
+
+                <ImageView
+                    android:id="@+id/ivReceiptPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:layout_marginTop="12dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    android:background="#F3F4F6" />
+            </LinearLayout>
+
+            <!-- ── Send Receipt Button ── -->
+            <Button
+                android:id="@+id/btnEnviarComprobante"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="20dp"
+                android:text="Enviar Comprobante"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:background="@drawable/bg_btn_primary"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnVerPedidos"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:text="Ver mis pedidos"
+                android:textSize="15sp"
+                android:textColor="#1C1C1E"
+                android:textAllCaps="false"
+                android:background="@drawable/bg_button_secondary" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
