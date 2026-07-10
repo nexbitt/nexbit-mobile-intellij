@@ -66,4 +66,6 @@
     <string name="contacto">Contacto</string>
     <string name="iniciar_sesion">Iniciar Sesión</string>
     <string name="no_tienes_cuenta">¿No tienes cuenta? Regístrate</string>
+    <string name="pedido_numero">Pedido #%d</string>
+    <string name="total_a_pagar">Total a pagar: $%s</string>
 </resources>

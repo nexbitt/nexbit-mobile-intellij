@@ -31,8 +31,8 @@ class PagoTransferenciaActivity : AppCompatActivity() {
         tvPedidoId = findViewById(R.id.tvPedidoId)
         btnSubirComprobante = findViewById(R.id.btnSubirComprobante)
 
-        tvPedidoId.text = "Pedido #$pedidoId"
-        tvTotalPagar.text = "Total a pagar: $${fmt.format(total)}"
+        tvPedidoId.text = getString(R.string.pedido_numero, pedidoId)
+        tvTotalPagar.text = getString(R.string.total_a_pagar, fmt.format(total))
 
         btnSubirComprobante.setOnClickListener {
             val intent = android.content.Intent(this, ConfirmacionPagoActivity::class.java)

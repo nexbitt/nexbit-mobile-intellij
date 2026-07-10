@@ -191,64 +191,69 @@ class UsuariosAdminHelper(private val activity: MainOrbixActivity) {
     }
 
     private fun mostrarDialogoEditarUsuario(usuario: Usuario, rv: RecyclerView, tvEmpty: TextView, adapter: UsuarioAdapter) {
-        val view = LayoutInflater.from(activity).inflate(R.layout.dialog_usuario, null)
-        val etNombre = view.findViewById<EditText>(R.id.etNombre)
-        val etEmail = view.findViewById<EditText>(R.id.etEmail)
-        val etPassword = view.findViewById<EditText>(R.id.etPassword)
-        val spRol = view.findViewById<Spinner>(R.id.spRol)
-        val etDocType = view.findViewById<EditText>(R.id.etDocType)
-        val etDocNum = view.findViewById<EditText>(R.id.etDocNum)
-        val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
-        val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
+        try {
+            val view = LayoutInflater.from(activity).inflate(R.layout.dialog_usuario, null)
+            val etNombre = view.findViewById<EditText>(R.id.etNombre)
+            val etEmail = view.findViewById<EditText>(R.id.etEmail)
+            val etPassword = view.findViewById<EditText>(R.id.etPassword)
+            val spRol = view.findViewById<Spinner>(R.id.spRol)
+            val etDocType = view.findViewById<EditText>(R.id.etDocType)
+            val etDocNum = view.findViewById<EditText>(R.id.etDocNum)
+            val etTelefono = view.findViewById<EditText>(R.id.etTelefono)
+            val etDireccion = view.findViewById<EditText>(R.id.etDireccion)
 
-        etNombre.setText(usuario.nombre)
-        etEmail.setText(usuario.email)
-        etPassword.hint = "Dejar vacío para no cambiar"
-        etDocType.setText(usuario.tipo_documento ?: "")
-        etDocNum.setText(usuario.numero_documento ?: "")
-        etTelefono.setText(usuario.telefono ?: "")
-        etDireccion.setText(usuario.direccion ?: "")
+            etNombre.setText(usuario.nombre)
+            etEmail.setText(usuario.email)
+            etPassword.hint = "Dejar vacío para no cambiar"
+            etDocType.setText(usuario.tipo_documento ?: "")
+            etDocNum.setText(usuario.numero_documento ?: "")
+            etTelefono.setText(usuario.telefono ?: "")
+            etDireccion.setText(usuario.direccion ?: "")
 
-        spRol.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Admin", "Repartidor", "Cliente"))
-        val rolIndex = mapOf(1 to 0, 4 to 1, 2 to 2)[usuario.rol_id] ?: 2
-        spRol.setSelection(rolIndex)
-        etPassword.visibility = View.GONE
+            spRol.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Admin", "Repartidor", "Cliente"))
+            val rolIndex = mapOf(1 to 0, 4 to 1, 2 to 2)[usuario.rol_id] ?: 2
+            spRol.setSelection(rolIndex)
+            etPassword.visibility = View.GONE
 
-        AlertDialog.Builder(activity)
-            .setTitle("Editar Usuario")
-            .setView(view)
-            .setPositiveButton("Actualizar") { _, _ ->
-                val nombre = etNombre.text.toString().trim()
-                val email = etEmail.text.toString().trim()
-                if (nombre.isEmpty() || email.isEmpty()) {
-                    Toast.makeText(activity, "Nombre y email obligatorios", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                val rolMap = mapOf(0 to 1, 1 to 4, 2 to 2)
-                ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
-                    nombre = nombre,
-                    email = email,
-                    tipo_documento = etDocType.text.toString().trim().ifEmpty { null },
-                    numero_documento = etDocNum.text.toString().trim().ifEmpty { null },
-                    telefono = etTelefono.text.toString().trim().ifEmpty { null },
-                    direccion = etDireccion.text.toString().trim().ifEmpty { null }
-                )).enqueue(object : Callback<Usuario> {
-                    override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
-                        if (res.isSuccessful) {
-                            Toast.makeText(activity, "Usuario actualizado", Toast.LENGTH_SHORT).show()
-                            val allUsers = mutableListOf<Usuario>()
-                            cargarUsuarios(rv, tvEmpty, adapter, allUsers)
-                        } else {
-                            Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(activity)
+                .setTitle("Editar Usuario")
+                .setView(view)
+                .setPositiveButton("Actualizar") { _, _ ->
+                    val nombre = etNombre.text.toString().trim()
+                    val email = etEmail.text.toString().trim()
+                    if (nombre.isEmpty() || email.isEmpty()) {
+                        Toast.makeText(activity, "Nombre y email obligatorios", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                    val rolMap = mapOf(0 to 1, 1 to 4, 2 to 2)
+                    ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
+                        nombre = nombre,
+                        email = email,
+                        tipo_documento = etDocType.text.toString().trim().ifEmpty { null },
+                        numero_documento = etDocNum.text.toString().trim().ifEmpty { null },
+                        telefono = etTelefono.text.toString().trim().ifEmpty { null },
+                        direccion = etDireccion.text.toString().trim().ifEmpty { null }
+                    )).enqueue(object : Callback<Usuario> {
+                        override fun onResponse(c: Call<Usuario>, res: Response<Usuario>) {
+                            if (res.isSuccessful) {
+                                Toast.makeText(activity, "Usuario actualizado", Toast.LENGTH_SHORT).show()
+                                val allUsers = mutableListOf<Usuario>()
+                                cargarUsuarios(rv, tvEmpty, adapter, allUsers)
+                            } else {
+                                Toast.makeText(activity, "Error (${res.code()})", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                    }
-                    override fun onFailure(c: Call<Usuario>, t: Throwable) {
-                        Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
+                        override fun onFailure(c: Call<Usuario>, t: Throwable) {
+                            Toast.makeText(activity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        } catch (e: Exception) {
+            Toast.makeText(activity, "Error al abrir edición: ${e.message}", Toast.LENGTH_LONG).show()
+            android.util.Log.e("UsuariosAdmin", "Error en mostrarDialogoEditarUsuario", e)
+        }
     }
 }
 
