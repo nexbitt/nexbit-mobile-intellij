@@ -212,7 +212,8 @@ class UsuariosAdminHelper(private val activity: MainOrbixActivity) {
         spRol.adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_dropdown_item, listOf("Admin", "Repartidor", "Cliente"))
         val rolIndex = mapOf(1 to 0, 4 to 1, 2 to 2)[usuario.rol_id] ?: 2
         spRol.setSelection(rolIndex)
-        etPassword.visibility = View.GONE
+        etPassword.hint = "Dejar vacío para no cambiar"
+        etPassword.visibility = View.VISIBLE
 
         AlertDialog.Builder(activity)
             .setTitle("Editar Usuario")
@@ -225,9 +226,12 @@ class UsuariosAdminHelper(private val activity: MainOrbixActivity) {
                     return@setPositiveButton
                 }
                 val rolMap = mapOf(0 to 1, 1 to 4, 2 to 2)
+                val password = etPassword.text.toString().trim()
                 ApiClient.instance.updateUsuario(usuario.id_usuario, UsuarioUpdateRequest(
+                    rol_id = rolMap[spRol.selectedItemPosition] ?: usuario.rol_id,
                     nombre = nombre,
                     email = email,
+                    password = password.ifEmpty { null },
                     tipo_documento = etDocType.text.toString().trim().ifEmpty { null },
                     numero_documento = etDocNum.text.toString().trim().ifEmpty { null },
                     telefono = etTelefono.text.toString().trim().ifEmpty { null },
